@@ -69,7 +69,7 @@
             <view
               v-for="(item, index) in categoryTabs"
               :key="'panel-'+index"
-              @click="switchTab(index); showDropdownPanel = false"
+              @click="switchTabFromPanel(index)"
               class="bg-surface-container-high py-3 rounded-2xl text-label-sm text-on-surface border-none bouncy-press flex items-center justify-center"
               :class="currentTab === index ? 'bg-primary/10 text-primary font-bold' : ''"
             >
@@ -236,7 +236,10 @@ import { ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { get, post } from '@/utils/request.js'
 import { postApi, discoverApi } from '@/api/index.js'
-import { getCurrentUserId } from '@/utils/auth.js'
+import { useInteractionStore } from '@/stores/interaction'
+import { useAuthGuard } from '@/composables/useAuthGuard'
+import { formatTimeAgo } from '@/composables/useTimeAgo'
+import { useUserStore } from '@/stores/user'
 
 // 状态栏高度
 const statusBarHeight = ref(uni.getSystemInfoSync().statusBarHeight || 20)
@@ -269,7 +272,10 @@ const toggleDropdown = () => {
 }
 
 // 当前用户
-const currentUserId = ref(getCurrentUserId() || null)
+const userStore = useUserStore()
+const currentUserId = ref(userStore.userId || null)
+const interaction = useInteractionStore()
+const { requireLogin } = useAuthGuard()
 
 // ==================== 频道 ====================
 
@@ -310,8 +316,8 @@ const fetchPostList = async (isLoadMore = false) => {
     const records = data.records || []
 
     const formattedData = records.map(item => {
-      const cachedLike = getLocalLikeState(item.id)
-      const cachedCollect = getLocalCollectState(item.id)
+      const cachedLike = interaction.getPostLikeState(item.id)
+      const cachedCollect = interaction.getPostCollectState(item.id)
 
       return {
         id: item.id,
@@ -324,11 +330,11 @@ const fetchPostList = async (isLoadMore = false) => {
         images: item.images || [],
         aiTags: item.tags || [],
         university: item.location || '',
-        likeCount: item.likeCount || 0,
+        likeCount: cachedLike?.likeCount ?? item.likeCount ?? 0,
         commentCount: item.commentCount || 0,
         viewCount: item.viewCount || 0,
-        isLiked: cachedLike !== null ? cachedLike : (item.isLiked || false),
-        isCollected: cachedCollect !== null ? cachedCollect : (item.isCollected || false),
+        isLiked: cachedLike?.isLiked ?? item.isLiked ?? false,
+        isCollected: cachedCollect?.isCollected ?? item.isCollected ?? false,
         isAnonymous: item.isAnonymous || false
       }
     })
@@ -375,103 +381,35 @@ const switchTab = (index) => {
   fetchPostList(false)
 }
 
+// 从下拉面板选择：避免 inline handler 返回 false 触发 tap 警告
+const switchTabFromPanel = (index) => {
+  switchTab(index)
+  showDropdownPanel.value = false
+}
+
 // ==================== 点赞 ====================
 
-const getLocalLikeState = (postId) => {
-  try {
-    const state = uni.getStorageSync(`post_like_${postId}`)
-    if (state === undefined || state === null || state === '') return null
-    if (typeof state === 'boolean') return state
-    if (typeof state === 'object') return Boolean(state.isLiked)
-    return null
-  } catch { return null }
-}
-
-const saveLocalLikeState = (postId, isLiked, likeCount) => {
-  try { uni.setStorageSync(`post_like_${postId}`, { isLiked, likeCount }) } catch { /* ignore */ }
-}
-
 const handleLike = async (postItem) => {
-  const token = uni.getStorageSync('token')
-  if (!token) {
-    uni.showToast({ title: '请先登录', icon: 'none' })
-    return
-  }
-
-  const previousState = postItem.isLiked
-  const previousCount = postItem.likeCount
-
-  postItem.isLiked = !previousState
-  postItem.likeCount = previousState ? previousCount - 1 : previousCount + 1
-  saveLocalLikeState(postItem.id, postItem.isLiked, postItem.likeCount)
-
+  if (!requireLogin()) return
   try {
-    const apiConfig = postApi.toggleLike(postItem.id)
-    const response = await post(apiConfig.url)
-
-    if (response.code === 200 && response.data) {
-      postItem.isLiked = response.data.isLiked
-      postItem.likeCount = response.data.likeCount
-      saveLocalLikeState(postItem.id, response.data.isLiked, response.data.likeCount)
-      if (response.data.isLiked) uni.vibrateShort()
-    } else {
-      throw new Error(response.message || '操作失败')
-    }
-  } catch (error) {
-    console.error('点赞失败:', error)
-    postItem.isLiked = previousState
-    postItem.likeCount = previousCount
-    saveLocalLikeState(postItem.id, previousState, previousCount)
-    if (error.code !== 401) {
-      uni.showToast({ title: '网络开小差了，请重试', icon: 'none' })
-    }
+    const result = await interaction.togglePostLike(postItem.id, postItem.likeCount, postItem.isLiked)
+    postItem.isLiked = result.isLiked
+    postItem.likeCount = result.likeCount
+    if (result.isLiked) uni.vibrateShort()
+  } catch {
+    uni.showToast({ title: '操作失败，请重试', icon: 'none' })
   }
 }
 
 // ==================== 收藏 ====================
 
-const getLocalCollectState = (postId) => {
-  try {
-    const state = uni.getStorageSync(`post_collect_${postId}`)
-    if (state === undefined || state === null || state === '') return null
-    if (typeof state === 'boolean') return state
-    if (typeof state === 'object') return Boolean(state.isCollected)
-    return null
-  } catch { return null }
-}
-
-const saveLocalCollectState = (postId, isCollected) => {
-  try { uni.setStorageSync(`post_collect_${postId}`, { isCollected }) } catch { /* ignore */ }
-}
-
 const handleCollect = async (postItem) => {
-  const token = uni.getStorageSync('token')
-  if (!token) {
-    uni.showToast({ title: '请先登录', icon: 'none' })
-    return
-  }
-
-  const previousState = postItem.isCollected
-  postItem.isCollected = !previousState
-  saveLocalCollectState(postItem.id, postItem.isCollected)
-
+  if (!requireLogin()) return
   try {
-    const apiConfig = postApi.toggleCollect(postItem.id)
-    const response = await post(apiConfig.url)
-
-    if (response.code === 200 && response.data) {
-      postItem.isCollected = response.data.isCollected
-      saveLocalCollectState(postItem.id, response.data.isCollected)
-    } else {
-      throw new Error(response.message || '操作失败')
-    }
-  } catch (error) {
-    console.error('收藏失败:', error)
-    postItem.isCollected = previousState
-    saveLocalCollectState(postItem.id, previousState)
-    if (error.code !== 401) {
-      uni.showToast({ title: '网络开小差了，请重试', icon: 'none' })
-    }
+    const result = await interaction.togglePostCollect(postItem.id)
+    postItem.isCollected = result.isCollected
+  } catch {
+    uni.showToast({ title: '操作失败，请重试', icon: 'none' })
   }
 }
 
@@ -608,22 +546,7 @@ const handlePublish = () => {
 
 // ==================== 工具 ====================
 
-const formatTime = (timeStr) => {
-  if (!timeStr) return ''
-  const time = new Date(timeStr)
-  const now = new Date()
-  const diff = now - time
-
-  const minutes = Math.floor(diff / 60000)
-  const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(diff / 86400000)
-
-  if (minutes < 1) return '刚刚'
-  if (minutes < 60) return `${minutes}分钟前`
-  if (hours < 24) return `${hours}小时前`
-  if (days < 7) return `${days}天前`
-  return time.toLocaleDateString('zh-CN')
-}
+const formatTime = formatTimeAgo
 
 const previewImage = (images, currentIndex) => {
   uni.previewImage({ urls: images, current: currentIndex })
@@ -645,7 +568,7 @@ onShow(() => {
     fetchPostList(false)
   }
 
-  const uid = getCurrentUserId()
+  const uid = userStore.userId
   if (uid && uid !== currentUserId.value) {
     currentUserId.value = uid
     fetchPostList(false)

@@ -8,23 +8,47 @@ import { config } from '@/config'
 
 const BASE_URL = config.apiBaseUrl
 
+// 防止多个请求同时 401 时重复跳转登录页
+let isRedirectingToLogin = false
+
+function isH5() {
+  // #ifdef H5
+  return true
+  // #endif
+  // #ifndef H5
+  return false
+  // #endif
+}
+
 // 请求拦截器
-const requestInterceptor = (config) => {
-  // 添加token（如果存在）
+const requestInterceptor = (cfg) => {
+  // H5 使用后端 HttpOnly Cookie，Authorization 头部由浏览器自动携带 Cookie
+  // 小程序/APP 继续使用本地 Storage 中的 Token
   const token = getToken()
   if (token) {
-    config.header = {
-      ...config.header,
+    cfg.header = {
+      ...cfg.header,
       'Authorization': `Bearer ${token}`
     }
   }
-  
-  // 设置Content-Type
-  if (!config.header['Content-Type']) {
-    config.header['Content-Type'] = 'application/json'
+
+  // 标识平台，供后端判断是否设置 HttpOnly Cookie
+  cfg.header = {
+    ...cfg.header,
+    'X-Platform': isH5() ? 'h5' : 'mp'
   }
-  
-  return config
+
+  // H5 跨域携带 Cookie
+  if (isH5()) {
+    cfg.withCredentials = true
+  }
+
+  // 设置Content-Type
+  if (!cfg.header['Content-Type']) {
+    cfg.header['Content-Type'] = 'application/json'
+  }
+
+  return cfg
 }
 
 // 响应拦截器
@@ -48,22 +72,26 @@ const responseInterceptor = (response) => {
     // 未授权，清除登录信息并跳转登录
     console.warn('Token无效或已过期，清除登录状态')
     clearLoginInfo()
-    
-    uni.showToast({
-      title: '登录已过期，请重新登录',
-      icon: 'none',
-      duration: 2000
-    })
-    
-    setTimeout(() => {
-      uni.navigateTo({ 
-        url: '/pages/login/login',
-        fail: () => {
-          uni.redirectTo({ url: '/pages/login/login' })
-        }
+
+    if (!isRedirectingToLogin) {
+      isRedirectingToLogin = true
+      uni.showToast({
+        title: '登录已过期，请重新登录',
+        icon: 'none',
+        duration: 2000
       })
-    }, 2000)
-    
+
+      setTimeout(() => {
+        isRedirectingToLogin = false
+        uni.navigateTo({
+          url: '/pages/login/login',
+          fail: () => {
+            uni.redirectTo({ url: '/pages/login/login' })
+          }
+        })
+      }, 2000)
+    }
+
     return Promise.reject(response)
   } else {
     // 其他HTTP错误
@@ -98,18 +126,19 @@ export const request = (options) => {
     })
     
     // 应用请求拦截器
-    const config = requestInterceptor({
+    const requestConfig = requestInterceptor({
       url: url,
       method: options.method || 'GET',
       data: options.data || {},
       header: options.header || {},
+      timeout: options.timeout || config.requestTimeout || 10000,
       success: (res) => {
         // 打印响应信息
         console.log('📥 收到响应:', {
           statusCode: res.statusCode,
           data: res.data
         })
-        
+
         // 应用响应拦截器
         const result = responseInterceptor(res)
         if (result instanceof Promise) {
@@ -128,9 +157,9 @@ export const request = (options) => {
         reject(err)
       }
     })
-    
+
     // 发送请求
-    uni.request(config)
+    uni.request(requestConfig)
   })
 }
 

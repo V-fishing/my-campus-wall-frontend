@@ -190,7 +190,9 @@ import { onHide, onLoad, onShow, onUnload } from '@dcloudio/uni-app'
 import { get, post } from '@/utils/request.js'
 import { chatApi, emojiApi } from '@/api/index.js'
 import wsManager from '@/utils/websocket.js'
+import { useUserStore } from '@/stores/user'
 
+const userStore = useUserStore()
 const statusBarHeight = ref(uni.getSystemInfoSync().statusBarHeight || 20)
 const partnerName = ref('加载中...')
 const partnerAvatar = ref('')
@@ -230,7 +232,7 @@ onLoad((options) => {
   if (options.partnerId) partnerId.value = parseInt(options.partnerId)
 
   // WebSocket 单例收发通道接通注册[cite: 17]
-  const currentUserId = getCurrentUserId()
+  const currentUserId = userStore.userId
   if (currentUserId) {
     if (!wsManager.isConnected()) {
       wsManager.connect(currentUserId)
@@ -275,7 +277,7 @@ const handleWebSocketMessage = (data) => {
 }
 
 const handleNewMessage = (msg) => {
-  const currentUserId = getCurrentUserId()
+  const currentUserId = userStore.userId
   const isMe = Number(msg.senderId) === Number(currentUserId)
   
   const newMsg = {
@@ -311,7 +313,7 @@ const loadMessages = async () => {
     const response = await get(apiConfig.url, apiConfig.params)
     
     if (response.code === 200 && response.data) {
-      const currentUserId = getCurrentUserId()
+      const currentUserId = userStore.userId
       const records = response.data.records || []
       
       if (records.length === 0) {
@@ -349,7 +351,7 @@ const loadMessages = async () => {
     }
   } catch (error) {
     console.error('❌ 加载聊天历史记录异常:', error)
-  } refinement: {
+  } finally {
     loading.value = false
   }
 }
@@ -438,11 +440,6 @@ const scrollToBottom = () => {
   nextTick(() => {
     scrollToMessageId.value = 'msg-' + (messageList.value.length - 1)
   })
-}
-
-const getCurrentUserId = () => {
-  const userInfo = uni.getStorageSync('userInfo')
-  return userInfo?.id || null
 }
 
 const shouldShowTime = (msg, index) => {

@@ -529,25 +529,8 @@ const scrollToTargetComment = () => {
   }
 }
 
-const getCurrentUserId = () => {
-  const userInfo = uni.getStorageSync('userInfo')
-  return userInfo ? userInfo.id : null
-}
-
-const formatTime = (timeStr) => {
-  if (!timeStr) return '刚刚'
-  const date = new Date(timeStr)
-  const now = new Date()
-  const diff = now - date
-
-  if (diff < 60000) return '刚刚'
-  if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前'
-  if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前'
-
-  return timeStr.split(' ')[0]
-}
-
-const formatCommentTime = (timeStr) => formatTime(timeStr)
+const formatTime = formatTimeAgo
+const formatCommentTime = formatTimeAgo
 
 const triggerLikeAnimation = (elementId) => {
   // Rely on CSS class switching for animation
@@ -601,7 +584,7 @@ const goToUserHome = (postObj) => {
   if (!targetUserId) {
     return uni.showToast({ title: '用户信息走丢了', icon: 'none' });
   }
-  const currentUid = getCurrentUserId();
+  const currentUid = userStore.userId;
   if (!currentUid) {
     return uni.showToast({ title: '请先登录后查看用户主页', icon: 'none' });
   }
@@ -617,7 +600,7 @@ const goToUserHome = (postObj) => {
 }
 
 const recordBrowseHistory = async () => {
-  const userId = getCurrentUserId()
+  const userId = userStore.userId
   if (!userId || !postId.value) return
   try {
     await apiPost(browseHistoryApi.recordBrowse(postId.value).url, browseHistoryApi.recordBrowse(postId.value).data)
@@ -883,7 +866,7 @@ const handleDeleteComment = async () => {
   if (!checkLogin()) return
   
   const comment = currentMenuComment.value
-  if (comment.userId !== getCurrentUserId()) {
+  if (comment.userId !== userStore.userId) {
     uni.showToast({ title: '只能删除自己的评论', icon: 'none' })
     closeMenu()
     return

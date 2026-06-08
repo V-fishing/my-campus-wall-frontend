@@ -44,9 +44,7 @@
       "path": "pages/search/search",
       "style": {
         "navigationBarTitleText": "搜索",
-        "navigationStyle": "custom",
-        "iconPath": "static/post-icon/sousuo.png",
-        "selectedIconPath": "static/post-icon/sousuo-active.png"
+        "navigationStyle": "custom"
       }
     },
     {

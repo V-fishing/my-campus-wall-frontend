@@ -95,6 +95,7 @@ import { ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { get, del, post } from '@/utils/request.js'
 import { messageApi, chatApi, notificationApi } from '@/api/index.js'
+import { formatMessageTime } from '@/composables/useTimeAgo'
 
 // 状态栏适配
 const statusBarHeight = ref(20)
@@ -149,27 +150,7 @@ const fetchChatList = async () => {
   }
 }
 
-// 格式化时间
-const formatTime = (timeStr) => {
-  if (!timeStr) return ''
-  
-  const date = new Date(timeStr)
-  const now = new Date()
-  const diff = now - date
-  
-  // 今天内显示 HH:mm
-  if (diff < 24 * 60 * 60 * 1000 && date.getDate() === now.getDate()) {
-    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
-  }
-  
-  // 昨天显示“昨天”
-  if (diff < 48 * 60 * 60 * 1000) {
-    return '昨天'
-  }
-  
-  // 更早显示 MM-dd
-  return `${date.getMonth() + 1}-${date.getDate()}`
-}
+const formatTime = formatMessageTime
 
 // 交互方法
 const goToInteraction = async (type) => {

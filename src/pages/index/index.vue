@@ -20,7 +20,7 @@
     </view>
 
     <!-- 主体滚动流 -->
-    <scroll-view class="flex-1 w-full" scroll-y :style="{ marginTop: (statusBarHeight + 48) + 'px' }" @scrolltolower="onReachBottom">
+    <scroll-view class="flex-1 w-full" scroll-y :style="{ marginTop: (statusBarHeight + 48) + 'px' }" @scrolltolower="onReachBottom" @scroll="onScroll">
       <view class="px-margin-page space-y-gutter-card pt-2 pb-16">
 
         <!-- 热帖滚动 Banner -->
@@ -73,7 +73,7 @@
           <view v-if="showDropdownPanel" class="bg-surface-container-lowest rounded-3xl p-4 sticker-border kawaii-shadow border-t-0 -mt-2.5 pt-6 animate-fade-in z-40 relative">
             <view class="text-on-surface-variant text-label-sm mb-3 px-2">全部分类</view>
             <view class="grid grid-cols-4 gap-2">
-              <view v-for="(group, gIdx) in categoryGroups" :key="'panel-'+group.id" @click="selectGroup(gIdx); showDropdownPanel = false"
+              <view v-for="(group, gIdx) in categoryGroups" :key="'panel-'+group.id" @click="selectGroupFromPanel(gIdx)"
                       class="bg-surface-container-high py-3 rounded-2xl text-label-sm text-on-surface border-none bouncy-tap flex items-center justify-center">
                 {{ group.name }}
               </view>
@@ -102,7 +102,7 @@
         <!-- 帖子列表 -->
         <view class="space-y-4">
           <view class="bg-surface-container-lowest rounded-3xl p-4 sticker-border kawaii-shadow space-y-3 relative overflow-hidden"
-                   v-for="post in postList" :key="post.id">
+                   v-for="post in displayPosts" :key="post.id">
 
             <!-- 头部作者区 -->
             <view class="flex items-center justify-between">
@@ -148,7 +148,10 @@
                  @click="goToDetail(post.id)">
               <view v-for="(img, i) in post.images.slice(0, post.images.length >= 3 ? 3 : 2)" :key="i"
                     :class="[post.images.length >= 3 ? 'aspect-square' : 'h-40', 'bg-surface-container-high rounded-2xl overflow-hidden relative']">
-                <image class="w-full h-full object-cover" lazy-load mode="aspectFill" :src="img"></image>
+                <image class="w-full h-full object-cover opacity-0 transition-opacity duration-500"
+                       :class="{ 'opacity-100': imageLoaded[img] }"
+                       lazy-load mode="aspectFill" :src="img"
+                       @load="() => onImageLoad(img)"></image>
                 <view v-if="post.images.length >= 3 && i === 2 && post.images.length > 3"
                       class="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-headline-md-mobile font-bold text-[32rpx]">
                   +{{ post.images.length - 3 }}
@@ -284,7 +287,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { onLoad, onReachBottom, onShow } from '@dcloudio/uni-app'
 import { get, post } from '@/utils/request.js'
 import { postApi, categoryApi } from '@/api/index.js'
@@ -316,6 +319,30 @@ const hasMore = ref(true)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const viewMode = ref('recommend')
+
+// 虚拟滚动：限制最大渲染节点数，防止长列表 DOM 累积导致卡顿
+const MAX_RENDER_POSTS = 80
+const renderStart = ref(0)
+const displayPosts = computed(() => {
+  return postList.value.slice(renderStart.value, renderStart.value + MAX_RENDER_POSTS)
+})
+
+const onScroll = (e) => {
+  const scrollTop = e.detail.scrollTop
+  // 按平均每个帖子 320rpx（约 160px）估算当前起始索引
+  const estimatedPxPerItem = 160
+  const newStart = Math.max(0, Math.floor(scrollTop / estimatedPxPerItem) - 5)
+  // 只有当窗口变化足够大时才更新，减少重渲染
+  if (Math.abs(newStart - renderStart.value) >= 5) {
+    renderStart.value = newStart
+  }
+}
+
+// 图片加载状态跟踪（用于 fade-in 动画）
+const imageLoaded = ref({})
+const onImageLoad = (imgUrl) => {
+  imageLoaded.value[imgUrl] = true
+}
 
 const userStore = useUserStore()
 const interaction = useInteractionStore()
@@ -424,6 +451,12 @@ const selectGroup = (gIdx) => {
     currentCategoryName.value = group && group.name === '推荐' ? '推荐' : (group ? group.name : '')
   }
   fetchPostList(true)
+}
+
+// 从下拉面板选择分组：统一关闭面板，避免 inline handler 返回 false 触发 tap 警告
+const selectGroupFromPanel = (gIdx) => {
+  selectGroup(gIdx)
+  showDropdownPanel.value = false
 }
 
 const selectCategory = (child) => {
@@ -594,10 +627,14 @@ onShow(() => {
   }
 })
 
+const refreshHandler = () => fetchPostList(true)
+
 onMounted(() => {
-  uni.$on('refreshPostList', () => {
-    fetchPostList(true)
-  })
+  uni.$on('refreshPostList', refreshHandler)
+})
+
+onUnmounted(() => {
+  uni.$off('refreshPostList', refreshHandler)
 })
 
 onReachBottom(() => {

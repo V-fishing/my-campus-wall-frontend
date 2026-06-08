@@ -164,6 +164,7 @@ import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { get } from '@/utils/request.js'
 import { searchApi } from '@/api/index.js'
+import { formatTimeAgo } from '@/composables/useTimeAgo'
 
 const statusBarHeight = ref(uni.getSystemInfoSync().statusBarHeight || 20)
 const defaultAvatar = '/static/images/anonymous-avatar.png'
@@ -351,17 +352,7 @@ const clearAllHistory = () => {
   })
 }
 
-// 时间格式化
-const formatTime = (timestamp) => {
-  if (!timestamp) return '刚刚'
-  const now = Date.now()
-  const diff = now - timestamp
-  if (diff < 60000) return '刚刚'
-  if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前'
-  if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前'
-  const date = new Date(timestamp)
-  return date.getMonth() + 1 + '月' + date.getDate() + '日'
-}
+const formatTime = formatTimeAgo
 
 const goToDetail = (postId) => {
   if (!postId) return

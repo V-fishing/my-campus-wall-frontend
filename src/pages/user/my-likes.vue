@@ -73,6 +73,7 @@ import { ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { get, post, del } from '@/utils/request.js'
 import { notificationApi } from '@/api/index.js'
+import { formatMessageTime } from '@/composables/useTimeAgo'
 
 const statusBarHeight = ref(20)
 const notificationList = ref([])
@@ -249,30 +250,7 @@ const goBack = () => {
   uni.navigateBack()
 }
 
-const formatTime = (timeStr) => {
-  if (!timeStr) return ''
-
-  const date = new Date(timeStr)
-  const now = new Date()
-  const diff = now - date
-
-  if (diff < 60 * 1000) return '刚刚'
-  if (diff < 60 * 60 * 1000) return `${Math.floor(diff / (60 * 1000))}分钟前`
-
-  if (diff < 24 * 60 * 60 * 1000 && date.getDate() === now.getDate()) {
-    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
-  }
-
-  if (diff < 48 * 60 * 60 * 1000) {
-    const yesterday = new Date(now)
-    yesterday.setDate(yesterday.getDate() - 1)
-    if (date.getDate() === yesterday.getDate()) {
-      return `昨天 ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
-    }
-  }
-
-  return `${date.getMonth() + 1}月${date.getDate()}日`
-}
+const formatTime = formatMessageTime
 </script>
 
 <style scoped>

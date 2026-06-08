@@ -109,6 +109,7 @@ import { ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { get, post, del } from '@/utils/request.js'
 import { notificationApi } from '@/api/index.js'
+import { formatMessageTime } from '@/composables/useTimeAgo'
 
 const statusBarHeight = ref(uni.getSystemInfoSync().statusBarHeight || 20)
 const defaultAvatar = '/static/images/anonymous-avatar.png'
@@ -276,18 +277,7 @@ const getFirstImage = (imagesStr) => {
   }
 }
 
-const formatTime = (timeStr) => {
-  if (!timeStr) return ''
-  const date = new Date(timeStr)
-  const now = new Date()
-  const diff = now - date
-  if (diff < 60 * 1000) return '刚刚'
-  if (diff < 60 * 60 * 1000) return `${Math.floor(diff / (60 * 1000))}分钟前`
-  if (diff < 24 * 60 * 60 * 1000 && date.getDate() === now.getDate()) {
-    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
-  }
-  return `${date.getMonth() + 1}月${date.getDate()}日`
-}
+const formatTime = formatMessageTime
 
 const goBack = () => uni.navigateBack()
 </script>

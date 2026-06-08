@@ -437,6 +437,24 @@ const goToMyFans = () => {
   })
 }
 
+// 退出登录
+const handleLogout = () => {
+  uni.showModal({
+    title: '确认退出',
+    content: '确定要退出登录吗？',
+    success: (res) => {
+      if (res.confirm) {
+        uni.removeStorageSync('token')
+        uni.removeStorageSync('userInfo')
+        uni.showToast({ title: '已退出登录', icon: 'success' })
+        setTimeout(() => {
+          uni.reLaunch({ url: '/pages/login/login' })
+        }, 1000)
+      }
+    }
+  })
+}
+
 // 发布按钮点击事件
 const handlePublish = () => {
   uni.navigateTo({

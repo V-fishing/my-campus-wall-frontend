@@ -109,8 +109,10 @@ import { ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { get, post } from '@/utils/request.js'
 import { notificationApi } from '@/api/index.js'
+import { formatMessageTime } from '@/composables/useTimeAgo'
 
 const statusBarHeight = ref(uni.getSystemInfoSync().statusBarHeight || 20)
+const formatTime = formatMessageTime
 const defaultAvatar = '/static/images/default-avatar.png'
 
 const currentTab = ref('all')

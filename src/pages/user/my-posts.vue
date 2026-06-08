@@ -125,6 +125,7 @@ import { ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { get, post as apiPost } from '@/utils/request.js'
 import { postApi } from '@/api/index.js'
+import { formatTimeAgo } from '@/composables/useTimeAgo'
 
 const statusBarHeight = ref(uni.getSystemInfoSync().statusBarHeight || 20)
 const defaultAvatar = '/static/images/default-avatar.png'
@@ -320,16 +321,7 @@ const goToDetail = (postId) => {
   uni.navigateTo({ url: `/pages/post/detail?id=${postId}` })
 }
 
-const formatTime = (timeStr) => {
-  if (!timeStr) return '刚刚'
-  const date = new Date(timeStr)
-  const now = new Date()
-  const diff = now - date
-  if (diff < 60000) return '刚刚'
-  if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前'
-  if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前'
-  return `${date.getMonth() + 1}-${date.getDate()}`
-}
+const formatTime = formatTimeAgo
 
 const handlePublish = () => uni.navigateTo({ url: '/pages/publish/publish' })
 const handleBack = () => uni.navigateBack()

@@ -55,9 +55,9 @@
           </view>
         </view>
 
-        <view 
-          v-for="(msg, index) in messageList" 
-          :key="index"
+        <view
+          v-for="(msg, index) in messageList"
+          :key="msg.id || index"
           :id="'msg-' + index"
           class="mb-8 flex items-start"
           :class="msg.role === 'user' ? 'justify-end gap-2' : 'justify-start gap-2'"
@@ -173,10 +173,11 @@ const loadHistoryMessages = async (sessionId) => {
     
     if (response.code === 200 || response.success) {
       const records = response.data || [];
-      messageList.value = records.map(record => ({
+      messageList.value = records.map((record, idx) => ({
+        id: 'msg-' + idx,
         role: record.role === 'USER' ? 'user' : 'ai',
         content: record.content,
-        source: '' 
+        source: ''
       }));
       
       if (messageList.value.length > 0) {
@@ -202,7 +203,8 @@ const sendMessage = async () => {
   if (!inputText.value.trim() || isThinking.value) return
 
   const userText = inputText.value
-  messageList.value.push({ role: 'user', content: userText })
+  const msgId = 'msg-' + Date.now()
+  messageList.value.push({ id: msgId, role: 'user', content: userText })
   inputText.value = '' 
   
   scrollToBottom()
@@ -224,16 +226,18 @@ const sendMessage = async () => {
         sourceText = aiData.sources.map(s => s.title).join('、')
       }
       
-      messageList.value.push({ 
-        role: 'ai', 
+      messageList.value.push({
+        id: 'msg-' + Date.now(),
+        role: 'ai',
         content: aiData.answer,
-        source: sourceText 
+        source: sourceText
       })
     } else {
-      messageList.value.push({ 
-        role: 'ai', 
+      messageList.value.push({
+        id: 'msg-' + Date.now(),
+        role: 'ai',
         content: '抱歉，学长暂时无法回答这个问题，请稍后再试。',
-        source: '' 
+        source: ''
       })
     }
     
@@ -242,10 +246,11 @@ const sendMessage = async () => {
   } catch (error) {
     console.error('AI 问答失败:', error)
     isThinking.value = false
-    messageList.value.push({ 
-      role: 'ai', 
+    messageList.value.push({
+      id: 'msg-' + Date.now(),
+      role: 'ai',
       content: '网络开小差了，请稍后再试~',
-      source: '' 
+      source: ''
     })
     scrollToBottom()
   }

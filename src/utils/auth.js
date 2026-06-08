@@ -1,43 +1,69 @@
 /**
  * 用户认证状态管理
- * 提供统一的登录状态检查和Token管理
+ * 平台感知：微信小程序使用 uni.setStorageSync；H5 使用后端 HttpOnly Cookie
  */
 
-// Token存储键名
 const TOKEN_KEY = 'token'
 const USER_INFO_KEY = 'userInfo'
 const TOKEN_EXPIRE_KEY = 'tokenExpireTime'
-const USER_ID_KEY = 'userId'  // ✅ 新增：单独保存userId
+const USER_ID_KEY = 'userId'
+
+function isH5() {
+  // #ifdef H5
+  return true
+  // #endif
+  // #ifndef H5
+  return false
+  // #endif
+}
+
+/**
+ * 解析 JWT 的 exp  claim（过期时间戳，秒级）
+ * 不在 H5 中使用，因为 H5 使用 HttpOnly Cookie
+ */
+function parseJwtExp(token) {
+  if (!token) return null
+  try {
+    const payloadBase64 = token.split('.')[1]
+    if (!payloadBase64) return null
+    const json = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'))
+    const payload = JSON.parse(json)
+    return payload.exp ? payload.exp * 1000 : null
+  } catch (e) {
+    console.warn('解析 JWT exp 失败:', e)
+    return null
+  }
+}
 
 /**
  * 保存登录信息
- * @param {Object} loginData - 登录返回的数据，包含token和用户信息
  */
 export const saveLoginInfo = (loginData) => {
   if (!loginData || !loginData.token) {
     console.error('保存登录信息失败：缺少token')
     return false
   }
-  
+
   try {
     const { token, ...userInfo } = loginData
-    
-    // 保存token
-    uni.setStorageSync(TOKEN_KEY, token)
-    
-    // 保存用户信息
+
+    if (!isH5()) {
+      // 小程序/APP：token 存本地 Storage
+      uni.setStorageSync(TOKEN_KEY, token)
+    }
+    // H5：token 由后端通过 HttpOnly Cookie 下发，前端不存储
+
     uni.setStorageSync(USER_INFO_KEY, userInfo)
-    
-    // ✅ 保存userId（方便快速访问）
+
     if (userInfo.id) {
       uni.setStorageSync(USER_ID_KEY, userInfo.id)
-      console.log('userId保存成功:', userInfo.id)
     }
-    
-    // 计算并保存token过期时间（7天后）
-    const expireTime = Date.now() + 7 * 24 * 60 * 60 * 1000
+
+    // 优先读取服务端 JWT 的 exp claim，避免客户端计算与服务端不一致
+    const jwtExp = parseJwtExp(token)
+    const expireTime = jwtExp || (Date.now() + 7 * 24 * 60 * 60 * 1000)
     uni.setStorageSync(TOKEN_EXPIRE_KEY, expireTime)
-    
+
     console.log('登录信息保存成功')
     return true
   } catch (error) {
@@ -47,10 +73,12 @@ export const saveLoginInfo = (loginData) => {
 }
 
 /**
- * 获取当前token
- * @returns {String|null} token或null
+ * 获取当前token（仅小程序使用；H5 由 Cookie 自动携带）
  */
 export const getToken = () => {
+  if (isH5()) {
+    return null
+  }
   try {
     return uni.getStorageSync(TOKEN_KEY) || null
   } catch (error) {
@@ -61,7 +89,6 @@ export const getToken = () => {
 
 /**
  * 获取用户信息
- * @returns {Object|null} 用户信息或null
  */
 export const getUserInfo = () => {
   try {
@@ -74,37 +101,46 @@ export const getUserInfo = () => {
 
 /**
  * 检查是否已登录
- * @returns {Boolean} 是否已登录
  */
 export const isLogin = () => {
-  const token = getToken()
   const userInfo = getUserInfo()
-  
-  // 检查token和用户信息是否存在
-  if (!token || !userInfo) {
+
+  if (!userInfo) {
     return false
   }
-  
-  // 检查token是否过期
+
+  if (isH5()) {
+    // H5 依赖 HttpOnly Cookie，只要本地有用户信息即认为已登录
+    // 后端会在接口层面校验 Cookie 有效性
+    return true
+  }
+
+  const token = getToken()
+  if (!token) {
+    return false
+  }
+
   const expireTime = uni.getStorageSync(TOKEN_EXPIRE_KEY)
   if (expireTime && Date.now() > expireTime) {
     console.warn('Token已过期')
     clearLoginInfo()
     return false
   }
-  
+
   return true
 }
 
 /**
- * 清除登录信息（退出登录）
+ * 清除登录信息
  */
 export const clearLoginInfo = () => {
   try {
-    uni.removeStorageSync(TOKEN_KEY)
+    if (!isH5()) {
+      uni.removeStorageSync(TOKEN_KEY)
+    }
     uni.removeStorageSync(USER_INFO_KEY)
     uni.removeStorageSync(TOKEN_EXPIRE_KEY)
-    uni.removeStorageSync(USER_ID_KEY)  // ✅ 清除userId
+    uni.removeStorageSync(USER_ID_KEY)
     console.log('登录信息已清除')
   } catch (error) {
     console.error('清除登录信息失败:', error)
@@ -113,37 +149,31 @@ export const clearLoginInfo = () => {
 
 /**
  * 检查token是否需要刷新（剩余时间少于24小时）
- * @returns {Boolean} 是否需要刷新
  */
 export const needRefreshToken = () => {
+  if (isH5()) return false
   const expireTime = uni.getStorageSync(TOKEN_EXPIRE_KEY)
   if (!expireTime) {
     return true
   }
-  
-  const remainingTime = expireTime - Date.now()
-  const oneDay = 24 * 60 * 60 * 1000
-  
-  return remainingTime < oneDay
+  return (expireTime - Date.now()) < 24 * 60 * 60 * 1000
 }
 
 /**
  * 获取token剩余有效时间（毫秒）
- * @returns {Number} 剩余时间
  */
 export const getTokenRemainingTime = () => {
+  if (isH5()) return 0
   const expireTime = uni.getStorageSync(TOKEN_EXPIRE_KEY)
   if (!expireTime) {
     return 0
   }
-  
   const remaining = expireTime - Date.now()
   return remaining > 0 ? remaining : 0
 }
 
 /**
- * 需要登录时的处理（显示提示并跳转登录页）
- * @param {String} message - 提示信息
+ * 需要登录时的处理
  */
 export const requireLogin = (message = '请先登录') => {
   uni.showToast({
@@ -151,15 +181,12 @@ export const requireLogin = (message = '请先登录') => {
     icon: 'none',
     duration: 2000
   })
-  
+
   setTimeout(() => {
     uni.navigateTo({
       url: '/pages/login/login',
       fail: () => {
-        // 如果navigateTo失败，尝试redirectTo
-        uni.redirectTo({
-          url: '/pages/login/login'
-        })
+        uni.redirectTo({ url: '/pages/login/login' })
       }
     })
   }, 2000)
@@ -167,7 +194,6 @@ export const requireLogin = (message = '请先登录') => {
 
 /**
  * 获取当前用户ID
- * @returns {Number|null} 用户ID或null
  */
 export const getCurrentUserId = () => {
   const userInfo = getUserInfo()

@@ -83,8 +83,9 @@ import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { get, post, del } from '@/utils/request.js'
 import { followApi } from '@/api/index.js'
-import { getCurrentUserId } from '@/utils/auth.js'  //
+import { useUserStore } from '@/stores/user'
 
+const userStore = useUserStore()
 const statusBarHeight = ref(20)
 const defaultAvatar = '/static/images/default-avatar.png'
 
@@ -100,8 +101,8 @@ onLoad(() => {
   const systemInfo = uni.getSystemInfoSync()
   statusBarHeight.value = systemInfo.statusBarHeight || 20
 
-  // 使用auth工具安全索取当前ID
-  currentUserId.value = getCurrentUserId()
+  // 使用 Pinia store 获取当前用户ID
+  currentUserId.value = userStore.userId
   console.log('👤 粉丝通知页面加载完成, currentUserId:', currentUserId.value)
   
   if (!currentUserId.value) {

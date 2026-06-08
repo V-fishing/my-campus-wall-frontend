@@ -15,8 +15,10 @@ interface LikeState {
 export const useInteractionStore = defineStore('interaction', () => {
   const postLikes    = ref<Record<string, LikeState>>({})
   const commentLikes = ref<Record<string, LikeState>>({})
+  const postCollects = ref<Record<string, { isCollected: boolean }>>({})
 
   const PERSIST_KEY = 'post_likes'
+  const COLLECT_KEY = 'post_collects'
 
   function hydrate() {
     try {
@@ -86,6 +88,31 @@ export const useInteractionStore = defineStore('interaction', () => {
     }
   }
 
+  // --- 获取缓存的收藏状态 ---
+  function getPostCollectState(postId: number): { isCollected: boolean } | null {
+    return postCollects.value[String(postId)] ?? null
+  }
+
+  // --- 收藏/取消收藏帖子 ---
+  async function togglePostCollect(postId: number) {
+    const key = String(postId)
+    const prev = postCollects.value[key] ?? { isCollected: false }
+
+    postCollects.value[key] = { isCollected: !prev.isCollected }
+
+    try {
+      const res = await post(postApi.toggleCollect(postId).url)
+      if (res.code === 200) {
+        postCollects.value[key] = { isCollected: res.data.isCollected }
+        return postCollects.value[key]
+      }
+      throw new Error(res.message || '操作失败')
+    } catch {
+      postCollects.value[key] = prev
+      throw new Error('收藏失败')
+    }
+  }
+
   hydrate()
-  return { postLikes, commentLikes, getPostLikeState, togglePostLike, toggleCommentLike, hydrate, persist }
+  return { postLikes, commentLikes, postCollects, getPostLikeState, getPostCollectState, togglePostLike, togglePostCollect, toggleCommentLike, hydrate, persist }
 })

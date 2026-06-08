@@ -55,18 +55,14 @@ const tabList = [
 ]
 
 // 切换页面的方法
+// 注意：不在这里 optimistic 更新 localCurrent，完全由 props.current 驱动，
+// 避免 uni.switchTab 完成前出现"指示器已过去、页面还没过去"的抖动。
 const handleSwitch = (url, index) => {
   if (localCurrent.value === index) return
 
-  const prevIndex = localCurrent.value
-  // 1. 先让胶囊滑过去 (触发 CSS 动画)
-  localCurrent.value = index
-
-  // 2. 执行真实的页面跳转，失败时回退高亮
   uni.switchTab({
     url,
     fail: () => {
-      localCurrent.value = prevIndex
       console.error('Tab 跳转失败:', url)
     }
   })
@@ -105,7 +101,8 @@ const handleSwitch = (url, index) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* 极短滑动，几乎瞬间到位，消除感知上的抖动 */
+  /* 平滑跟随 current prop 变化，避免跳变 */
+  transition: transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   z-index: 1;
 }
