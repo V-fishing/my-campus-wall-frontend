@@ -278,7 +278,7 @@ const handleWebSocketMessage = (data) => {
 
 const handleNewMessage = (msg) => {
   const currentUserId = userStore.userId
-  const isMe = Number(msg.senderId) === Number(currentUserId)
+  const isMe = String(msg.senderId) === String(currentUserId)
   
   const newMsg = {
     id: msg.id,
@@ -322,7 +322,7 @@ const loadMessages = async () => {
       }
       
       const newMessages = records.map(msg => {
-        const isMe = Number(msg.senderId) === Number(currentUserId)
+        const isMe = String(msg.senderId) === String(currentUserId)
         return {
           id: msg.id,
           role: isMe ? 'me' : 'partner',
