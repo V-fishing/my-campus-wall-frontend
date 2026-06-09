@@ -1,25 +1,104 @@
 <template>
   <view class="bg-background text-on-surface font-body-lg-mobile min-h-screen flex flex-col relative selection:bg-primary-container">
-    
-    <view class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-md flex items-center justify-between px-margin-page shadow-sm shadow-[0_12px_40px_rgba(255,143,163,0.12)] pr-capsule-safe-zone" 
+
+    <!-- 顶部导航栏 -->
+    <view class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-md shadow-sm shadow-[0_12px_40px_rgba(255,143,163,0.12)] pr-capsule-safe-zone"
           :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 64) + 'px' }">
-      <view class="flex items-center gap-3">
-        <view class="relative w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center pulse-ring">
-          <text class="material-symbols-outlined text-on-tertiary-container text-[40rpx]">smart_toy</text>
+      <view class="relative w-full h-full flex items-center px-margin-page">
+        <!-- 左侧：菜单按钮 -->
+        <view class="w-10 h-10 flex items-center justify-center text-on-surface active:scale-95 transition-transform rounded-full shrink-0"
+              @click="openSidebar">
+          <text class="material-symbols-outlined text-[36rpx]">menu</text>
         </view>
-        <view class="flex flex-col">
-          <text class="font-headline-md-mobile text-headline-md-mobile text-primary tracking-tight font-bold">嘉应AI学长</text>
-          <view class="flex items-center gap-1.5 mt-0.5">
-            <view class="w-2 h-2 rounded-full bg-green-500 dot-green"></view>
-            <text class="font-label-sm-mobile text-label-sm-mobile text-on-surface-variant">一直在线</text>
+
+        <!-- 中间：AI 头像（可点击）+ 名称 + 状态，绝对居中 -->
+        <view class="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
+          <view class="relative w-9 h-9 rounded-full bg-tertiary-container flex items-center justify-center pulse-ring active:scale-95 transition-transform"
+                @click="goToPreference">
+            <text class="material-symbols-outlined text-on-tertiary-container text-[36rpx]">smart_toy</text>
+          </view>
+          <view class="flex flex-col">
+            <text class="font-headline-md-mobile text-headline-md-mobile text-primary tracking-tight font-bold">嘉应AI学长</text>
+            <view class="flex items-center gap-1.5 mt-0.5">
+              <view class="w-2 h-2 rounded-full bg-green-500 dot-green"></view>
+              <text class="font-label-sm-mobile text-label-sm-mobile text-on-surface-variant">一直在线</text>
+            </view>
           </view>
         </view>
-      </view>
-      <view class="w-10 h-10 flex items-center justify-center text-on-surface-variant active:scale-95 transition-transform">
 
+        <!-- 右侧占位，保持平衡 -->
+        <view class="w-10 h-10 shrink-0"></view>
       </view>
     </view>
 
+    <!-- 左侧侧边栏浮窗 -->
+    <view v-if="showSidebar" class="fixed inset-0 z-[60]">
+      <!-- 遮罩层 -->
+      <view class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+            @click="showSidebar = false"></view>
+      <!-- 侧边栏面板（从左侧滑入） -->
+      <view class="absolute top-0 left-0 h-full w-[75vw] max-w-[320px] bg-surface shadow-2xl flex flex-col sidebar-slide-in"
+            :style="{ paddingTop: (statusBarHeight + 8) + 'px' }">
+
+        <!-- 侧边栏头部 -->
+        <view class="flex items-center justify-between px-4 py-3 border-b border-outline-variant/20">
+          <text class="font-headline-md-mobile text-[30rpx] text-primary font-bold">对话历史</text>
+          <view class="w-8 h-8 flex items-center justify-center text-on-surface-variant active:scale-95 transition-transform rounded-full"
+                @click="showSidebar = false">
+            <text class="material-symbols-outlined text-[32rpx]">close</text>
+          </view>
+        </view>
+
+        <!-- 新建对话按钮 -->
+        <view class="px-4 py-3 border-b border-outline-variant/10">
+          <view class="flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-primary-container/40 to-secondary-container/40 border border-dashed border-outline-variant/40 active:scale-[0.98] transition-transform"
+                @click="startNewChat">
+            <text class="material-symbols-outlined text-primary text-[28rpx]">add</text>
+            <text class="font-label-md-mobile text-[26rpx] text-primary font-bold">新建对话</text>
+          </view>
+        </view>
+
+        <!-- 历史对话列表 -->
+        <scroll-view scroll-y class="flex-1 px-4 py-2">
+          <view v-if="sidebarLoading" class="flex flex-col items-center justify-center py-12">
+            <text class="material-symbols-outlined animate-spin text-primary text-[40rpx]">sync</text>
+            <text class="text-[24rpx] text-outline-variant mt-2">加载中...</text>
+          </view>
+
+          <view v-else-if="historyList.length === 0" class="flex flex-col items-center justify-center py-12">
+            <text class="material-symbols-outlined text-outline-variant/50 text-[56rpx]">chat_bubble_outline</text>
+            <text class="text-[26rpx] text-outline-variant mt-3">还没有对话记录</text>
+          </view>
+
+          <view v-else class="space-y-2">
+            <view v-for="item in historyList" :key="item.sessionId"
+                  class="flex items-center gap-3 p-3 rounded-[20rpx] transition-all active:bg-surface-container-low"
+                  :class="item.sessionId === conversationId ? 'bg-primary-container/20 border border-primary/20' : ''"
+                  @click="switchToSession(item.sessionId)">
+              <view class="w-8 h-8 rounded-full bg-tertiary-container/30 flex items-center justify-center shrink-0">
+                <text class="material-symbols-outlined text-on-tertiary-container text-[24rpx]">smart_toy</text>
+              </view>
+              <view class="flex-1 min-w-0">
+                <text class="block text-[26rpx] font-bold text-on-surface truncate">{{ item.firstQuestion || '新的对话' }}</text>
+                <text class="block text-[20rpx] text-outline-variant mt-0.5">{{ item.createTime }}</text>
+              </view>
+              <text v-if="item.sessionId === conversationId" class="material-symbols-outlined text-primary text-[24rpx]">check_circle</text>
+            </view>
+          </view>
+        </scroll-view>
+
+        <!-- 侧边栏底部：偏好设置入口 -->
+        <view class="px-4 py-3 border-t border-outline-variant/20 bg-surface-container-low/30">
+          <view class="flex items-center gap-2 px-3 py-2 rounded-full active:bg-surface-container-low transition-colors"
+                @click="goToPreferenceFromSidebar">
+            <text class="material-symbols-outlined text-on-surface-variant text-[28rpx]">tune</text>
+            <text class="text-[26rpx] text-on-surface-variant font-medium">AI 偏好设置</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 背景装饰 -->
     <view class="fixed top-32 right-4 pointer-events-none opacity-20 rotate-12 z-0">
       <text class="material-symbols-outlined text-primary text-[80rpx]">auto_awesome</text>
     </view>
@@ -27,16 +106,17 @@
       <text class="material-symbols-outlined text-secondary text-[80rpx]">favorite</text>
     </view>
 
-    <scroll-view 
-      class="flex-1 w-full box-border z-10" 
-      scroll-y="true" 
+    <scroll-view
+      class="flex-1 w-full box-border z-10"
+      scroll-y="true"
       :scroll-into-view="scrollToMessageId"
       scroll-with-animation
       :style="{ paddingTop: (statusBarHeight + 80) + 'px' }"
     >
       <view class="px-margin-page pb-[320rpx]">
-        
-        <view class="flex items-start gap-2 mb-8" id="msg-welcome">
+
+        <!-- 欢迎消息（仅在新建对话时显示） -->
+        <view class="flex items-start gap-2 mb-8" id="msg-welcome" v-if="messageList.length === 0 && !conversationId">
           <view class="w-10 h-10 rounded-full bg-tertiary-container flex-shrink-0 flex items-center justify-center shadow-sm">
             <text class="material-symbols-outlined text-on-tertiary-container text-[40rpx]">smart_toy</text>
           </view>
@@ -55,6 +135,7 @@
           </view>
         </view>
 
+        <!-- 对话消息列表 -->
         <view
           v-for="(msg, index) in messageList"
           :key="msg.id || index"
@@ -67,15 +148,15 @@
           </view>
 
           <view class="flex flex-col gap-2 max-w-[80%]">
-            <view 
+            <view
               class="p-4 kawaii-shadow"
-              :class="msg.role === 'user' ? 
-                'bubble-user text-white rounded-[40rpx] rounded-tr-none bg-gradient-to-br from-[#7EC8E3] to-[#5BA4F0]' : 
+              :class="msg.role === 'user' ?
+                'bubble-user text-white rounded-[40rpx] rounded-tr-none bg-gradient-to-br from-[#7EC8E3] to-[#5BA4F0]' :
                 'bubble-ai bg-white border-l-8 border-primary-container rounded-[40rpx] rounded-tl-none'"
             >
               <text class="font-body-lg-mobile block leading-relaxed" :class="msg.role === 'user' ? 'text-white' : 'text-on-surface'">{{ msg.content }}</text>
             </view>
-            
+
             <text v-if="msg.role === 'ai' && msg.source" class="font-label-sm-mobile text-outline ml-1 block">
               参考来源：{{ msg.source }}
             </text>
@@ -86,6 +167,7 @@
           </view>
         </view>
 
+        <!-- AI 思考中 -->
         <view class="flex items-start gap-2 mb-8" v-if="isThinking" :id="'msg-' + messageList.length">
           <view class="w-10 h-10 rounded-full bg-tertiary-container flex-shrink-0 flex items-center justify-center shadow-sm">
             <text class="material-symbols-outlined text-on-tertiary-container text-[40rpx]">smart_toy</text>
@@ -100,21 +182,22 @@
       </view>
     </scroll-view>
 
+    <!-- 底部输入区域 -->
     <view class="fixed left-0 w-full z-40 bg-gradient-to-t from-background via-background to-transparent px-margin-page pb-4 pt-8" style="bottom: calc(120rpx + env(safe-area-inset-bottom));">
       <view class="bg-white rounded-full h-[112rpx] flex items-center px-4 gap-3 kawaii-shadow border border-outline-variant/30">
         <view class="text-on-surface-variant active:text-primary transition-colors flex items-center justify-center">
           <text class="material-symbols-outlined text-[56rpx]">add_circle</text>
         </view>
-        
-        <input 
-          class="flex-grow bg-transparent border-none focus:ring-0 text-on-surface font-body-lg-mobile h-full" 
-          v-model="inputText" 
-          placeholder="问问嘉应AI学长..." 
+
+        <input
+          class="flex-grow bg-transparent border-none focus:ring-0 text-on-surface font-body-lg-mobile h-full"
+          v-model="inputText"
+          placeholder="问问嘉应AI学长..."
           confirm-type="send"
           @confirm="sendMessage"
         />
-        
-        <view 
+
+        <view
           class="w-[80rpx] h-[80rpx] rounded-full flex items-center justify-center shadow-md transition-all duration-300"
           :class="inputText.trim().length > 0 ? 'bg-gradient-to-br from-[#7EC8E3] to-[#5BA4F0] text-white active:scale-90' : 'bg-surface-variant text-outline-variant'"
           @click="sendMessage"
@@ -123,12 +206,14 @@
         </view>
       </view>
     </view>
-<CustomTabBar :current="2" />
+
+    <CustomTabBar :current="2" />
   </view>
 </template>
 
 <script setup>
 import { ref, nextTick, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import { request, get } from '@/utils/request'
 import { aiApi } from '@/api/index'
 import { useUserStore } from '@/stores/user'
@@ -149,47 +234,139 @@ const conversationId = ref('')
 const userStore = useUserStore()
 const currentUserId = ref(userStore.userId || 0)
 
-// 页面加载时检查是否有 sessionId 参数
+// 侧边栏状态
+const showSidebar = ref(false)
+const historyList = ref([])
+const sidebarLoading = ref(false)
+
+// 页面加载时检查参数
 onMounted(() => {
-  const userInfo = uni.getStorageSync('userInfo');
+  const userInfo = uni.getStorageSync('userInfo')
   if (userInfo && (userInfo.id || userInfo.userId)) {
-    currentUserId.value = userInfo.id || userInfo.userId;
+    currentUserId.value = userInfo.id || userInfo.userId
   }
-  
-  const pages = getCurrentPages();
-  const currentPage = pages[pages.length - 1];
-  const options = currentPage.options || {};
-  
+
+  const pages = getCurrentPages()
+  const currentPage = pages[pages.length - 1]
+  const options = currentPage.options || {}
+
   if (options.sessionId) {
-    conversationId.value = options.sessionId;
-    loadHistoryMessages(options.sessionId);
+    conversationId.value = options.sessionId
+    loadHistoryMessages(options.sessionId)
+  } else {
+    // 检查是否有从其他页面带过来的会话 ID
+    const activeSessionId = uni.getStorageSync('activeSessionId')
+    if (activeSessionId) {
+      conversationId.value = activeSessionId
+      loadHistoryMessages(activeSessionId)
+      uni.removeStorageSync('activeSessionId')
+    }
+  }
+})
+
+// onShow 处理从其他页面返回时的情况（TabBar 页面 switchTab 不会触发 onMounted）
+onShow(() => {
+  const activeSessionId = uni.getStorageSync('activeSessionId')
+  if (activeSessionId && activeSessionId !== conversationId.value) {
+    conversationId.value = activeSessionId
+    messageList.value = []
+    loadHistoryMessages(activeSessionId)
+    uni.removeStorageSync('activeSessionId')
   }
 })
 
 // 加载历史对话记录
 const loadHistoryMessages = async (sessionId) => {
+  if (!sessionId) return
   try {
-    const response = await get(aiApi.getHistoryDetail(sessionId).url, { sessionId });
-    
+    const response = await get(aiApi.getHistoryDetail(sessionId).url, { sessionId })
+
     if (response.code === 200 || response.success) {
-      const records = response.data || [];
+      const records = response.data || []
       messageList.value = records.map((record, idx) => ({
         id: 'msg-' + idx,
         role: record.role === 'USER' ? 'user' : 'ai',
         content: record.content,
         source: ''
-      }));
-      
+      }))
+
       if (messageList.value.length > 0) {
-        scrollToBottom();
+        scrollToBottom()
       }
     } else {
-      uni.showToast({ title: response.message || '加载失败', icon: 'none' });
+      uni.showToast({ title: response.message || '加载失败', icon: 'none' })
     }
   } catch (error) {
-    console.error('❌ 加载历史对话失败:', error);
-    uni.showToast({ title: '网络异常', icon: 'none' });
+    console.error('❌ 加载历史对话失败:', error)
+    uni.showToast({ title: '网络异常', icon: 'none' })
   }
+}
+
+// 打开侧边栏并加载历史记录
+const openSidebar = () => {
+  showSidebar.value = true
+  fetchHistoryList()
+}
+
+// 加载历史会话列表
+const fetchHistoryList = async () => {
+  sidebarLoading.value = true
+  const userInfo = uni.getStorageSync('userInfo')
+  const userId = userInfo?.id || userInfo?.userId
+
+  if (!userId) {
+    sidebarLoading.value = false
+    return
+  }
+
+  try {
+    const response = await get(aiApi.getHistory(userId).url, { userId })
+    if (response.code === 200 || response.success) {
+      historyList.value = response.data || []
+    }
+  } catch (error) {
+    console.error('❌ 获取会话列表失败:', error)
+  } finally {
+    sidebarLoading.value = false
+  }
+}
+
+// 切换到指定会话
+const switchToSession = (sessionId) => {
+  if (sessionId === conversationId.value) {
+    showSidebar.value = false
+    return
+  }
+  conversationId.value = sessionId
+  showSidebar.value = false
+  messageList.value = []
+  loadHistoryMessages(sessionId)
+}
+
+// 新建对话
+const startNewChat = () => {
+  conversationId.value = ''
+  showSidebar.value = false
+  messageList.value = []
+  uni.removeStorageSync('activeSessionId')
+  scrollToMessageId.value = 'msg-welcome'
+}
+
+// 点击 AI 头像跳转偏好设置
+const goToPreference = () => {
+  uni.navigateTo({
+    url: '/pages/ai/preference'
+  })
+}
+
+// 从侧边栏跳转偏好设置
+const goToPreferenceFromSidebar = () => {
+  showSidebar.value = false
+  setTimeout(() => {
+    uni.navigateTo({
+      url: '/pages/ai/preference'
+    })
+  }, 150)
 }
 
 // 点击快捷问题
@@ -205,27 +382,27 @@ const sendMessage = async () => {
   const userText = inputText.value
   const msgId = 'msg-' + Date.now()
   messageList.value.push({ id: msgId, role: 'user', content: userText })
-  inputText.value = '' 
-  
+  inputText.value = ''
+
   scrollToBottom()
 
   isThinking.value = true
-  
+
   try {
     const res = await request(aiApi.chat(currentUserId.value, userText, conversationId.value))
     isThinking.value = false
-    
+
     if (res.code === 200 && res.data.success) {
       const aiData = res.data
       if (aiData.conversationId) {
         conversationId.value = aiData.conversationId
       }
-      
+
       let sourceText = ''
       if (aiData.sources && aiData.sources.length > 0) {
         sourceText = aiData.sources.map(s => s.title).join('、')
       }
-      
+
       messageList.value.push({
         id: 'msg-' + Date.now(),
         role: 'ai',
@@ -240,9 +417,9 @@ const sendMessage = async () => {
         source: ''
       })
     }
-    
+
     scrollToBottom()
-    
+
   } catch (error) {
     console.error('AI 问答失败:', error)
     isThinking.value = false
@@ -260,8 +437,8 @@ const sendMessage = async () => {
 const scrollToBottom = () => {
   nextTick(() => {
     // 根据是新消息还是思考状态确定要滚动到的 ID
-    const targetIndex = isThinking.value ? messageList.value.length : messageList.value.length - 1;
-    scrollToMessageId.value = 'msg-' + targetIndex;
+    const targetIndex = isThinking.value ? messageList.value.length : messageList.value.length - 1
+    scrollToMessageId.value = 'msg-' + targetIndex
   })
 }
 </script>
@@ -306,4 +483,13 @@ const scrollToBottom = () => {
 .thinking-dot { animation: bounce-dot 1.4s infinite ease-in-out both; }
 .thinking-dot:nth-child(1) { animation-delay: -0.32s; }
 .thinking-dot:nth-child(2) { animation-delay: -0.16s; }
+
+/* 侧边栏滑入动画 */
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.sidebar-slide-in {
+  animation: slideInLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
 </style>
