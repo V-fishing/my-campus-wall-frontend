@@ -89,6 +89,12 @@ export const postApi = {
     url: `/api/v1/posts/${postId}/report`,
     method: 'POST',
     data
+  }),
+
+  // 加入组队（组队板块方案B）
+  joinTeam: (postId) => ({
+    url: `/api/v1/posts/${postId}/join`,
+    method: 'POST'
   })
 }
 
@@ -110,6 +116,13 @@ export const categoryApi = {
   getTopics: () => ({
     url: '/api/v1/categories/topics',
     method: 'GET'
+  }),
+
+  // 按板块 code 获取预置标签（发布页拉某板块可选标签）
+  getTagsByBoard: (boardCode) => ({
+    url: '/api/v1/categories/tags',
+    method: 'GET',
+    params: { boardCode }
   })
 }
 
@@ -296,6 +309,17 @@ export const aiApi = {
       userId,
       question,
       conversationId
+    }
+  }),
+  // 智能推荐：自然语言提问 → 召回匹配帖子卡片（08）
+  matchPosts: (userId, question, intent = null, topK = 5) => ({
+    url: '/api/v1/ai-senior/match-posts',
+    method: 'POST',
+    data: {
+      userId,
+      question,
+      ...(intent ? { intent } : {}),
+      topK
     }
   }),
   // 获取历史会话列表

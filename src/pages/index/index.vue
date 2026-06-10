@@ -102,7 +102,11 @@
         <!-- 帖子列表 -->
         <view class="space-y-4">
           <view class="bg-surface-container-lowest rounded-3xl p-4 sticker-border kawaii-shadow space-y-3 relative overflow-hidden"
+                   :class="{ 'promo-card': post.boardCode === 'promotion', 'sold-dim': post.isSold === 1 }"
                    v-for="post in displayPosts" :key="post.id">
+
+            <!-- 推广帖专属高亮标签（极客蓝微渐变，右上角，避免欺骗感） -->
+            <view v-if="post.boardCode === 'promotion'" class="promo-tag">推广</view>
 
             <!-- 头部作者区 -->
             <view class="flex items-center justify-between">
@@ -142,8 +146,13 @@
 
             </view>
 
-            <!-- 图片网格 -->
-            <view v-if="post.images && post.images.length > 0"
+            <!-- 推广帖：撑满卡片宽度的横向 Banner 大图（替代三宫格特权） -->
+            <image v-if="post.boardCode === 'promotion' && post.bannerImage"
+                   :src="post.bannerImage" class="promo-banner" mode="aspectFill"
+                   @click="goToDetail(post.id)"></image>
+
+            <!-- 图片网格（推广帖有 Banner 时不再渲染三宫格） -->
+            <view v-else-if="post.images && post.images.length > 0"
                  :class="['grid gap-2', post.images.length >= 3 ? 'grid-cols-3' : 'grid-cols-2']"
                  @click="goToDetail(post.id)">
               <view v-for="(img, i) in post.images.slice(0, post.images.length >= 3 ? 3 : 2)" :key="i"
@@ -156,6 +165,47 @@
                       class="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-headline-md-mobile font-bold text-[32rpx]">
                   +{{ post.images.length - 3 }}
                 </view>
+              </view>
+            </view>
+
+            <!-- 二手交易：价格(醒目) + 已售出标记 + 联系方式(可复制) -->
+            <view v-if="post.boardCode === 'secondhand'" class="flex items-center gap-3 flex-wrap">
+              <text class="text-[#FF8FA3] font-bold text-[34rpx]">{{ post.price != null ? '¥' + post.price : '面议' }}</text>
+              <text v-if="post.isSold === 1" class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-[20rpx] font-bold">已售出</text>
+              <view v-if="post.contact" class="contact-chip" @click.stop="copyContact(post.contact)">
+                <span class="material-symbols-outlined text-[28rpx]">call</span>
+                <text class="ml-1">{{ post.contact }}</text>
+                <text class="copy-btn">复制</text>
+              </view>
+            </view>
+
+            <!-- 兼职发布：薪资 + 信息费 + 联系方式 -->
+            <view v-if="post.boardCode === 'parttime'" class="flex items-center gap-3 flex-wrap text-[24rpx]">
+              <text class="text-[#1677ff] font-bold">薪资：{{ post.salary || '面议' }}</text>
+              <text v-if="post.infoFee" class="text-on-surface-variant">信息费：{{ post.infoFee }}</text>
+              <view v-if="post.contact" class="contact-chip" @click.stop="copyContact(post.contact)">
+                <span class="material-symbols-outlined text-[28rpx]">call</span>
+                <text class="ml-1">{{ post.contact }}</text>
+                <text class="copy-btn">复制</text>
+              </view>
+            </view>
+
+            <!-- 推广：联系方式（可复制） -->
+            <view v-if="post.boardCode === 'promotion' && post.contact" class="flex items-center gap-3 flex-wrap">
+              <view class="contact-chip" @click.stop="copyContact(post.contact)">
+                <span class="material-symbols-outlined text-[28rpx]">call</span>
+                <text class="ml-1">{{ post.contact }}</text>
+                <text class="copy-btn">复制</text>
+              </view>
+            </view>
+
+            <!-- 组队：头像叠放（不显示数字）+ 联系方式 -->
+            <view v-if="post.boardCode === 'team'" class="flex items-center gap-3 flex-wrap">
+              <AvatarStack :avatars="post.memberAvatars" :max="5" />
+              <view v-if="post.contact" class="contact-chip" @click.stop="copyContact(post.contact)">
+                <span class="material-symbols-outlined text-[28rpx]">call</span>
+                <text class="ml-1">{{ post.contact }}</text>
+                <text class="copy-btn">复制</text>
               </view>
             </view>
 
@@ -418,7 +468,17 @@ const fetchPostList = async (refresh = false) => {
         likeCount: item.likeCount || 0,
         commentCount: item.commentCount || 0,
         isLiked: (cachedLikeState && cachedLikeState.isLiked !== null) ? cachedLikeState.isLiked : (item.isLiked || false),
-        isAnonymous: item.isAnonymous || false
+        isAnonymous: item.isAnonymous || false,
+        // 板块差异化字段
+        boardCode: item.boardCode || '',
+        price: item.price,
+        salary: item.salary,
+        infoFee: item.infoFee,
+        contact: item.contact,
+        bannerImage: item.bannerImage || '',
+        isTop: item.isTop || 0,
+        isSold: item.isSold || 0,
+        memberAvatars: item.memberAvatars || []
       }
     })
 
@@ -521,6 +581,17 @@ const handleTagClick = (tag) => {
       return
     }
   }
+  // 非预置标签（用户自定义）：不可跳转筛选，仅提示（需求 01：标签纯运营预置）
+  uni.showToast({ title: '该标签为自定义标签，无法跳转，请选择预置标签', icon: 'none' })
+}
+
+// 一键复制联系方式（二手/兼职/推广/组队 通用）
+const copyContact = (text) => {
+  if (!text) return
+  uni.setClipboardData({
+    data: String(text),
+    success: () => uni.showToast({ title: '联系方式已复制', icon: 'success' })
+  })
 }
 
 const toggleLike = async (postItem) => {
@@ -677,6 +748,56 @@ const goToHotPosts = () => uni.navigateTo({ url: '/pages/hot-posts/hot-posts?sco
 
 .hot-banner-gradient {
   background: linear-gradient(135deg, #FF8FA3 0%, #FFC46B 100%);
+}
+
+/* ===== 板块差异化（02~05） ===== */
+/* 推广帖 [推广] 高亮标签（极客蓝微渐变，右上角） */
+.promo-tag {
+  position: absolute;
+  top: 16rpx;
+  right: 16rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #1677ff, #69b1ff);
+  box-shadow: 0 2rpx 8rpx rgba(22, 119, 255, 0.25);
+  z-index: 2;
+}
+/* 推广帖 Banner 大图 */
+.promo-banner {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 16rpx;
+  display: block;
+}
+/* 推广帖整卡视觉差异化（边框 + 顶部底色，避免欺骗感） */
+.promo-card {
+  border: 2rpx solid rgba(22, 119, 255, 0.3);
+  background: linear-gradient(180deg, rgba(22, 119, 255, 0.05), transparent 40%);
+}
+/* 二手已售出置灰 */
+.sold-dim {
+  opacity: 0.6;
+  filter: grayscale(0.4);
+}
+/* 联系方式胶囊（可点复制） */
+.contact-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  background: var(--surface-container-high, #f1ecec);
+  color: #6d4ea2;
+  font-size: 24rpx;
+}
+.copy-btn {
+  margin-left: 10rpx;
+  padding: 0 10rpx;
+  border-radius: 999rpx;
+  background: #6d4ea2;
+  color: #fff;
+  font-size: 20rpx;
 }
 
 .line-clamp-3 {
