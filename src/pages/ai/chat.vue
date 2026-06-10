@@ -131,6 +131,12 @@
                 <view class="px-4 py-2 rounded-full bg-gradient-to-r from-[#E0F2FE] to-[#BAE6FD] text-tertiary font-label-md-mobile shadow-sm active:scale-95 transition-transform border border-white/50" @click="sendQuickMsg('大创项目怎么申报？')">💡 大创申报流程</view>
                 <view class="px-4 py-2 rounded-full bg-gradient-to-r from-[#E0F2FE] to-[#BAE6FD] text-tertiary font-label-md-mobile shadow-sm active:scale-95 transition-transform border border-white/50" @click="sendQuickMsg('宿舍宽带怎么开通？')">🌐 宽带开通指南</view>
               </view>
+              <text class="font-label-sm-mobile text-on-surface-variant ml-1 block mt-3">帮你找帖子 🔍（少刷帖，直接问）</text>
+              <view class="flex flex-wrap gap-2">
+                <view class="px-4 py-2 rounded-full bg-gradient-to-r from-[#FFF0F3] to-[#FFE1E6] text-[#9B4053] font-label-md-mobile shadow-sm active:scale-95 transition-transform border border-white/50" @click="sendQuickMsg('有没有人捡到蓝色的书包？')">🎒 有人捡到东西吗</view>
+                <view class="px-4 py-2 rounded-full bg-gradient-to-r from-[#FFF0F3] to-[#FFE1E6] text-[#9B4053] font-label-md-mobile shadow-sm active:scale-95 transition-transform border border-white/50" @click="sendQuickMsg('有没有人出售二手自行车？')">🚲 找二手好物</view>
+                <view class="px-4 py-2 rounded-full bg-gradient-to-r from-[#FFF0F3] to-[#FFE1E6] text-[#9B4053] font-label-md-mobile shadow-sm active:scale-95 transition-transform border border-white/50" @click="sendQuickMsg('有没有靠谱的兼职推荐？')">💼 找兼职</view>
+              </view>
             </view>
           </view>
         </view>
@@ -155,6 +161,21 @@
                 'bubble-ai bg-white border-l-8 border-primary-container rounded-[40rpx] rounded-tl-none'"
             >
               <text class="font-body-lg-mobile block leading-relaxed" :class="msg.role === 'user' ? 'text-white' : 'text-on-surface'">{{ msg.content }}</text>
+            </view>
+
+            <!-- 智能推荐帖子卡片（08）：AI 把匹配帖子推给你，问"是这个吗?" -->
+            <view v-if="msg.role === 'ai' && msg.posts && msg.posts.length > 0" class="space-y-2 mt-1">
+              <view v-for="card in msg.posts" :key="card.post.id" class="ai-post-card" @click="goToPostDetail(card.post.id)">
+                <image v-if="card.post.images && card.post.images.length" :src="card.post.images[0]" class="ai-post-thumb" mode="aspectFill"></image>
+                <view v-else class="ai-post-thumb ai-post-thumb--empty">
+                  <text class="material-symbols-outlined text-[40rpx]">image</text>
+                </view>
+                <view class="flex-1 min-w-0">
+                  <text v-if="card.matchReason" class="ai-post-reason">{{ card.matchReason }}</text>
+                  <text class="ai-post-excerpt">{{ card.post.content }}</text>
+                  <view class="ai-post-cta">是这个 →</view>
+                </view>
+              </view>
             </view>
 
             <text v-if="msg.role === 'ai' && msg.source" class="font-label-sm-mobile text-outline ml-1 block">
@@ -375,6 +396,9 @@ const sendQuickMsg = (text) => {
   sendMessage()
 }
 
+// 找帖意图启发式：命中则走 match-posts(召回帖子卡片)，否则走知识问答 chat
+const POST_FINDING_RE = /(有没有人|有没有|有人|谁|求购|出售|卖|二手|捡到|拾到|寻物|失物|丢了|丢失|找.*(帖|队友|搭子|兼职|工作)|兼职|招聘|组队|帮我找|想买|想要)/
+
 // 发送消息
 const sendMessage = async () => {
   if (!inputText.value.trim() || isThinking.value) return
@@ -387,6 +411,12 @@ const sendMessage = async () => {
   scrollToBottom()
 
   isThinking.value = true
+
+  // 找帖诉求 → 智能推荐帖子卡片
+  if (POST_FINDING_RE.test(userText)) {
+    await findMatchedPosts(userText)
+    return
+  }
 
   try {
     const res = await request(aiApi.chat(currentUserId.value, userText, conversationId.value))
@@ -431,6 +461,40 @@ const sendMessage = async () => {
     })
     scrollToBottom()
   }
+}
+
+// 智能推荐：召回匹配帖子，渲染成卡片消息（08）
+const findMatchedPosts = async (userText) => {
+  try {
+    const res = await request(aiApi.matchPosts(currentUserId.value, userText))
+    isThinking.value = false
+    const data = (res && (res.data || res)) || {}
+    const posts = data.posts || []
+    messageList.value.push({
+      id: 'msg-' + Date.now(),
+      role: 'ai',
+      content: data.prompt || (posts.length ? '学长帮你找到这些帖子，是这个吗？' : '暂时没有找到匹配的帖子，要不要换个说法再问问？'),
+      posts,
+      source: ''
+    })
+    scrollToBottom()
+  } catch (error) {
+    console.error('找帖失败:', error)
+    isThinking.value = false
+    messageList.value.push({
+      id: 'msg-' + Date.now(),
+      role: 'ai',
+      content: '学长暂时没搜到，稍后再试试，或换个说法~',
+      source: ''
+    })
+    scrollToBottom()
+  }
+}
+
+// 跳转帖子详情
+const goToPostDetail = (id) => {
+  if (!id) return
+  uni.navigateTo({ url: `/pages/post/detail?id=${id}` })
 }
 
 // 滚动到底部
@@ -491,5 +555,56 @@ const scrollToBottom = () => {
 }
 .sidebar-slide-in {
   animation: slideInLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ===== 智能推荐帖子卡片（08） ===== */
+.ai-post-card {
+  display: flex;
+  gap: 16rpx;
+  background: #fff;
+  border-radius: 28rpx;
+  padding: 16rpx;
+  box-shadow: 0 8rpx 24rpx rgba(255, 143, 163, 0.12);
+  border: 2rpx solid rgba(255, 143, 163, 0.2);
+}
+.ai-post-thumb {
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 20rpx;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #f1ecec;
+}
+.ai-post-thumb--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #c0b3b5;
+}
+.ai-post-reason {
+  display: block;
+  font-size: 24rpx;
+  font-weight: bold;
+  color: #9B4053;
+  margin-bottom: 4rpx;
+}
+.ai-post-excerpt {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 24rpx;
+  color: #555;
+  line-height: 1.4;
+}
+.ai-post-cta {
+  display: inline-block;
+  margin-top: 10rpx;
+  padding: 4rpx 20rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #7EC8E3, #5BA4F0);
+  color: #fff;
+  font-size: 22rpx;
+  font-weight: bold;
 }
 </style>
