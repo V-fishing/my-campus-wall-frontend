@@ -113,6 +113,52 @@
             <switch :checked="isAnonymous" @change="isAnonymous = $event.detail.value" color="#ffb2bd" style="transform:scale(0.9)" />
           </view>
         </view>
+
+        <!-- 板块差异化字段（按所选分区 code 动态显示，02~05） -->
+        <view v-if="boardFieldsVisible" class="bg-white rounded-[40rpx] p-[32rpx] shadow-sm border border-outline-variant/20 space-y-5">
+          <text class="font-headline-md text-[30rpx] font-bold text-on-surface block">{{ selectedGroup.name }} · 补充信息</text>
+
+          <!-- 二手交易：价格(必填,可面议) -->
+          <block v-if="selectedBoardCode === 'secondhand'">
+            <view class="bf-row">
+              <text class="bf-label">价格 <text class="text-[#FF3B30]">*</text></text>
+              <input v-model="price" type="digit" :disabled="negotiable" class="bf-input"
+                     :placeholder="negotiable ? '面议' : '请输入出售价格(元)'" />
+            </view>
+            <view class="flex items-center justify-between">
+              <text class="bf-label">面议（不填价格）</text>
+              <switch :checked="negotiable" @change="negotiable = $event.detail.value" color="#FF8FA3" style="transform:scale(0.9)" />
+            </view>
+          </block>
+
+          <!-- 兼职发布：薪资(必填) + 信息费 -->
+          <block v-if="selectedBoardCode === 'parttime'">
+            <view class="bf-row">
+              <text class="bf-label">薪资 <text class="text-[#FF3B30]">*</text></text>
+              <input v-model="salary" class="bf-input" placeholder="如:150元/天、80/小时、面议" maxlength="50" />
+            </view>
+            <view class="bf-row">
+              <text class="bf-label">信息费</text>
+              <input v-model="infoFee" class="bf-input" placeholder="如:无、50元(选填)" maxlength="50" />
+            </view>
+          </block>
+
+          <!-- 推广：Banner 海报横图(单图上传) -->
+          <block v-if="selectedBoardCode === 'promotion'">
+            <text class="bf-label block">推广 Banner 海报（横图，建议 16:9）</text>
+            <image v-if="bannerPreview" :src="bannerPreview" class="w-full rounded-2xl mt-2" mode="widthFix" @click="chooseBanner"></image>
+            <view v-else class="banner-upload mt-2" @click="chooseBanner">
+              <text class="material-symbols-outlined text-[56rpx]">add_photo_alternate</text>
+              <text class="text-[24rpx] mt-1 font-bold">上传横向 Banner</text>
+            </view>
+          </block>
+
+          <!-- 联系方式（二手/兼职/推广/组队 通用，选填，公开展示） -->
+          <view class="bf-row">
+            <text class="bf-label">联系方式</text>
+            <input v-model="contact" class="bf-input" placeholder="微信/手机号(选填,将公开展示在帖子上)" maxlength="100" />
+          </view>
+        </view>
       </section>
     </main>
 
@@ -237,6 +283,15 @@ const location = ref('')
 const isAnonymous = ref(false)
 const uploadingCount = ref(0)
 
+// 板块差异化字段（02~05）
+const price = ref('')
+const negotiable = ref(false)
+const salary = ref('')
+const infoFee = ref('')
+const contact = ref('')
+const bannerObjectName = ref('')   // 推广 Banner 的 MinIO objectName
+const bannerPreview = ref('')      // 本地预览路径
+
 const MAX_TAGS = 5
 
 // 分区/标签相关
@@ -259,6 +314,13 @@ const allTagLabels = computed(() => {
 const canPublish = computed(() => {
   return content.value.trim().length > 0 || images.value.length > 0
 })
+
+// 所选板块 code（recommend/secondhand/parttime/promotion/team）
+const selectedBoardCode = computed(() => selectedGroup.value?.code || '')
+// 哪些板块需要展示补充信息字段区
+const boardFieldsVisible = computed(() =>
+  ['secondhand', 'parttime', 'promotion', 'team'].includes(selectedBoardCode.value)
+)
 
 // 加载用户信息
 const loadUserInfo = async () => {
@@ -418,6 +480,30 @@ const uploadSingleImage = (filePath, token) => {
   })
 }
 
+// 推广 Banner 单图上传（复用 uploadSingleImage）
+const chooseBanner = () => {
+  uni.chooseImage({
+    count: 1,
+    sizeType: ['compressed'],
+    sourceType: ['album', 'camera'],
+    success: async (res) => {
+      const filePath = res.tempFilePaths[0]
+      bannerPreview.value = filePath
+      uni.showLoading({ title: '上传 Banner...' })
+      try {
+        const token = uni.getStorageSync('token')
+        bannerObjectName.value = await uploadSingleImage(filePath, token)
+        uni.showToast({ title: 'Banner 上传成功', icon: 'success' })
+      } catch (e) {
+        bannerPreview.value = ''
+        uni.showToast({ title: 'Banner 上传失败', icon: 'none' })
+      } finally {
+        uni.hideLoading()
+      }
+    }
+  })
+}
+
 const previewImage = (index) => {
   uni.previewImage({ urls: images.value, current: index })
 }
@@ -525,10 +611,18 @@ const submitPost = async () => {
   if (!canPublish.value) return
   if (uploadingCount.value > 0) return uni.showToast({ title: '图片上传中，请稍候', icon: 'none' })
 
+  // 板块必填校验（与后端 BoardType 校验对齐）
+  const boardCode = selectedBoardCode.value
+  if (boardCode === 'secondhand' && !negotiable.value && (!price.value || Number(price.value) < 0)) {
+    return uni.showToast({ title: '二手交易帖请填写价格，或勾选"面议"', icon: 'none' })
+  }
+  if (boardCode === 'parttime' && !salary.value.trim()) {
+    return uni.showToast({ title: '兼职帖请填写薪资', icon: 'none' })
+  }
+
   uni.showLoading({ title: '发布中...' })
 
   try {
-    const dbTopics = selectedTopics.value.filter(t => topicList.value.some(topic => topic.name === t))
     const postData = {
       category: selectedGroup.value?.name || '日常',
       content: content.value,
@@ -537,7 +631,14 @@ const submitPost = async () => {
       customTags: customTags.value,
       location: location.value,
       isAnonymous: isAnonymous.value,
-      scope: uni.getStorageSync('publishScope') ?? 0
+      scope: uni.getStorageSync('publishScope') ?? 0,
+      // 板块差异化字段（后端按 BoardType 取用，无关字段忽略）
+      price: (boardCode === 'secondhand' && !negotiable.value && price.value) ? Number(price.value) : null,
+      negotiable: boardCode === 'secondhand' ? negotiable.value : false,
+      salary: boardCode === 'parttime' ? salary.value : null,
+      infoFee: boardCode === 'parttime' ? infoFee.value : null,
+      contact: contact.value || null,
+      bannerImage: boardCode === 'promotion' ? bannerObjectName.value : null
     }
 
     const response = await post(postApi.publishPost(postData).url, postData)
@@ -603,6 +704,41 @@ const submitPost = async () => {
 }
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* 板块差异化字段区 */
+.bf-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.bf-label {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  width: 160rpx;
+  flex-shrink: 0;
+}
+.bf-input {
+  flex: 1;
+  height: 80rpx;
+  background: #f5f6f8;
+  border-radius: 40rpx;
+  padding: 0 28rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+.banner-upload {
+  width: 100%;
+  height: 220rpx;
+  border-radius: 24rpx;
+  background: #f5f6f8;
+  border: 4rpx dashed #DAC0C3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #b0a0a3;
 }
 
 </style>
