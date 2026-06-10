@@ -62,6 +62,57 @@
             </view>
           </view>
 
+          <!-- ===== 板块差异化展示（02~05） ===== -->
+          <!-- 推广帖 Banner 大图 + [推广] 标签 -->
+          <view v-if="post.boardCode === 'promotion'" class="mb-4">
+            <view class="dt-promo-tag mb-2">推广</view>
+            <image v-if="post.bannerImage" :src="post.bannerImage" class="w-full rounded-[24rpx]" mode="widthFix"></image>
+          </view>
+
+          <!-- 二手交易：价格 + 已售出 + 联系方式(可复制) -->
+          <view v-if="post.boardCode === 'secondhand'" class="flex items-center gap-3 flex-wrap mb-4">
+            <text class="text-[#FF8FA3] font-bold text-[40rpx]">{{ post.price != null ? '¥' + post.price : '面议' }}</text>
+            <text v-if="post.isSold === 1" class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-[22rpx] font-bold">已售出</text>
+            <view v-if="post.contact" class="dt-contact" @click="copyContact(post.contact)">
+              <text class="material-symbols-outlined text-[30rpx]">call</text>
+              <text class="ml-1">{{ post.contact }}</text>
+              <text class="dt-copy">复制</text>
+            </view>
+          </view>
+
+          <!-- 兼职发布：薪资 + 信息费 + 联系方式 -->
+          <view v-if="post.boardCode === 'parttime'" class="flex items-center gap-3 flex-wrap mb-4 text-[26rpx]">
+            <text class="text-[#1677ff] font-bold">薪资：{{ post.salary || '面议' }}</text>
+            <text v-if="post.infoFee" class="text-on-surface-variant">信息费：{{ post.infoFee }}</text>
+            <view v-if="post.contact" class="dt-contact" @click="copyContact(post.contact)">
+              <text class="material-symbols-outlined text-[30rpx]">call</text>
+              <text class="ml-1">{{ post.contact }}</text>
+              <text class="dt-copy">复制</text>
+            </view>
+          </view>
+
+          <!-- 推广：联系方式 -->
+          <view v-if="post.boardCode === 'promotion' && post.contact" class="flex items-center gap-3 flex-wrap mb-4">
+            <view class="dt-contact" @click="copyContact(post.contact)">
+              <text class="material-symbols-outlined text-[30rpx]">call</text>
+              <text class="ml-1">{{ post.contact }}</text>
+              <text class="dt-copy">复制</text>
+            </view>
+          </view>
+
+          <!-- 组队：头像叠放(不显示数字) + 加入组队 + 联系方式 -->
+          <view v-if="post.boardCode === 'team'" class="mb-4 space-y-3">
+            <view class="flex items-center justify-between gap-3">
+              <AvatarStack :avatars="post.memberAvatars" :max="6" />
+              <view class="dt-join" @click="handleJoinTeam">加入组队</view>
+            </view>
+            <view v-if="post.contact" class="dt-contact" @click="copyContact(post.contact)">
+              <text class="material-symbols-outlined text-[30rpx]">call</text>
+              <text class="ml-1">{{ post.contact }}</text>
+              <text class="dt-copy">复制</text>
+            </view>
+          </view>
+
           <view class="flex items-center text-on-surface-variant text-label-sm mt-2">
             <text class="material-symbols-outlined text-[28rpx] mr-1">visibility</text>
             <text>{{ post.viewCount || 0 }} 次浏览</text>
@@ -407,6 +458,16 @@ const fetchPostDetail = async () => {
         isLiked: (cachedLikeState && cachedLikeState.isLiked !== null) ? cachedLikeState.isLiked : (data.isLiked || false),
         isCollected: data.isCollected || false,
         createTime: formatTimeAgo(data.createTime),
+        // 板块差异化字段（01~05）
+        boardCode: data.boardCode || '',
+        price: data.price,
+        salary: data.salary,
+        infoFee: data.infoFee,
+        contact: data.contact,
+        bannerImage: data.bannerImage || '',
+        isTop: data.isTop || 0,
+        isSold: data.isSold || 0,
+        memberAvatars: data.memberAvatars || [],
       }
       cachePost(postId.value, post.value)
       
@@ -835,6 +896,34 @@ const handleCopyFromMenu = () => {
   closeMenu()
 }
 
+// 一键复制联系方式（02~05 通用）
+const copyContact = (text) => {
+  if (!text) return
+  uni.setClipboardData({
+    data: String(text),
+    success: () => uni.showToast({ title: '联系方式已复制', icon: 'success' })
+  })
+}
+
+// 加入组队（组队板块方案B）：成功后刷新成员头像
+const handleJoinTeam = async () => {
+  if (!checkLogin()) return
+  try {
+    const res = await apiPost(postApi.joinTeam(post.value.id).url)
+    if (res.code === 200 && res.data) {
+      post.value.memberAvatars = res.data.memberAvatars || post.value.memberAvatars
+      uni.showToast({
+        title: res.data.alreadyJoined ? '你已在队伍中' : '加入成功',
+        icon: 'success'
+      })
+    } else {
+      throw new Error(res.message || '加入失败')
+    }
+  } catch (e) {
+    uni.showToast({ title: e.message || '加入失败，请重试', icon: 'none' })
+  }
+}
+
 const handleDeletePost = async () => {
   if (!checkLogin()) return
   uni.showModal({
@@ -982,5 +1071,42 @@ const handleDeleteComment = async () => {
 @keyframes pulse-green {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* ===== 板块差异化展示（02~05） ===== */
+.dt-promo-tag {
+  display: inline-block;
+  padding: 4rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #1677ff, #69b1ff);
+  box-shadow: 0 2rpx 8rpx rgba(22, 119, 255, 0.25);
+}
+.dt-contact {
+  display: inline-flex;
+  align-items: center;
+  padding: 6rpx 18rpx;
+  border-radius: 999rpx;
+  background: #f1ecec;
+  color: #6d4ea2;
+  font-size: 26rpx;
+}
+.dt-copy {
+  margin-left: 12rpx;
+  padding: 2rpx 14rpx;
+  border-radius: 999rpx;
+  background: #6d4ea2;
+  color: #fff;
+  font-size: 22rpx;
+}
+.dt-join {
+  padding: 10rpx 28rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #FF8FA3, #FFC46B);
+  color: #fff;
+  font-size: 26rpx;
+  font-weight: bold;
+  flex-shrink: 0;
 }
 </style>
