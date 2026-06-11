@@ -15,8 +15,9 @@
   },
   "pages": [
     {
-      "path": "pages/leaderboard/leaderboard",
+      "path": "pages/index/index",
       "style": {
+        "navigationBarTitleText": "圈子",
         "navigationStyle": "custom"
       }
     },
@@ -60,11 +61,9 @@
       }
     },
     {
-      "path": "pages/index/index",
+      "path": "pages/leaderboard/leaderboard",
       "style": {
-        "navigationBarTitleText": "圈子",
         "navigationStyle": "custom"
-    
       }
     },
     {

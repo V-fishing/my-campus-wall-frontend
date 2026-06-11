@@ -57,8 +57,8 @@
 
           <view v-if="post.images && post.images.length > 0" class="grid gap-2 mb-4"
                 :class="post.images.length === 1 ? 'grid-cols-1' : (post.images.length === 2 || post.images.length === 4 ? 'grid-cols-2' : 'grid-cols-3')">
-            <view v-for="(img, idx) in post.images" :key="idx" class="rounded-[32rpx] overflow-hidden bg-surface-container-high" :class="post.images.length === 1 ? 'aspect-auto max-h-[600rpx]' : 'aspect-square'">
-              <image :src="img" mode="aspectFill" class="w-full h-full object-cover transition-opacity active:opacity-80" @click="previewImage(idx)"/>
+            <view v-for="(img, idx) in post.images" :key="idx" class="rounded-[32rpx] overflow-hidden bg-surface-container-high" :class="post.images.length === 1 ? 'max-h-[600rpx]' : 'aspect-square'">
+              <image :src="img" :mode="post.images.length === 1 ? 'widthFix' : 'aspectFill'" class="w-full transition-opacity active:opacity-80" :class="post.images.length === 1 ? '' : 'h-full object-cover'" @click="previewImage(idx)"/>
             </view>
           </view>
 
