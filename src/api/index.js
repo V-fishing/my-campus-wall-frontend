@@ -301,25 +301,14 @@ export const emojiApi = {
 
 // AI 学长相关接口
 export const aiApi = {
-  // AI 问答
-  chat: (userId, question, conversationId = '') => ({
-    url: '/api/v1/ai-senior/chat',
+  // 智能助手（agent）：单一入口，后端大模型自主判断调用工具（查知识库 / 查帖子 / 两者综合）
+  agent: (userId, question, conversationId = '') => ({
+    url: '/api/v1/ai-senior/agent',
     method: 'POST',
     data: {
       userId,
       question,
       conversationId
-    }
-  }),
-  // 智能推荐：自然语言提问 → 召回匹配帖子卡片（08）
-  matchPosts: (userId, question, intent = null, topK = 5) => ({
-    url: '/api/v1/ai-senior/match-posts',
-    method: 'POST',
-    data: {
-      userId,
-      question,
-      ...(intent ? { intent } : {}),
-      topK
     }
   }),
   // 获取历史会话列表
