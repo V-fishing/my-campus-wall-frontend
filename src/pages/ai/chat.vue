@@ -396,10 +396,7 @@ const sendQuickMsg = (text) => {
   sendMessage()
 }
 
-// 找帖意图启发式：命中则走 match-posts(召回帖子卡片)，否则走知识问答 chat
-const POST_FINDING_RE = /(有没有人|有没有|有人|谁|求购|出售|卖|二手|捡到|拾到|寻物|失物|丢了|丢失|找.*(帖|队友|搭子|兼职|工作)|兼职|招聘|组队|帮我找|想买|想要)/
-
-// 发送消息
+// 发送消息：单一入口，交给后端 agent 自主判断（查知识库 / 查帖子 / 两者综合）
 const sendMessage = async () => {
   if (!inputText.value.trim() || isThinking.value) return
 
@@ -412,32 +409,22 @@ const sendMessage = async () => {
 
   isThinking.value = true
 
-  // 找帖诉求 → 智能推荐帖子卡片
-  if (POST_FINDING_RE.test(userText)) {
-    await findMatchedPosts(userText)
-    return
-  }
-
   try {
-    const res = await request(aiApi.chat(currentUserId.value, userText, conversationId.value))
+    const res = await request(aiApi.agent(currentUserId.value, userText, conversationId.value))
     isThinking.value = false
 
-    if (res.code === 200 && res.data.success) {
+    if (res.code === 200 && res.data && res.data.success) {
       const aiData = res.data
       if (aiData.conversationId) {
         conversationId.value = aiData.conversationId
-      }
-
-      let sourceText = ''
-      if (aiData.sources && aiData.sources.length > 0) {
-        sourceText = aiData.sources.map(s => s.title).join('、')
       }
 
       messageList.value.push({
         id: 'msg-' + Date.now(),
         role: 'ai',
         content: aiData.answer,
-        source: sourceText
+        posts: aiData.posts || [],   // agent 命中帖子时返回卡片，模板自动渲染
+        source: ''
       })
     } else {
       messageList.value.push({
@@ -451,40 +438,12 @@ const sendMessage = async () => {
     scrollToBottom()
 
   } catch (error) {
-    console.error('AI 问答失败:', error)
+    console.error('AI 助手失败:', error)
     isThinking.value = false
     messageList.value.push({
       id: 'msg-' + Date.now(),
       role: 'ai',
       content: '网络开小差了，请稍后再试~',
-      source: ''
-    })
-    scrollToBottom()
-  }
-}
-
-// 智能推荐：召回匹配帖子，渲染成卡片消息（08）
-const findMatchedPosts = async (userText) => {
-  try {
-    const res = await request(aiApi.matchPosts(currentUserId.value, userText))
-    isThinking.value = false
-    const data = (res && (res.data || res)) || {}
-    const posts = data.posts || []
-    messageList.value.push({
-      id: 'msg-' + Date.now(),
-      role: 'ai',
-      content: data.prompt || (posts.length ? '学长帮你找到这些帖子，是这个吗？' : '暂时没有找到匹配的帖子，要不要换个说法再问问？'),
-      posts,
-      source: ''
-    })
-    scrollToBottom()
-  } catch (error) {
-    console.error('找帖失败:', error)
-    isThinking.value = false
-    messageList.value.push({
-      id: 'msg-' + Date.now(),
-      role: 'ai',
-      content: '学长暂时没搜到，稍后再试试，或换个说法~',
       source: ''
     })
     scrollToBottom()
