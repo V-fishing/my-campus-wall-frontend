@@ -16,6 +16,8 @@ export const useUserStore = defineStore('user', () => {
   const gender   = ref(0)
   const college  = ref('')
   const campus   = ref('')
+  const universityId   = ref<number | null>(null)
+  const universityName = ref('')
 
   // --- 计算属性 ---
   const isLogin = computed(() => !!token.value && !!userId.value)
@@ -32,6 +34,8 @@ export const useUserStore = defineStore('user', () => {
         gender.value   = info.gender ?? 0
         college.value  = info.college ?? ''
         campus.value   = info.campus ?? ''
+        universityId.value   = info.universityId ?? null
+        universityName.value = info.universityName ?? ''
       }
     } catch { /* ignore */ }
   }
@@ -49,6 +53,8 @@ export const useUserStore = defineStore('user', () => {
       gender.value   = d.gender ?? 0
       college.value  = d.college ?? ''
       campus.value   = d.campus ?? ''
+      universityId.value   = d.universityId ?? null
+      universityName.value = d.universityName ?? ''
 
       uni.setStorageSync('token', d.token)
       uni.setStorageSync('userInfo', d)
@@ -65,6 +71,8 @@ export const useUserStore = defineStore('user', () => {
     avatar.value   = ''
     college.value  = ''
     campus.value   = ''
+    universityId.value   = null
+    universityName.value = ''
     uni.removeStorageSync('token')
     uni.removeStorageSync('userInfo')
   }
@@ -81,6 +89,8 @@ export const useUserStore = defineStore('user', () => {
         gender.value   = d.gender ?? 0
         college.value  = d.college ?? ''
         campus.value   = d.campus ?? ''
+        universityId.value   = d.universityId ?? null
+        universityName.value = d.universityName ?? ''
         uni.setStorageSync('userInfo', d)
       }
     } catch (e) {
@@ -89,5 +99,5 @@ export const useUserStore = defineStore('user', () => {
   }
 
   hydrate()
-  return { token, userId, nickname, avatar, gender, college, campus, isLogin, login, logout, fetchProfile, hydrate }
+  return { token, userId, nickname, avatar, gender, college, campus, universityId, universityName, isLogin, login, logout, fetchProfile, hydrate }
 })

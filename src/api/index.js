@@ -95,6 +95,12 @@ export const postApi = {
   joinTeam: (postId) => ({
     url: `/api/v1/posts/${postId}/join`,
     method: 'POST'
+  }),
+
+  // 退出组队（组队板块方案B）
+  leaveTeam: (postId) => ({
+    url: `/api/v1/posts/${postId}/leave`,
+    method: 'POST'
   })
 }
 
@@ -153,12 +159,6 @@ export const userApi = {
     url: '/api/v1/users/update',
     method: 'PUT',
     data
-  }),
-  
-  // 上传头像
-  uploadAvatar: () => ({
-    url: '/api/v1/users/uploadAvatar',
-    method: 'POST'
   })
 }
 
@@ -385,6 +385,15 @@ export const notificationApi = {
   deleteNotification: (notificationId) => ({
     url: `/api/v1/notifications/${notificationId}`,
     method: 'DELETE'
+  })
+}
+
+// 高校相关接口
+export const universityApi = {
+  // 查询某高校下的所有校区名称
+  getCampuses: (universityId) => ({
+    url: `/api/v1/universities/${universityId}/campuses`,
+    method: 'GET'
   })
 }
 

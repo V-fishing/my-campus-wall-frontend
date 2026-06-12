@@ -82,13 +82,17 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { userApi } from '@/api'
+import { userApi, fileApi } from '@/api'
 import { get, put } from '@/utils/request'
+import { config } from '@/config'
+import { getToken, getCurrentUserId } from '@/utils/auth.js'
+import { useUserStore } from '@/stores/user.ts'
 
 const defaultAvatar = '/static/images/default-avatar.png'
 const saving = ref(false)
 const loading = ref(true)
 const statusBarHeight = ref(20)
+const userStore = useUserStore()
 
 // 微信用户信息
 const wechatUserInfo = ref({
@@ -111,6 +115,7 @@ const campusOptions = ref([])
 const editForm = ref({
   nickname: '',
   avatar: '',
+  avatarObjectName: '',
   signature: '',
   gender: 3,
   campus: '',
@@ -170,6 +175,7 @@ onLoad(async () => {
       editForm.value = {
         nickname: user.nickname || '',
         avatar: user.avatar || '',
+        avatarObjectName: user.avatarObjectName || '',
         signature: user.signature || '',
         gender: user.gender !== undefined ? user.gender : 3,
         campus: user.campus || '',
@@ -211,6 +217,7 @@ const saveUserInfo = async () => {
     const response = await put(userApi.updateUserInfo().url, {
       nickname: editForm.value.nickname.trim(),
       avatar: editForm.value.avatar,
+      avatarObjectName: editForm.value.avatarObjectName,
       signature: editForm.value.signature.trim(),
       gender: editForm.value.gender,
       campus: editForm.value.campus,
@@ -221,18 +228,24 @@ const saveUserInfo = async () => {
     if (response.code === 200 && response.data) {
       uni.showToast({ title: '保存成功', icon: 'success' })
       console.log('✅ 保存成功，返回数据:', response.data)
-      
+
       // 更新本地表单数据为服务器返回的数据
       const updatedUser = response.data
       editForm.value = {
         nickname: updatedUser.nickname || '',
         avatar: updatedUser.avatar || '',
+        avatarObjectName: updatedUser.avatarObjectName || '',
         signature: updatedUser.signature || '',
         gender: updatedUser.gender !== undefined ? updatedUser.gender : 3,
         campus: updatedUser.campus || '',
         college: updatedUser.college || '',
         universityId: updatedUser.universityId || null
       }
+
+      // 同步 Pinia store 与本地缓存，确保其他页面立即展示新头像
+      userStore.avatar = updatedUser.avatar || ''
+      const storedInfo = uni.getStorageSync('userInfo') || {}
+      uni.setStorageSync('userInfo', { ...storedInfo, ...updatedUser })
     } else {
       uni.showToast({ title: response.message || '保存失败', icon: 'none' })
     }
@@ -269,7 +282,9 @@ const showAvatarPicker = () => {
 const useWechatAvatar = () => {
   if (wechatUserInfo.value.avatar) {
     editForm.value.avatar = wechatUserInfo.value.avatar
+    editForm.value.avatarObjectName = ''
     uni.showToast({ title: '已使用微信头像', icon: 'success' })
+    saveUserInfo()
   } else {
     uni.showToast({ title: '未获取到微信头像', icon: 'none' })
   }
@@ -282,9 +297,7 @@ const chooseFromAlbum = () => {
     sizeType: ['compressed'],
     sourceType: ['album'],
     success: (res) => {
-      editForm.value.avatar = res.tempFilePaths[0]
-      uni.showToast({ title: '头像已选择', icon: 'success' })
-      saveUserInfo()  // 立即保存
+      uploadAvatar(res.tempFilePaths[0])
     }
   })
 }
@@ -296,11 +309,69 @@ const takePhoto = () => {
     sizeType: ['compressed'],
     sourceType: ['camera'],
     success: (res) => {
-      editForm.value.avatar = res.tempFilePaths[0]
-      uni.showToast({ title: '头像已选择', icon: 'success' })
-      saveUserInfo()  // 立即保存
+      uploadAvatar(res.tempFilePaths[0])
     }
   })
+}
+
+// 上传头像到 MinIO
+const uploadAvatar = async (filePath) => {
+  const userId = getCurrentUserId()
+  if (!userId) {
+    uni.showToast({ title: '用户未登录', icon: 'none' })
+    return
+  }
+
+  uni.showLoading({ title: '上传中...', mask: true })
+
+  try {
+    let data
+    let uploadRes
+
+    // #ifndef H5
+    const token = getToken()
+    uploadRes = await new Promise((resolve, reject) => {
+      uni.uploadFile({
+        url: `${config.apiBaseUrl}${fileApi.uploadUserAvatar(userId).url}`,
+        filePath,
+        name: 'file',
+        header: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          'X-Platform': 'mp'
+        },
+        success: resolve,
+        fail: reject
+      })
+    })
+    data = JSON.parse(uploadRes.data)
+    // #endif
+
+    // #ifdef H5
+    const blob = await fetch(filePath).then((r) => r.blob())
+    const formData = new FormData()
+    formData.append('file', blob, `avatar_${Date.now()}.jpg`)
+    uploadRes = await fetch(`${config.apiBaseUrl}${fileApi.uploadUserAvatar(userId).url}`, {
+      method: 'POST',
+      credentials: 'include',
+      body: formData
+    })
+    data = await uploadRes.json()
+    // #endif
+
+    if (data.code === 200 && data.data) {
+      editForm.value.avatar = data.data.url || ''
+      editForm.value.avatarObjectName = data.data.objectName || ''
+      uni.showToast({ title: '上传成功', icon: 'success' })
+      await saveUserInfo()
+    } else {
+      throw new Error(data.message || '上传失败')
+    }
+  } catch (error) {
+    console.error('上传头像失败:', error)
+    uni.showToast({ title: error.message || '上传失败', icon: 'none' })
+  } finally {
+    uni.hideLoading()
+  }
 }
 
 // ==================== 昵称相关 ====================

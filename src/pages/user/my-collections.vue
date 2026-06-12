@@ -181,7 +181,20 @@ const fetchCollectedPosts = async (isLoadMore = false) => {
         commentCount: item.commentCount || 0,
         isLiked: item.isLiked || false,
         isCollected: item.isCollected || true,
-        isAnonymous: item.isAnonymous || false
+        isAnonymous: item.isAnonymous || false,
+        // 板块差异化字段（对齐 PostVO）
+        boardCode: item.boardCode || '',
+        price: item.price,
+        salary: item.salary,
+        infoFee: item.infoFee,
+        contact: item.contact,
+        bannerImage: item.bannerImage || '',
+        isTop: item.isTop || 0,
+        isSold: item.isSold || 0,
+        memberAvatars: item.memberAvatars || [],
+        memberCount: item.memberCount || 0,
+        maxMembers: item.maxMembers || null,
+        hasJoined: item.hasJoined || false
       }))
       
       if (isLoadMore) {
