@@ -46,7 +46,18 @@
       </view>
 
       <view class="px-margin-page">
-        <view class="sticker-border bg-surface-container-lowest rounded-[40rpx] p-padding-inner kawaii-shadow mb-4">
+        <view class="sticker-border bg-surface-container-lowest rounded-[40rpx] p-padding-inner kawaii-shadow mb-4 relative overflow-hidden">
+          <!-- 置顶标识 -->
+          <view v-if="post.isTop === 1" class="dt-top-tag">
+            <text class="material-symbols-outlined text-[20rpx] icon-filled mr-1">push_pin</text>置顶
+          </view>
+
+          <!-- 跨校标识 -->
+          <view v-if="post.scope === 1 && post.universityName" class="flex items-center gap-1 mb-3">
+            <text class="material-symbols-outlined text-primary text-[28rpx]">public</text>
+            <text class="text-primary text-label-sm font-bold">{{ post.universityName }} {{ post.campusName }}</text>
+          </view>
+
           <text class="text-on-surface text-body-lg leading-relaxed mb-4 block">{{ post.content }}</text>
           
           <view class="flex flex-wrap gap-2 mb-4" v-if="post.tags && post.tags.length > 0">
@@ -100,11 +111,23 @@
             </view>
           </view>
 
-          <!-- 组队：头像叠放(不显示数字) + 加入组队 + 联系方式 -->
+          <!-- 组队：头像叠放 + X/Y 人数 + 加入组队 + 联系方式 -->
           <view v-if="post.boardCode === 'team'" class="mb-4 space-y-3">
             <view class="flex items-center justify-between gap-3">
-              <AvatarStack :avatars="post.memberAvatars" :max="6" />
-              <view class="dt-join" @click="handleJoinTeam">加入组队</view>
+              <view class="flex items-center gap-3">
+                <AvatarStack :avatars="post.memberAvatars" :max="6" />
+                <text class="text-[26rpx] text-on-surface-variant font-bold">{{ post.memberCount || 0 }}/{{ post.maxMembers || '?' }}人已加入</text>
+              </view>
+              <view
+                class="dt-join flex items-center gap-1"
+                :class="{ 'dt-joined': post.hasJoined, 'dt-full': isTeamFull }"
+                :style="teamJoinLoading ? 'opacity: 0.6;' : ''"
+                @click="handleTeamToggle"
+              >
+                <span v-if="teamJoinLoading" class="material-symbols-outlined text-[24rpx] animate-spin">progress_activity</span>
+                <span v-else-if="isTeamFull">已满员</span>
+                <span v-else>{{ post.hasJoined ? '已加入' : '加入组队' }}</span>
+              </view>
             </view>
             <view v-if="post.contact" class="dt-contact" @click="copyContact(post.contact)">
               <text class="material-symbols-outlined text-[30rpx]">call</text>
@@ -360,6 +383,7 @@ import { useUserStore } from '@/stores/user'
 import { useInteractionStore } from '@/stores/interaction'
 import { formatTimeAgo } from '@/composables/useTimeAgo'
 import { useAuthGuard } from '@/composables/useAuthGuard'
+import AvatarStack from '@/components/AvatarStack/AvatarStack.vue'
 
 const userStore = useUserStore()
 const interaction = useInteractionStore()
@@ -388,6 +412,7 @@ const postId = ref(null)
 const targetCommentId = ref(null)  
 const scrollIntoViewId = ref('')  
 const loading = ref(false)
+const teamJoinLoading = ref(false)
 
 const post = ref({})
 const isFollowing = ref(false)
@@ -397,6 +422,13 @@ const totalComments = computed(() => {
   return comments.value.reduce((total, comment) => {
     return total + 1 + (comment.replies ? comment.replies.length : 0)
   }, 0)
+})
+
+const isTeamFull = computed(() => {
+  if (post.value.boardCode !== 'team') return false
+  const max = post.value.maxMembers
+  const count = post.value.memberCount || 0
+  return max != null && count >= max && !post.value.hasJoined
 })
 
 onLoad((options) => {
@@ -449,6 +481,8 @@ const fetchPostDetail = async () => {
         gender: data.gender,
         isAnonymous: data.isAnonymous || false,
         isSelf: data.userId === currentUserId,
+        isFollowing: data.isFollowing || false,
+        scope: data.scope || 0,
         content: data.content,
         images: data.images || [],
         tags: data.tags || [],
@@ -468,29 +502,20 @@ const fetchPostDetail = async () => {
         isTop: data.isTop || 0,
         isSold: data.isSold || 0,
         memberAvatars: data.memberAvatars || [],
+        memberCount: data.memberCount || 0,
+        maxMembers: data.maxMembers || null,
+        hasJoined: data.hasJoined || false,
+        universityName: data.universityName || '',
+        campusName: data.campusName || ''
       }
       cachePost(postId.value, post.value)
-      
-      if (!post.value.isAnonymous && !post.value.isSelf) {
-        checkFollowStatus(post.value.userId)
-      }
+      isFollowing.value = data.isFollowing || false
     }
   } catch (error) {
     console.error('❌ 获取帖子详情失败:', error)
     uni.showToast({ title: '加载帖子失败', icon: 'none' })
   } finally {
     loading.value = false
-  }
-}
-
-const checkFollowStatus = async (followUserId) => {
-  try {
-    const response = await get(followApi.checkFollow(followUserId).url)
-    if (response.code === 200) {
-      isFollowing.value = response.data || false
-    }
-  } catch (error) {
-    console.error('检查关注状态失败:', error)
   }
 }
 
@@ -905,22 +930,41 @@ const copyContact = (text) => {
   })
 }
 
-// 加入组队（组队板块方案B）：成功后刷新成员头像
-const handleJoinTeam = async () => {
+// 加入/退出组队（组队板块方案B）：成功后刷新成员头像与状态
+const handleTeamToggle = async () => {
   if (!checkLogin()) return
+  if (teamJoinLoading.value || isTeamFull.value) return
+
+  teamJoinLoading.value = true
   try {
-    const res = await apiPost(postApi.joinTeam(post.value.id).url)
-    if (res.code === 200 && res.data) {
-      post.value.memberAvatars = res.data.memberAvatars || post.value.memberAvatars
-      uni.showToast({
-        title: res.data.alreadyJoined ? '你已在队伍中' : '加入成功',
-        icon: 'success'
-      })
+    if (post.value.hasJoined) {
+      const res = await apiPost(postApi.leaveTeam(post.value.id).url)
+      if (res.code === 200 && res.data) {
+        post.value.memberAvatars = res.data.memberAvatars || []
+        post.value.memberCount = res.data.memberCount ?? Math.max(0, (post.value.memberCount || 0) - 1)
+        post.value.hasJoined = false
+        uni.showToast({ title: '已退出组队', icon: 'success' })
+      } else {
+        throw new Error(res.message || '退出失败')
+      }
     } else {
-      throw new Error(res.message || '加入失败')
+      const res = await apiPost(postApi.joinTeam(post.value.id).url)
+      if (res.code === 200 && res.data) {
+        post.value.memberAvatars = res.data.memberAvatars || post.value.memberAvatars
+        post.value.memberCount = res.data.memberCount ?? post.value.memberCount
+        post.value.hasJoined = true
+        uni.showToast({
+          title: res.data.alreadyJoined ? '你已在队伍中' : '加入成功',
+          icon: 'success'
+        })
+      } else {
+        throw new Error(res.message || '加入失败')
+      }
     }
   } catch (e) {
-    uni.showToast({ title: e.message || '加入失败，请重试', icon: 'none' })
+    uni.showToast({ title: e.message || '操作失败，请重试', icon: 'none' })
+  } finally {
+    teamJoinLoading.value = false
   }
 }
 
@@ -1108,5 +1152,24 @@ const handleDeleteComment = async () => {
   font-size: 26rpx;
   font-weight: bold;
   flex-shrink: 0;
+}
+.dt-join.dt-joined {
+  background: #F4F5F7;
+  color: #9a9a9a;
+}
+.dt-join.dt-full {
+  background: #F4F5F7;
+  color: #9a9a9a;
+}
+.dt-top-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #FF8FA3, #FFC46B);
+  box-shadow: 0 2rpx 8rpx rgba(255, 143, 163, 0.3);
+  margin-bottom: 12rpx;
 }
 </style>

@@ -12,10 +12,10 @@
     <main class="flex-1 px-margin-page pb-[200rpx]">
       <section class="mt-4 mb-6">
         <textarea
-          class="w-full h-40 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-outline-variant font-body-lg resize-none text-[32rpx] leading-relaxed"
-          placeholder="分享此刻的校园生活... (支持 AI 润色哦)"
-          v-model="content"
-          :maxlength="1000"
+            class="w-full h-40 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-outline-variant font-body-lg resize-none text-[32rpx] leading-relaxed"
+            placeholder="分享此刻的校园生活... (支持 AI 润色哦)"
+            v-model="content"
+            :maxlength="1000"
         ></textarea>
         <view class="flex justify-end mt-2">
           <text class="font-label-sm text-[24rpx] text-outline-variant">{{ content.length }}/1000</text>
@@ -112,6 +112,29 @@
             </view>
             <switch :checked="isAnonymous" @change="isAnonymous = $event.detail.value" color="#ffb2bd" style="transform:scale(0.9)" />
           </view>
+
+          <!-- 关联校区 -->
+          <view class="p-4 border-t border-outline-variant/20">
+            <view class="flex items-center justify-between mb-3">
+              <view class="flex items-center gap-3">
+                <text class="material-symbols-outlined text-on-surface-variant text-[44rpx]">location_city</text>
+                <text class="text-on-surface text-[30rpx] font-bold">关联校区</text>
+              </view>
+              <view class="flex items-center gap-2">
+                <text class="text-primary text-[24rpx] font-bold bouncy-tap" @click="selectAllCampuses">全选</text>
+                <text class="text-outline-variant text-[24rpx] font-bold bouncy-tap" @click="clearCampuses">清空</text>
+              </view>
+            </view>
+            <view v-if="campusList.length > 0" class="flex flex-wrap gap-2">
+              <view v-for="campus in campusList" :key="campus" @click="toggleCampus(campus)"
+                    class="px-3 py-1.5 rounded-full text-[24rpx] font-bold transition-all active:scale-95 border-[3rpx]"
+                    :class="selectedCampuses.includes(campus) ? 'border-primary bg-[#FFF0F3] text-[#9B4053]' : 'border-transparent bg-[#F5F6F8] text-on-surface'"
+              >
+                {{ campus }}
+              </view>
+            </view>
+            <text v-else class="text-outline-variant text-[26rpx]">未获取到所在学校校区，可在个人资料中绑定学校</text>
+          </view>
         </view>
 
         <!-- 板块差异化字段（按所选分区 code 动态显示，02~05） -->
@@ -153,10 +176,25 @@
             </view>
           </block>
 
-          <!-- 联系方式（二手/兼职/推广/组队 通用，选填，公开展示） -->
+          <!-- 组队：引导 + 人数上限（选填） -->
+          <block v-if="selectedBoardCode === 'team'">
+            <view class="flex items-start gap-3 bg-[#FFF0F3] rounded-[24rpx] p-[24rpx]">
+              <text class="material-symbols-outlined text-primary text-[40rpx] shrink-0">groups</text>
+              <view>
+                <text class="text-[26rpx] text-[#9B4053] font-bold block">发布组队帖小贴士</text>
+                <text class="text-[24rpx] text-on-surface-variant mt-1 block leading-relaxed">描述清楚你的组队需求（如比赛、项目、活动），并留下联系方式，方便志同道合的伙伴快速找到你。</text>
+              </view>
+            </view>
+            <view class="bf-row">
+              <text class="bf-label">人数上限</text>
+              <input v-model="maxMembers" type="number" class="bf-input" placeholder="如: 5（不填则无上限）" maxlength="10" />
+            </view>
+          </block>
+
+          <!-- 联系方式（二手/兼职/推广/组队 通用，公开展示） -->
           <view class="bf-row">
             <text class="bf-label">联系方式</text>
-            <input v-model="contact" class="bf-input" placeholder="微信/手机号(选填,将公开展示在帖子上)" maxlength="100" />
+            <input v-model="contact" class="bf-input" :placeholder="contactPlaceholder" maxlength="100" />
           </view>
         </view>
       </section>
@@ -249,12 +287,12 @@
     <view class="fixed bottom-0 left-0 w-full z-[70] bg-white pt-4 pb-[env(safe-area-inset-bottom)] ">
       <view class="px-[32rpx] pb-[24rpx]">
         <view
-          class="w-full h-[100rpx] flex items-center justify-center rounded-[50rpx] font-bold text-[36rpx] transition-all duration-300 active:scale-95"
-          :class="canPublish
+            class="w-full h-[100rpx] flex items-center justify-center rounded-[50rpx] font-bold text-[36rpx] transition-all duration-300 active:scale-95"
+            :class="canPublish
             ? 'text-white shadow-[0_12px_32px_rgba(255,143,163,0.3)]'
             : 'bg-[#F4F5F7] text-[#C1C1C1] shadow-none'"
-          :style="canPublish ? 'background: linear-gradient(135deg, #FF8FA3 0%, #FFB2BD 100%);' : ''"
-          @click="submitPost"
+            :style="canPublish ? 'background: linear-gradient(135deg, #FF8FA3 0%, #FFB2BD 100%);' : ''"
+            @click="submitPost"
         >
           发布贴纸 ✨
         </view>
@@ -266,7 +304,7 @@
 import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { post, get } from '@/utils/request.js'
-import { postApi, categoryApi, fileApi, userApi } from '@/api/index.js'
+import { postApi, categoryApi, fileApi, userApi, universityApi } from '@/api/index.js'
 import { config } from '@/config'
 
 const statusBarHeight = ref(uni.getSystemInfoSync().statusBarHeight)
@@ -282,6 +320,8 @@ const customTags = ref([])
 const location = ref('')
 const isAnonymous = ref(false)
 const uploadingCount = ref(0)
+const selectedCampuses = ref([])
+const campusList = ref([])
 
 // 板块差异化字段（02~05）
 const price = ref('')
@@ -291,6 +331,7 @@ const infoFee = ref('')
 const contact = ref('')
 const bannerObjectName = ref('')   // 推广 Banner 的 MinIO objectName
 const bannerPreview = ref('')      // 本地预览路径
+const maxMembers = ref('')         // 组队人数上限（仅 team 板块）
 
 const MAX_TAGS = 5
 
@@ -319,8 +360,13 @@ const canPublish = computed(() => {
 const selectedBoardCode = computed(() => selectedGroup.value?.code || '')
 // 哪些板块需要展示补充信息字段区
 const boardFieldsVisible = computed(() =>
-  ['secondhand', 'parttime', 'promotion', 'team'].includes(selectedBoardCode.value)
+    ['secondhand', 'parttime', 'promotion', 'team'].includes(selectedBoardCode.value)
 )
+// 联系方式 placeholder 按板块差异化提示
+const contactPlaceholder = computed(() => {
+  if (selectedBoardCode.value === 'team') return '微信/手机号(建议填写，方便队友联系你)'
+  return '微信/手机号(选填,将公开展示在帖子上)'
+})
 
 // 加载用户信息
 const loadUserInfo = async () => {
@@ -335,10 +381,43 @@ const loadUserInfo = async () => {
       } else {
         location.value = ''
       }
+      await fetchCampuses(userInfo.universityId)
     }
   } catch (error) {
     location.value = ''
   }
+}
+
+const fetchCampuses = async (universityId) => {
+  if (!universityId) {
+    campusList.value = []
+    return
+  }
+  try {
+    const res = await get(universityApi.getCampuses(universityId).url)
+    if (res.code === 200 && res.data) {
+      campusList.value = res.data.filter(c => c && c.trim() !== '')
+    }
+  } catch (e) {
+    console.warn('获取校区列表失败:', e)
+  }
+}
+
+const toggleCampus = (campus) => {
+  const index = selectedCampuses.value.indexOf(campus)
+  if (index > -1) {
+    selectedCampuses.value.splice(index, 1)
+  } else {
+    selectedCampuses.value.push(campus)
+  }
+}
+
+const selectAllCampuses = () => {
+  selectedCampuses.value = [...campusList.value]
+}
+
+const clearCampuses = () => {
+  selectedCampuses.value = []
 }
 
 onShow(() => {
@@ -632,13 +711,15 @@ const submitPost = async () => {
       location: location.value,
       isAnonymous: isAnonymous.value,
       scope: uni.getStorageSync('publishScope') ?? 0,
+      campuses: selectedCampuses.value.length > 0 ? selectedCampuses.value : null,
       // 板块差异化字段（后端按 BoardType 取用，无关字段忽略）
       price: (boardCode === 'secondhand' && !negotiable.value && price.value) ? Number(price.value) : null,
       negotiable: boardCode === 'secondhand' ? negotiable.value : false,
       salary: boardCode === 'parttime' ? salary.value : null,
       infoFee: boardCode === 'parttime' ? infoFee.value : null,
       contact: contact.value || null,
-      bannerImage: boardCode === 'promotion' ? bannerObjectName.value : null
+      bannerImage: boardCode === 'promotion' ? bannerObjectName.value : null,
+      maxMembers: boardCode === 'team' ? (maxMembers.value ? Number(maxMembers.value) : null) : null
     }
 
     const response = await post(postApi.publishPost(postData).url, postData)

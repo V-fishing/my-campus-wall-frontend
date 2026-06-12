@@ -99,26 +99,48 @@
           </view>
         </view>
 
+        <!-- 校区筛选条 -->
+        <view v-if="viewMode === 'recommend' && campusList.length > 1" class="flex items-center py-1 animate-fade-in">
+          <scroll-view scroll-x class="flex-1 hide-scrollbar" :show-scrollbar="false">
+            <view class="flex gap-2 items-center px-1">
+              <view v-for="campus in campusList" :key="campus" @click="selectCampus(campus)"
+                    class="text-label-sm px-3 py-1.5 rounded-full flex-shrink-0 whitespace-nowrap transition-all border flex items-center"
+                    :class="currentCampus === campus ? 'text-primary bg-primary/10 border-primary/20' : 'text-on-surface-variant bg-surface-container-low border-transparent'">
+                {{ campus }}
+              </view>
+            </view>
+          </scroll-view>
+        </view>
+
         <!-- 帖子列表 -->
+        <!-- 核心时光贴纸动态瀑布流卡片集群 -->
         <view class="space-y-4">
-          <view class="bg-surface-container-lowest rounded-3xl p-4 sticker-border kawaii-shadow space-y-3 relative overflow-hidden"
-                   :class="{ 'promo-card': post.boardCode === 'promotion', 'sold-dim': post.isSold === 1 }"
-                   v-for="post in displayPosts" :key="post.id">
+          <article
+              class="bg-surface-container-lowest rounded-3xl p-4 sticker-border kawaii-shadow space-y-3 relative overflow-hidden transition-all duration-300"
+              :class="{ 'opacity-60 grayscale-[20%]': post.isSold === 1 }"
+              v-for="post in displayPosts" :key="post.id">
 
-            <!-- 推广帖专属高亮标签（极客蓝微渐变，右上角，避免欺骗感） -->
-            <view v-if="post.boardCode === 'promotion'" class="promo-tag">推广</view>
+            <!-- 置顶标识（左上角） -->
+            <view v-if="post.isTop === 1" class="absolute top-0 left-0 bg-gradient-to-br from-[#FFC46B] to-[#FF8FA3] text-white px-3 py-1 rounded-br-[24rpx] flex items-center gap-1 shadow-sm z-10">
+              <span class="material-symbols-outlined text-[24rpx] icon-filled">push_pin</span>
+              <text class="text-[20rpx] font-bold">置顶</text>
+            </view>
 
-            <!-- 头部作者区 -->
+            <!-- 卡片头部：作者核心资料与更多操作 -->
             <view class="flex items-center justify-between">
               <view class="flex items-center gap-3" @click="goToUserHome(post)">
-                <view class="relative shrink-0">
-                  <!-- 匿名头像 -->
-                  <view v-if="post.isAnonymous" class="w-10 h-10 rounded-full bg-outline-variant flex items-center justify-center text-white">
-                    <span class="material-symbols-outlined text-[36rpx]">person</span>
-                  </view>
-                  <!-- 正常头像 -->
-                  <image v-else class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm bg-surface-container-low" lazy-load mode="aspectFill" :src="post.avatar || defaultAvatar"></image>
-                  <!-- 性别标识 -->
+                <!-- 推广帖特殊商家头像 -->
+                <view v-if="post.boardCode === 'promotion'" class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center shrink-0 border-2 border-white shadow-sm">
+                  <span class="material-symbols-outlined text-yellow-600">store</span>
+                </view>
+                <!-- 普通头像区 -->
+                <view v-else class="relative shrink-0">
+                  <image
+                    :src="post.isAnonymous ? defaultAvatar : (post.avatar || defaultAvatar)"
+                    mode="aspectFill"
+                    class="w-10 h-10 rounded-full bg-secondary-fixed border-2 border-white shadow-sm"
+                  />
+                  <!-- 性别角标（避开内联Style报错，采用专属原子类） -->
                   <view v-if="!post.isAnonymous && post.gender === 1" class="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-400 rounded-full border-2 border-white flex items-center justify-center shadow-sm">
                     <span class="material-symbols-outlined text-[10px] text-white font-bold icon-filled">male</span>
                   </view>
@@ -126,117 +148,134 @@
                     <span class="material-symbols-outlined text-[10px] text-white font-bold icon-filled">female</span>
                   </view>
                 </view>
-                <view>
-                  <view class="font-headline-md-mobile text-[28rpx] font-bold text-on-surface">{{ post.isAnonymous ? '匿名小伙' : (post.author || '神秘洞主') }}</view>
-                  <view class="font-label-sm-mobile text-[20rpx] text-on-surface-variant mt-0.5">{{ formatTime(post.createTime) }} • {{ post.category || '社区' }}</view>
+
+                <view class="min-w-0">
+                  <p class="font-headline-md-mobile text-[28rpx] font-bold text-on-surface truncate">{{ post.isAnonymous ? '匿名小伙' : (post.author || '神秘洞主') }}</p>
+                  <p class="font-label-sm-mobile text-[20rpx] text-on-surface-variant mt-0.5 truncate">
+                    <template v-if="post.boardCode === 'promotion'">广告</template>
+                    <template v-else>
+                      {{ formatTime(post.createTime) }} • {{ post.category || '大厅' }}
+                      <text v-if="post.scope === 0 && post.campusName" class="ml-1 text-primary">• {{ post.campusName }}</text>
+                    </template>
+                  </p>
                 </view>
               </view>
 
-              <!-- 右侧操作 -->
-              <view class="text-on-surface-variant bg-transparent border-none p-0" @click.stop="openReportPopup(post)">
-                <span class="material-symbols-outlined text-[36rpx]">more_horiz</span>
+              <view class="flex items-center gap-2">
+                <!-- 推广标签 -->
+                <span v-if="post.boardCode === 'promotion'" class="bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-3 py-1 rounded-lg text-[20rpx] font-bold shadow-sm">推广</span>
+                <view class="bouncy-tap text-on-surface-variant bg-transparent border-none p-0 flex items-center justify-center" @click.stop="openReportPopup(post)">
+                  <span class="material-symbols-outlined text-[40rpx]">more_horiz</span>
+                </view>
               </view>
             </view>
 
-            <!-- 内容区 -->
+            <!-- 核心正文 -->
             <view @click="goToDetail(post.id)">
-              <!-- 有图帖子：正常文本 -->
-              <view
-                 class="font-body-lg-mobile text-[28rpx] text-on-surface block mb-3 line-clamp-3 leading-relaxed font-medium">{{ post.content }}</view>
-
+              <p class="font-body-lg-mobile text-[28rpx] text-on-surface block mb-2 line-clamp-3 leading-relaxed font-medium">{{ post.content }}</p>
             </view>
 
-            <!-- 推广帖：撑满卡片宽度的横向 Banner 大图（替代三宫格特权） -->
+            <!-- 媒体渲染矩阵：推广大 Banner 或 拍立得相册 -->
             <image v-if="post.boardCode === 'promotion' && post.bannerImage"
-                   :src="post.bannerImage" class="promo-banner" mode="aspectFill"
+                   :src="post.bannerImage" class="w-full h-44 rounded-2xl shadow-sm object-cover"
                    @click="goToDetail(post.id)"></image>
 
-            <!-- 图片网格（推广帖有 Banner 时不再渲染三宫格） -->
             <view v-else-if="post.images && post.images.length > 0"
-                 :class="['grid gap-2', post.images.length >= 3 ? 'grid-cols-3' : 'grid-cols-2']"
-                 @click="goToDetail(post.id)">
+                  :class="['grid gap-2', post.images.length >= 3 ? 'grid-cols-3' : 'grid-cols-2']"
+                  @click="goToDetail(post.id)">
               <view v-for="(img, i) in post.images.slice(0, post.images.length >= 3 ? 3 : 2)" :key="i"
-                    :class="[post.images.length >= 3 ? 'aspect-square' : 'h-40', 'bg-surface-container-high rounded-2xl overflow-hidden relative']">
+                    class="bg-surface-container-high rounded-xl overflow-hidden relative shadow-inner"
+                    :class="[post.images.length >= 3 ? 'aspect-square' : 'h-40']">
                 <image class="w-full h-full object-cover opacity-0 transition-opacity duration-500"
                        :class="{ 'opacity-100': imageLoaded[img] }"
                        lazy-load mode="aspectFill" :src="img"
                        @load="() => onImageLoad(img)"></image>
                 <view v-if="post.images.length >= 3 && i === 2 && post.images.length > 3"
-                      class="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-headline-md-mobile font-bold text-[32rpx]">
+                      class="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center text-white font-headline-md-mobile font-bold text-[32rpx]">
                   +{{ post.images.length - 3 }}
                 </view>
               </view>
             </view>
 
-            <!-- 二手交易：价格(醒目) + 已售出标记 + 联系方式(可复制) -->
-            <view v-if="post.boardCode === 'secondhand'" class="flex items-center gap-3 flex-wrap">
-              <text class="text-[#FF8FA3] font-bold text-[34rpx]">{{ post.price != null ? '¥' + post.price : '面议' }}</text>
-              <text v-if="post.isSold === 1" class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-[20rpx] font-bold">已售出</text>
-              <view v-if="post.contact" class="contact-chip" @click.stop="copyContact(post.contact)">
-                <span class="material-symbols-outlined text-[28rpx]">call</span>
-                <text class="ml-1">{{ post.contact }}</text>
-                <text class="copy-btn">复制</text>
+            <!-- ======== 专属四大业务插件区 ======== -->
+            <view class="flex flex-col gap-3 mt-2">
+
+              <!-- 【1】兼职：薪资药丸 + 信息费 -->
+              <view v-if="post.boardCode === 'parttime'" class="flex gap-2 px-1 text-label-sm-mobile">
+                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">薪资: {{ post.salary || '面议' }}</span>
+                <span v-if="post.infoFee" class="bg-red-100 text-red-700 px-3 py-1 rounded-full font-medium">信息费: {{ post.infoFee }}</span>
+              </view>
+
+              <view v-if="post.contact" class="flex items-center justify-between px-3 bg-surface-container rounded-full max-w-[40%] h-[46rpx] cursor-pointer bouncy-tap border border-outline-variant/10" @click.stop="copyContact(post.contact)">
+                <view class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
+    <span class="material-symbols-outlined text-[28rpx] shrink-0" :class="post.boardCode === 'team' ? 'text-[#6D4EA2]' : 'text-primary'">
+      {{ post.boardCode === 'team' ? 'chat' : (post.boardCode === 'promotion' ? 'support_agent' : 'contact_page') }}
+    </span>
+                  <span class="text-label-sm-mobile text-on-surface-variant font-bold text-center truncate flex-1 min-w-0">{{ post.contact }}</span>
+                </view>
+                <span class="font-bold text-label-sm-mobile shrink-0 ml-1.5 px-1.5 py-0.5 rounded-full" :class="post.boardCode === 'team' ? 'text-[#6D4EA2]' : 'text-primary'">复制</span>
+              </view>
+
+
+              <!-- 【2】集市：价格高亮 + 售出状态 + 标签同行 -->
+              <view v-if="post.boardCode === 'secondhand'" class="flex items-center justify-between px-1">
+                <div class="flex items-center gap-2">
+                  <p class="text-[40rpx] font-extrabold text-orange-500">{{ post.price != null ? '￥' + post.price : '面议' }}</p>
+                  <span v-if="post.isSold === 1" class="text-[20rpx] bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded-full font-bold">已售出</span>
+                </div>
+                <!-- 标签收纳至集市同行右侧 -->
+                <view class="flex flex-wrap gap-1.5 justify-end" v-if="post.tags && post.tags.length > 0">
+          <span v-for="tag in post.tags.slice(0, 2)" :key="tag" @click.stop="handleTagClick(tag)"
+                class="bg-secondary-fixed text-on-secondary-fixed-variant px-2 py-0.5 rounded-full text-[20rpx] font-bold">
+            #{{ tag }}
+          </span>
+                </view>
+              </view>
+
+              <!-- 【3】组队：头像叠层 + 缺人提示 + 标签同行 -->
+              <view v-if="post.boardCode === 'team'" class="flex items-center justify-between px-1">
+                <view class="flex items-center gap-2 min-w-0">
+                  <!-- 复用现有头像叠放组件 -->
+                  <AvatarStack
+                    :avatars="post.memberAvatars"
+                    :max="4"
+                    :missing-count="Math.max(0, (post.maxMembers || 0) - (post.memberCount || 0))"
+                  />
+                  <span class="text-[22rpx] text-on-surface-variant font-bold shrink-0">缺{{ Math.max(0, (post.maxMembers || 0) - (post.memberCount || 0)) }}人</span>
+                </view>
+                <view class="flex flex-wrap gap-1.5 justify-end" v-if="post.tags && post.tags.length > 0">
+          <span v-for="tag in post.tags.slice(0, 2)" :key="tag" @click.stop="handleTagClick(tag)"
+                class="bg-secondary-fixed text-on-secondary-fixed-variant px-2 py-0.5 rounded-full text-[20rpx] font-bold">
+            #{{ tag }}
+          </span>
+                </view>
+              </view>
+
+              <!-- 【全局】非集市/非组队帖子的正常标签列 -->
+              <view class="flex flex-wrap gap-2 px-1" v-if="post.tags && post.tags.length > 0 && post.boardCode !== 'secondhand' && post.boardCode !== 'team'">
+        <span v-for="tag in post.tags.slice(0, 3)" :key="tag" @click.stop="handleTagClick(tag)"
+              class="bg-secondary-fixed text-on-secondary-fixed-variant px-2.5 py-0.5 rounded-full text-[20rpx] font-bold">
+          #{{ tag }}
+        </span>
+              </view>
+
+              <!-- 底部互动操作栏 -->
+              <view class="flex items-center justify-between pt-2 border-t border-dashed border-outline-variant/30 text-on-surface-variant px-1">
+                <view class="flex items-center gap-5 text-[26rpx] font-medium">
+                  <view class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[36rpx]">visibility</span><span class="pt-0.5">{{ post.viewCount || 0 }}</span></view>
+                  <view class="flex items-center gap-1.5 bouncy-tap" :class="[post.isLiked ? 'text-primary' : '']" @click.stop="toggleLike(post)">
+                    <span class="material-symbols-outlined text-[36rpx] icon-filled-like" :class="{'liked': post.isLiked}">favorite</span><span class="pt-0.5">{{ post.likeCount || 0 }}</span>
+                  </view>
+                  <view class="flex items-center gap-1.5 bouncy-tap" @click.stop="goToDetail(post.id)">
+                    <span class="material-symbols-outlined text-[36rpx]">chat_bubble</span><span class="pt-0.5">{{ post.commentCount || 0 }}</span>
+                  </view>
+                </view>
+                <view class="bg-transparent border-none p-0 m-0 flex items-center justify-center bouncy-tap text-on-surface-variant" @click.stop="openSharePopup(post)">
+                  <span class="material-symbols-outlined text-[36rpx]">share</span>
+                </view>
               </view>
             </view>
-
-            <!-- 兼职发布：薪资 + 信息费 + 联系方式 -->
-            <view v-if="post.boardCode === 'parttime'" class="flex items-center gap-3 flex-wrap text-[24rpx]">
-              <text class="text-[#1677ff] font-bold">薪资：{{ post.salary || '面议' }}</text>
-              <text v-if="post.infoFee" class="text-on-surface-variant">信息费：{{ post.infoFee }}</text>
-              <view v-if="post.contact" class="contact-chip" @click.stop="copyContact(post.contact)">
-                <span class="material-symbols-outlined text-[28rpx]">call</span>
-                <text class="ml-1">{{ post.contact }}</text>
-                <text class="copy-btn">复制</text>
-              </view>
-            </view>
-
-            <!-- 推广：联系方式（可复制） -->
-            <view v-if="post.boardCode === 'promotion' && post.contact" class="flex items-center gap-3 flex-wrap">
-              <view class="contact-chip" @click.stop="copyContact(post.contact)">
-                <span class="material-symbols-outlined text-[28rpx]">call</span>
-                <text class="ml-1">{{ post.contact }}</text>
-                <text class="copy-btn">复制</text>
-              </view>
-            </view>
-
-            <!-- 组队：头像叠放（不显示数字）+ 联系方式 -->
-            <view v-if="post.boardCode === 'team'" class="flex items-center gap-3 flex-wrap">
-              <AvatarStack :avatars="post.memberAvatars" :max="5" />
-              <view v-if="post.contact" class="contact-chip" @click.stop="copyContact(post.contact)">
-                <span class="material-symbols-outlined text-[28rpx]">call</span>
-                <text class="ml-1">{{ post.contact }}</text>
-                <text class="copy-btn">复制</text>
-              </view>
-            </view>
-
-            <!-- 话题标签 -->
-            <view class="flex flex-wrap gap-2" v-if="post.tags && post.tags.length > 0">
-              <span v-for="tag in post.tags.slice(0, 3)" :key="tag" @click.stop="handleTagClick(tag)"
-                    class="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full font-label-sm-mobile text-[22rpx] font-bold">
-                #{{ tag }}
-              </span>
-            </view>
-
-            <!-- 底部交互栏 -->
-            <view class="flex items-center gap-5 pt-3 text-on-surface-variant">
-              <view class="flex items-center gap-1.5 bouncy-tap text-label-md">
-                <span class="material-symbols-outlined text-[40rpx]">visibility</span>
-                <text>{{ post.viewCount || 0 }}</text>
-              </view>
-              <view class="flex items-center gap-1.5 bouncy-tap text-label-md" :class="[post.isLiked ? 'text-primary' : 'text-on-surface-variant']" @click.stop="toggleLike(post)">
-                <span class="material-symbols-outlined text-[40rpx]" :style="post.isLiked ? 'font-variation-settings: \'FILL\' 1' : ''">favorite</span>
-                <text>{{ post.likeCount || 0 }}</text>
-              </view>
-              <view class="flex items-center gap-1.5 bouncy-tap text-label-md" @click.stop="goToDetail(post.id)">
-                <span class="material-symbols-outlined text-[40rpx]">chat_bubble</span>
-                <text>{{ post.commentCount || 0 }}</text>
-              </view>
-              <view class="flex items-center gap-1.5 ml-auto bouncy-tap text-label-md" @click.stop="openSharePopup(post)">
-                <span class="material-symbols-outlined text-[40rpx]">share</span>
-              </view>
-            </view>
-
-          </view>
+          </article>
         </view>
 
         <!-- 加载状态 -->
@@ -340,11 +379,13 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { onLoad, onReachBottom, onShow } from '@dcloudio/uni-app'
 import { get, post } from '@/utils/request.js'
-import { postApi, categoryApi } from '@/api/index.js'
+import { postApi, categoryApi, universityApi } from '@/api/index.js'
 import { useUserStore } from '@/stores/user'
 import { useInteractionStore } from '@/stores/interaction'
 import { formatTimeAgo } from '@/composables/useTimeAgo'
 import { useAuthGuard } from '@/composables/useAuthGuard'
+import AvatarStack from '@/components/AvatarStack/AvatarStack.vue'
+import CustomTabBar from "@/components/CustomTabBar/CustomTabBar.vue";
 
 const systemInfo = uni.getSystemInfoSync()
 const statusBarHeight = ref(systemInfo.statusBarHeight || 20)
@@ -361,6 +402,9 @@ const activeGroupIndex = ref(null)
 const currentCategoryId = ref(null)
 const currentCategoryName = ref('推荐')
 const currentTagName = ref('')
+
+const currentCampus = ref('全部')
+const campusList = ref(['全部'])
 
 const postList = ref([])
 const hotPosts = ref([])
@@ -426,6 +470,30 @@ const fetchHotPosts = async () => {
   }
 }
 
+const fetchCampuses = async () => {
+  try {
+    const userInfo = uni.getStorageSync('userInfo') || {}
+    const universityId = userInfo.universityId
+    if (!universityId) {
+      campusList.value = ['全部']
+      return
+    }
+    const res = await get(universityApi.getCampuses(universityId).url)
+    if (res.code === 200 && res.data) {
+      const list = res.data.filter(c => c && c.trim() !== '')
+      campusList.value = ['全部', ...list]
+    }
+  } catch (e) {
+    console.warn('获取校区列表失败:', e)
+  }
+}
+
+const selectCampus = (campus) => {
+  if (currentCampus.value === campus) return
+  currentCampus.value = campus
+  fetchPostList(true)
+}
+
 const fetchPostList = async (refresh = false) => {
   if (loading.value && !refresh) return
   loading.value = true
@@ -444,7 +512,8 @@ const fetchPostList = async (refresh = false) => {
         ...paramsBase,
         category: currentCategoryName.value === '推荐' ? '' : currentCategoryName.value,
         tag: currentTagName.value || '',
-        scope: 0
+        scope: 0,
+        ...(currentCampus.value !== '全部' ? { campus: currentCampus.value } : {})
       }
       response = await get(postApi.getPostList(listParams).url, listParams)
     }
@@ -469,6 +538,8 @@ const fetchPostList = async (refresh = false) => {
         commentCount: item.commentCount || 0,
         isLiked: (cachedLikeState && cachedLikeState.isLiked !== null) ? cachedLikeState.isLiked : (item.isLiked || false),
         isAnonymous: item.isAnonymous || false,
+        isFollowing: item.isFollowing || false,
+        scope: item.scope || 0,
         // 板块差异化字段
         boardCode: item.boardCode || '',
         price: item.price,
@@ -478,7 +549,13 @@ const fetchPostList = async (refresh = false) => {
         bannerImage: item.bannerImage || '',
         isTop: item.isTop || 0,
         isSold: item.isSold || 0,
-        memberAvatars: item.memberAvatars || []
+        memberAvatars: item.memberAvatars || [],
+        memberCount: item.memberCount || 0,
+        maxMembers: item.maxMembers || null,
+        hasJoined: item.hasJoined || false,
+        universityName: item.universityName || '',
+        campusName: item.campusName || '',
+        campuses: item.campuses || []
       }
     })
 
@@ -594,6 +671,8 @@ const copyContact = (text) => {
   })
 }
 
+
+
 const toggleLike = async (postItem) => {
   if (!requireLogin()) return
   try {
@@ -687,6 +766,7 @@ const switchViewMode = (mode) => {
 onLoad(() => {
   fetchCategories()
   fetchHotPosts()
+  fetchCampuses()
   fetchPostList(true)
 })
 
@@ -750,55 +830,7 @@ const goToHotPosts = () => uni.navigateTo({ url: '/pages/hot-posts/hot-posts?sco
   background: linear-gradient(135deg, #FF8FA3 0%, #FFC46B 100%);
 }
 
-/* ===== 板块差异化（02~05） ===== */
-/* 推广帖 [推广] 高亮标签（极客蓝微渐变，右上角） */
-.promo-tag {
-  position: absolute;
-  top: 16rpx;
-  right: 16rpx;
-  padding: 4rpx 16rpx;
-  border-radius: 999rpx;
-  font-size: 22rpx;
-  color: #fff;
-  background: linear-gradient(135deg, #1677ff, #69b1ff);
-  box-shadow: 0 2rpx 8rpx rgba(22, 119, 255, 0.25);
-  z-index: 2;
-}
-/* 推广帖 Banner 大图 */
-.promo-banner {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 16rpx;
-  display: block;
-}
-/* 推广帖整卡视觉差异化（边框 + 顶部底色，避免欺骗感） */
-.promo-card {
-  border: 2rpx solid rgba(22, 119, 255, 0.3);
-  background: linear-gradient(180deg, rgba(22, 119, 255, 0.05), transparent 40%);
-}
-/* 二手已售出置灰 */
-.sold-dim {
-  opacity: 0.6;
-  filter: grayscale(0.4);
-}
-/* 联系方式胶囊（可点复制） */
-.contact-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 4rpx 14rpx;
-  border-radius: 999rpx;
-  background: var(--surface-container-high, #f1ecec);
-  color: #6d4ea2;
-  font-size: 24rpx;
-}
-.copy-btn {
-  margin-left: 10rpx;
-  padding: 0 10rpx;
-  border-radius: 999rpx;
-  background: #6d4ea2;
-  color: #fff;
-  font-size: 20rpx;
-}
+
 
 .line-clamp-3 {
   display: -webkit-box;
@@ -806,6 +838,8 @@ const goToHotPosts = () => uni.navigateTo({ url: '/pages/hot-posts/hot-posts?sco
   -webkit-line-clamp: 3;
   overflow: hidden;
 }
+
+
 
 .icon-filled {
   font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24 !important;

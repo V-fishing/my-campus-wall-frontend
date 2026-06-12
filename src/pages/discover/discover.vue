@@ -84,10 +84,10 @@
               v-for="post in postList" :key="post.id" @click="goToPostDetail(post)">
           
           <view class="flex flex-col gap-3">
-            <view class="flex items-center gap-2 self-start" v-if="post.university">
+            <view class="flex items-center gap-2 self-start" v-if="post.location">
               <view class="flex items-center gap-1 px-3 py-1 bg-surface-container-low border border-primary-fixed-dim rounded-full">
                 <text class="material-symbols-outlined text-primary text-[28rpx]">location_on</text>
-                <text class="text-[22rpx] font-bold text-primary">{{ post.university }}</text>
+                <text class="text-[22rpx] font-bold text-primary">{{ post.location }}</text>
               </view>
             </view>
 
@@ -97,7 +97,7 @@
                        :src="post.isAnonymous ? defaultAvatar : (post.avatar || defaultAvatar)"></image>
                 <view class="flex flex-col">
                   <view class="flex items-center gap-1">
-                    <text class="font-bold text-[28rpx] text-on-surface">{{ post.isAnonymous ? '匿名用户' : (post.nickname || '匿名用户') }}</text>
+                    <text class="font-bold text-[28rpx] text-on-surface">{{ post.isAnonymous ? '匿名用户' : (post.author || '匿名用户') }}</text>
                     <text class="material-symbols-outlined text-[#4A90E2] text-[28rpx]" v-if="!post.isAnonymous && post.gender === 1">male</text>
                     <text class="material-symbols-outlined text-[#E91E8C] text-[28rpx]" v-else-if="!post.isAnonymous && post.gender === 2">female</text>
                   </view>
@@ -129,8 +129,8 @@
               ></image>
             </view>
 
-            <view class="flex flex-wrap gap-2 mt-2" v-if="post.aiTags && post.aiTags.length > 0">
-              <text class="text-[24rpx] text-primary bg-primary-container/20 px-3 py-1 rounded-md" v-for="(tag, idx) in post.aiTags" :key="idx">
+            <view class="flex flex-wrap gap-2 mt-2" v-if="post.tags && post.tags.length > 0">
+              <text class="text-[24rpx] text-primary bg-primary-container/20 px-3 py-1 rounded-md" v-for="(tag, idx) in post.tags" :key="idx">
                 #{{ tag }}
               </text>
             </view>
@@ -322,20 +322,33 @@ const fetchPostList = async (isLoadMore = false) => {
       return {
         id: item.id,
         userId: item.userId,
-        nickname: item.author || '匿名用户',
+        author: item.author || '匿名用户',
         avatar: item.avatar || defaultAvatar,
         gender: item.gender,
         createTime: item.createTime,
         content: item.content,
         images: item.images || [],
-        aiTags: item.tags || [],
-        university: item.location || '',
+        tags: item.tags || [],
+        location: item.location || '',
         likeCount: cachedLike?.likeCount ?? item.likeCount ?? 0,
         commentCount: item.commentCount || 0,
         viewCount: item.viewCount || 0,
         isLiked: cachedLike?.isLiked ?? item.isLiked ?? false,
         isCollected: cachedCollect?.isCollected ?? item.isCollected ?? false,
-        isAnonymous: item.isAnonymous || false
+        isAnonymous: item.isAnonymous || false,
+        // 板块差异化字段
+        boardCode: item.boardCode || '',
+        price: item.price,
+        salary: item.salary,
+        infoFee: item.infoFee,
+        contact: item.contact,
+        bannerImage: item.bannerImage || '',
+        isTop: item.isTop || 0,
+        isSold: item.isSold || 0,
+        memberAvatars: item.memberAvatars || [],
+        memberCount: item.memberCount || 0,
+        maxMembers: item.maxMembers || null,
+        hasJoined: item.hasJoined || false
       }
     })
 

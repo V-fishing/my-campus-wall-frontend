@@ -23,6 +23,8 @@ export interface PostApi {
   getUserCollectedPosts: (userId: number, params?: any) => ApiConfig
   getFollowingPosts: (params?: any) => ApiConfig
   incrementViewCount: (postId: number) => ApiConfig
+  joinTeam: (postId: number) => ApiConfig
+  leaveTeam: (postId: number) => ApiConfig
 }
 
 // 分类相关接口类型
@@ -38,7 +40,6 @@ export interface UserApi {
   getCurrentUserInfo: () => ApiConfig
   getUserInfo: (userId: number) => ApiConfig
   updateUserInfo: (data: any) => ApiConfig
-  uploadAvatar: () => ApiConfig
 }
 
 // 关注相关接口类型
@@ -97,6 +98,11 @@ export interface NotificationApi {
   deleteNotification: (notificationId: number) => ApiConfig
 }
 
+// 高校相关接口类型
+export interface UniversityApi {
+  getCampuses: (universityId: number) => ApiConfig
+}
+
 // 文件上传相关接口类型
 export interface FileApi {
   uploadPostTempImage: () => ApiConfig
@@ -131,3 +137,4 @@ export const aiApi: AiApi
 export const searchApi: SearchApi
 export const notificationApi: NotificationApi
 export const fileApi: FileApi
+export const universityApi: UniversityApi

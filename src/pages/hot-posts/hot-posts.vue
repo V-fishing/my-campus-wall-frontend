@@ -144,7 +144,20 @@ const fetchHotPosts = async (scope) => {
         viewCount: item.viewCount || 0,
         likeCount: item.likeCount || 0,
         commentCount: item.commentCount || 0,
-        isAnonymous: item.isAnonymous || false
+        isAnonymous: item.isAnonymous || false,
+        // 板块差异化字段
+        boardCode: item.boardCode || '',
+        price: item.price,
+        salary: item.salary,
+        infoFee: item.infoFee,
+        contact: item.contact,
+        bannerImage: item.bannerImage || '',
+        isTop: item.isTop || 0,
+        isSold: item.isSold || 0,
+        memberAvatars: item.memberAvatars || [],
+        memberCount: item.memberCount || 0,
+        maxMembers: item.maxMembers || null,
+        hasJoined: item.hasJoined || false
       }))
     }
   } catch (error) {
