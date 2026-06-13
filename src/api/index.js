@@ -218,6 +218,13 @@ export const discoverApi = {
   getChannels: () => ({
     url: '/api/v1/discover/channels',
     method: 'GET'
+  }),
+
+  // 获取附近学校及校区列表（发现页「附近大学」自定义用）
+  getNearbyUniversities: (city) => ({
+    url: '/api/v1/universities/nearby',
+    method: 'GET',
+    params: { city }
   })
 };
 

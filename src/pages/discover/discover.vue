@@ -36,6 +36,47 @@
         </view>
       </view>
 
+      <!-- 附近大学范围选择条 -->
+      <view class="flex items-center py-2 animate-fade-in">
+        <scroll-view scroll-x class="flex-1 hide-scrollbar" :show-scrollbar="false">
+          <view class="flex gap-2 items-center px-1">
+            <view
+              v-for="scope in scopeOptions"
+              :key="scope.value"
+              class="rounded-full text-label-md flex-shrink-0 whitespace-nowrap transition-all border bouncy-press flex items-center"
+              :class="currentScope === scope.value
+                ? 'bg-primary text-white border-primary/20 shadow-sm'
+                : 'bg-surface-container-low text-on-surface-variant border-transparent'"
+            >
+              <template v-if="scope.value === 'CUSTOM'">
+                <view class="flex items-center">
+                  <view
+                    class="pl-4 pr-2 py-2 flex items-center justify-center active:scale-90 transition-transform"
+                    @click.stop="openCustomPanel"
+                  >
+                    <text class="material-symbols-outlined text-[24rpx]" :class="currentScope === 'CUSTOM' ? 'icon-filled' : ''">{{ scope.icon }}</text>
+                  </view>
+                  <view class="w-[1rpx] h-4 bg-current opacity-20"></view>
+                  <view
+                    class="pl-2 pr-4 py-2 flex items-center gap-1 active:scale-90 transition-transform"
+                    @click.stop="selectCustomScope"
+                  >
+                    <text>{{ scope.label }}</text>
+                    <text v-if="customSchoolNames.length > 0" class="ml-1 text-[20rpx] opacity-80">({{ customSchoolNames.length }})</text>
+                  </view>
+                </view>
+              </template>
+              <template v-else>
+                <view class="px-4 py-2 flex items-center gap-1" @click="selectScope(scope.value)">
+                  <text v-if="scope.icon" class="material-symbols-outlined text-[24rpx]" :class="currentScope === scope.value ? 'icon-filled' : ''">{{ scope.icon }}</text>
+                  <text>{{ scope.label }}</text>
+                </view>
+              </template>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+
       <view class="relative z-30 py-3 mb-2">
         <view class="relative flex items-center bg-surface-container-lowest rounded-3xl p-1.5 border border-outline-variant/10 shadow-sm overflow-hidden">
           <scroll-view scroll-x class="w-full no-scrollbar pr-8" :show-scrollbar="false">
@@ -226,13 +267,105 @@
       </view>
     </view>
 
+    <!-- 附近大学自定义校区选择面板 -->
+    <view class="fixed inset-0 bg-black/40 z-[1000] backdrop-blur-sm transition-opacity" v-if="showScopePanel" @click="closeScopePanel"></view>
+
+    <view
+      class="fixed bottom-0 left-0 w-full bg-surface rounded-t-[80rpx] z-[1001] transition-transform duration-300 ease-out px-margin-page pb-12 pt-6"
+      :class="showScopePanel ? 'translate-y-0' : 'translate-y-full'"
+      @click.stop
+    >
+      <!-- 抓手 -->
+      <view class="w-12 h-1.5 bg-outline-variant/30 rounded-full mx-auto mb-6"></view>
+
+      <!-- 标题栏 -->
+      <view class="flex items-center justify-between mb-4">
+        <text class="font-headline-md text-headline-md text-on-surface font-bold">选择关注的学校</text>
+        <text class="text-[24rpx] text-primary font-bold">已选 {{ customSchoolNames.length }}/{{ MAX_CUSTOM_SCHOOLS }}</text>
+      </view>
+
+      <!-- 学校搜索 -->
+      <view class="flex items-center gap-2 bg-surface-container-lowest rounded-full px-4 py-3 mb-4 border border-outline-variant/10">
+        <text class="material-symbols-outlined text-on-surface-variant text-[32rpx]">search</text>
+        <input
+          v-model="schoolSearchKeyword"
+          type="text"
+          placeholder="搜索学校名称"
+          class="flex-1 text-[26rpx] text-on-surface bg-transparent outline-none"
+        />
+        <text
+          v-if="schoolSearchKeyword"
+          class="material-symbols-outlined text-on-surface-variant text-[28rpx] bouncy-press"
+          @click="schoolSearchKeyword = ''"
+        >close</text>
+      </view>
+
+      <!-- 学校列表 -->
+      <scroll-view scroll-y class="max-h-[60vh]">
+        <view class="grid grid-cols-1 gap-3">
+          <view
+            v-for="uni in filteredNearbyUniversities"
+            :key="uni.universityName"
+            @click="toggleSchool(uni.universityName)"
+            class="flex items-center justify-between p-4 rounded-[32rpx] border transition-all bouncy-press"
+            :class="isSchoolSelected(uni.universityName)
+              ? 'bg-primary/10 border-primary/30'
+              : 'bg-surface-container-lowest border-outline-variant/10 dashed-border'"
+          >
+            <view class="flex items-center gap-3">
+              <view
+                class="w-12 h-12 rounded-2xl flex items-center justify-center text-white text-[32rpx] font-bold"
+                :class="isSchoolSelected(uni.universityName) ? 'bg-primary' : 'bg-surface-container-high text-on-surface-variant'"
+              >
+                {{ uni.universityName.charAt(0) }}
+              </view>
+              <view class="flex flex-col">
+                <text class="font-bold text-[28rpx] text-on-surface">{{ uni.universityName }}</text>
+                <text class="text-[22rpx] text-on-surface-variant mt-0.5">{{ (uni.campuses || []).length }} 个校区</text>
+              </view>
+            </view>
+            <view
+              class="w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all"
+              :class="isSchoolSelected(uni.universityName)
+                ? 'bg-primary border-primary'
+                : 'bg-transparent border-outline-variant'"
+            >
+              <text v-if="isSchoolSelected(uni.universityName)" class="material-symbols-outlined text-white text-[20rpx] icon-filled">check</text>
+            </view>
+          </view>
+        </view>
+
+        <view v-if="filteredNearbyUniversities.length === 0" class="py-12 flex flex-col items-center text-on-surface-variant">
+          <text class="text-[80rpx] mb-2">🗺️</text>
+          <text class="text-[26rpx]">{{ schoolSearchKeyword ? '未找到匹配的学校' : '附近学校数据加载中~' }}</text>
+        </view>
+      </scroll-view>
+
+      <!-- 底部按钮 -->
+      <view class="flex items-center gap-3 mt-6">
+        <view
+          class="flex-1 py-4 bg-surface-container rounded-full text-center font-headline-md text-headline-md text-on-surface-variant bouncy-press"
+          @click="clearCustomSchools"
+        >
+          清空
+        </view>
+        <view
+          class="flex-[2] py-4 rounded-full text-center font-headline-md text-headline-md text-white bouncy-press"
+          :class="customSchoolNames.length > 0 ? 'gradient-primary shadow-[0_12rpx_32rpx_rgba(255,143,163,0.3)]' : 'bg-outline-variant/50'"
+          @click="confirmCustomSchools"
+        >
+          确认（{{ customSchoolNames.length }}）
+        </view>
+      </view>
+    </view>
+
   <CustomTabBar :current="1" />
     </view>
 <view class="h-[160rpx]"></view>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { get, post } from '@/utils/request.js'
 import { postApi, discoverApi } from '@/api/index.js'
@@ -267,8 +400,167 @@ const currentSharePost = ref(null)
 // 频道下拉面板
 const showDropdownPanel = ref(false)
 
+// 测试数据：附近学校及校区（后端接口就绪后可删除）
+const mockNearbyUniversities = [
+  {
+    universityId: 1,
+    universityName: '嘉应学院',
+    campuses: ['江北校区', '江南校区', '梅州师范分院校区']
+  },
+  {
+    universityId: 2,
+    universityName: '梅州职业技术学院',
+    campuses: ['本部', '城东校区']
+  },
+  {
+    universityId: 3,
+    universityName: '广东梅州职业技术学院',
+    campuses: ['主校区', '实训校区']
+  },
+  {
+    universityId: 4,
+    universityName: '汕头大学',
+    campuses: ['桑浦山校区', '东海岸校区']
+  },
+  {
+    universityId: 5,
+    universityName: '韩山师范学院',
+    campuses: ['本部', '韩东校区']
+  }
+]
+
+// 附近大学范围选择
+const MAX_CUSTOM_SCHOOLS = 5
+const currentScope = ref('CITY')
+const customSchoolNames = ref([])
+const nearbyUniversities = ref(mockNearbyUniversities)
+const showScopePanel = ref(false)
+const schoolSearchKeyword = ref('')
+
+const filteredNearbyUniversities = computed(() => {
+  const keyword = schoolSearchKeyword.value.trim()
+  if (!keyword) return nearbyUniversities.value
+  return nearbyUniversities.value.filter(uni =>
+    uni.universityName && uni.universityName.toLowerCase().includes(keyword.toLowerCase())
+  )
+})
+
+const scopeOptions = [
+  { value: 'CITY', label: '全市', icon: 'location_city' },
+  { value: 'DISTRICT', label: '全区', icon: 'map' },
+  { value: 'PROVINCE', label: '全省', icon: 'terrain' },
+  { value: 'CUSTOM', label: '自定义', icon: 'tune' }
+]
+
 const toggleDropdown = () => {
   showDropdownPanel.value = !showDropdownPanel.value
+}
+
+// ==================== 附近大学范围选择 ====================
+
+const selectScope = async (scope) => {
+  if (currentScope.value === scope) return
+  currentScope.value = scope
+  saveScopeToStorage()
+  noMore.value = false
+  await fetchPostList(false)
+}
+
+const openCustomPanel = async () => {
+  if (nearbyUniversities.value.length === 0) {
+    await fetchNearbyUniversities()
+  }
+  showScopePanel.value = true
+}
+
+const selectCustomScope = async () => {
+  if (customSchoolNames.value.length === 0) {
+    await openCustomPanel()
+    return
+  }
+  if (currentScope.value === 'CUSTOM') {
+    // 已处于自定义，直接刷新当前选择
+    noMore.value = false
+    await fetchPostList(false)
+    return
+  }
+  currentScope.value = 'CUSTOM'
+  saveScopeToStorage()
+  noMore.value = false
+  await fetchPostList(false)
+}
+
+const fetchNearbyUniversities = async () => {
+  try {
+    const res = await get(discoverApi.getNearbyUniversities().url)
+    if (res.code === 200 && res.data && res.data.length > 0) {
+      nearbyUniversities.value = res.data
+    } else {
+      // 接口未返回数据时使用测试数据
+      nearbyUniversities.value = mockNearbyUniversities
+    }
+  } catch (error) {
+    console.error('加载附近学校失败，使用测试数据:', error)
+    nearbyUniversities.value = mockNearbyUniversities
+  }
+}
+
+const isSchoolSelected = (schoolName) => {
+  return customSchoolNames.value.includes(schoolName)
+}
+
+const toggleSchool = (schoolName) => {
+  const index = customSchoolNames.value.indexOf(schoolName)
+
+  if (index > -1) {
+    customSchoolNames.value.splice(index, 1)
+  } else {
+    if (customSchoolNames.value.length >= MAX_CUSTOM_SCHOOLS) {
+      uni.showToast({ title: `最多选择 ${MAX_CUSTOM_SCHOOLS} 个学校`, icon: 'none' })
+      return
+    }
+    customSchoolNames.value.push(schoolName)
+  }
+}
+
+const clearCustomSchools = () => {
+  customSchoolNames.value = []
+}
+
+const confirmCustomSchools = async () => {
+  if (customSchoolNames.value.length === 0) {
+    uni.showToast({ title: '请至少选择 1 个学校', icon: 'none' })
+    return
+  }
+  currentScope.value = 'CUSTOM'
+  showScopePanel.value = false
+  saveScopeToStorage()
+  noMore.value = false
+  await fetchPostList(false)
+}
+
+const closeScopePanel = () => {
+  showScopePanel.value = false
+  schoolSearchKeyword.value = ''
+  // 如果当前并没有已确认的自定义选择，切回默认全市
+  if (currentScope.value === 'CUSTOM' && customSchoolNames.value.length === 0) {
+    currentScope.value = 'CITY'
+  }
+}
+
+const saveScopeToStorage = () => {
+  uni.setStorageSync('discoverScope', {
+    scope: currentScope.value,
+    schoolNames: customSchoolNames.value
+  })
+}
+
+const restoreScopeFromStorage = () => {
+  const saved = uni.getStorageSync('discoverScope')
+  if (saved) {
+    currentScope.value = saved.scope || 'CITY'
+    customSchoolNames.value = saved.schoolNames || []
+  }
 }
 
 // 当前用户
@@ -305,7 +597,9 @@ const fetchPostList = async (isLoadMore = false) => {
       page,
       size: pageSize.value,
       category,
-      scope: 1  // 跨校帖子
+      scope: 1,  // 跨校帖子
+      regionScope: currentScope.value,
+      locationKeywords: currentScope.value === 'CUSTOM' ? customSchoolNames.value.join(',') : undefined
     }
 
     console.log('🔍 发现页请求帖子:', params)
@@ -570,6 +864,7 @@ const previewImage = (images, currentIndex) => {
 onLoad(() => {
   const systemInfo = uni.getSystemInfoSync()
   statusBarHeight.value = systemInfo.statusBarHeight || 20
+  restoreScopeFromStorage()
   fetchChannels()
   fetchPostList()
 })
@@ -596,6 +891,18 @@ onShow(() => {
   width: 0;
   height: 0;
   color: transparent;
+}
+
+/* 范围选择条与自定义面板滚动条隐藏 */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* 主按钮渐变 */
+.gradient-primary {
+  background: linear-gradient(135deg, #FF8FA3 0%, #FFC46B 100%);
 }
 
 /* 按钮点击回弹效果 */
