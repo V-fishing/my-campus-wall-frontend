@@ -77,7 +77,7 @@ export interface ChatApi {
 
 // AI 学长相关接口类型
 export interface AiApi {
-  chat: (userId: number, question: string, conversationId?: string) => ApiConfig
+  agent: (question: string, conversationId?: string) => ApiConfig
   getHistory: (userId: number) => ApiConfig
   getHistoryDetail: (sessionId: string) => ApiConfig
 }

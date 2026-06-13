@@ -410,7 +410,7 @@ const sendMessage = async () => {
   isThinking.value = true
 
   try {
-    const res = await request(aiApi.agent(currentUserId.value, userText, conversationId.value))
+    const res = await request(aiApi.agent(userText, conversationId.value))
     isThinking.value = false
 
     if (res.code === 200 && res.data && res.data.success) {
