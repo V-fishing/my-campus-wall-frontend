@@ -309,11 +309,10 @@ export const emojiApi = {
 // AI 学长相关接口
 export const aiApi = {
   // 智能助手（agent）：单一入口，后端大模型自主判断调用工具（查知识库 / 查帖子 / 两者综合）
-  agent: (userId, question, conversationId = '') => ({
+  agent: (question, conversationId = '') => ({
     url: '/api/v1/ai-senior/agent',
     method: 'POST',
     data: {
-      userId,
       question,
       conversationId
     }
