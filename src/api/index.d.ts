@@ -98,6 +98,12 @@ export interface NotificationApi {
   deleteNotification: (notificationId: number) => ApiConfig
 }
 
+// 发现页相关接口类型
+export interface DiscoverApi {
+  getChannels: () => ApiConfig
+  getNearbyUniversities: (city?: string) => ApiConfig
+}
+
 // 高校相关接口类型
 export interface UniversityApi {
   getCampuses: (universityId: number) => ApiConfig
@@ -138,3 +144,4 @@ export const searchApi: SearchApi
 export const notificationApi: NotificationApi
 export const fileApi: FileApi
 export const universityApi: UniversityApi
+export const discoverApi: DiscoverApi
