@@ -206,7 +206,7 @@
                 <span v-if="post.infoFee" class="bg-red-100 text-red-700 px-3 py-1 rounded-full font-medium">信息费: {{ post.infoFee }}</span>
               </view>
 
-              <view v-if="post.contact" class="flex items-center justify-between px-3 bg-surface-container rounded-full max-w-[40%] h-[46rpx] cursor-pointer bouncy-tap border border-outline-variant/10" @click.stop="copyContact(post.contact)">
+              <view v-if="post.contact && post.boardCode !== 'secondhand'" class="flex items-center justify-between px-3 bg-surface-container rounded-full max-w-[40%] h-[46rpx] cursor-pointer bouncy-tap border border-outline-variant/10" @click.stop="copyContact(post.contact)">
                 <view class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
     <span class="material-symbols-outlined text-[28rpx] shrink-0" :class="post.boardCode === 'team' ? 'text-[#6D4EA2]' : 'text-primary'">
       {{ post.boardCode === 'team' ? 'chat' : (post.boardCode === 'promotion' ? 'support_agent' : 'contact_page') }}
@@ -217,18 +217,22 @@
               </view>
 
 
-              <!-- 【2】集市：价格高亮 + 售出状态 + 标签同行 -->
-              <view v-if="post.boardCode === 'secondhand'" class="flex items-center justify-between px-1">
-                <div class="flex items-center gap-2">
-                  <p class="text-[40rpx] font-extrabold text-orange-500">{{ post.price != null ? '￥' + post.price : '面议' }}</p>
-                  <span v-if="post.isSold === 1" class="text-[20rpx] bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded-full font-bold">已售出</span>
-                </div>
-                <!-- 标签收纳至集市同行右侧 -->
-                <view class="flex flex-wrap gap-1.5 justify-end" v-if="post.tags && post.tags.length > 0">
-          <span v-for="tag in post.tags.slice(0, 2)" :key="tag" @click.stop="handleTagClick(tag)"
-                class="bg-secondary-fixed text-on-secondary-fixed-variant px-2 py-0.5 rounded-full text-[20rpx] font-bold">
-            #{{ tag }}
-          </span>
+              <!-- 【2】集市：标签居左 + 价格/联系胶囊居右 -->
+              <view v-if="post.boardCode === 'secondhand'" class="flex items-center justify-between px-1 gap-3">
+                <!-- 标签收纳至左侧 -->
+                <view class="flex flex-wrap gap-1.5" v-if="post.tags && post.tags.length > 0">
+                  <span v-for="tag in post.tags.slice(0, 2)" :key="tag" @click.stop="handleTagClick(tag)"
+                        class="bg-secondary-fixed text-on-secondary-fixed-variant px-2 py-0.5 rounded-full text-[20rpx] font-bold">
+                    #{{ tag }}
+                  </span>
+                </view>
+                <!-- 价格 + 联系我胶囊 -->
+                <view class="flex items-center shrink-0 bg-[#FFF8D6] rounded-full pl-3 pr-1 py-1 border border-[#FFE58F]/60">
+                  <text class="text-[28rpx] font-extrabold italic text-orange-500">{{ post.price != null ? '￥' + post.price : '面议' }}</text>
+                  <span v-if="post.isSold === 1" class="ml-2 text-[18rpx] bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded-full font-bold">已售出</span>
+                  <view v-if="post.contact" class="ml-2 bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-[22rpx] font-bold bouncy-tap" @click.stop="openContactAction(post)">
+                    联系我
+                  </view>
                 </view>
               </view>
 
@@ -341,6 +345,27 @@
       <view class="w-full mt-10 py-4 bg-surface-container rounded-full font-headline-md-mobile text-[28rpx] text-on-surface-variant font-bold border-none bouncy-tap text-center" @click="closeSharePopup">取消</view>
     </view>
 
+    <!-- 联系卖家操作面板 -->
+    <view class="fixed inset-0 bg-black/40 z-[9998] backdrop-blur-sm transition-opacity" v-if="showContactAction" @click="closeContactAction"></view>
+    <view class="fixed bottom-0 left-0 w-full bg-surface rounded-t-[40px] z-[9999] transition-transform duration-300 ease-out px-margin-page pb-[calc(32rpx+env(safe-area-inset-bottom))] pt-8"
+         :class="[showContactAction ? 'translate-y-0' : 'translate-y-full']">
+      <view class="w-12 h-1.5 bg-outline-variant/30 rounded-full mx-auto mb-8"></view>
+      <view class="font-headline-lg-mobile text-[32rpx] text-center mb-2 font-extrabold block">联系卖家</view>
+      <view v-if="currentContactPost && currentContactPost.contact" class="text-center text-[24rpx] text-on-surface-variant mb-8 font-medium">
+        联系方式：{{ currentContactPost.contact }}
+      </view>
+      <view v-else class="text-center text-[24rpx] text-on-surface-variant mb-8 font-medium">暂无联系方式</view>
+      <view class="w-full mt-2 py-4 bg-primary-container rounded-full font-headline-md-mobile text-[28rpx] text-on-primary-container font-bold border-none bouncy-tap flex items-center justify-center gap-2" @click="toPrivateMessageFromPost">
+        <span class="material-symbols-outlined text-[32rpx]">chat</span>
+        <span>在小程序内私聊</span>
+      </view>
+      <view v-if="currentContactPost && currentContactPost.contact" class="w-full mt-3 py-4 bg-yellow-100 rounded-full font-headline-md-mobile text-[28rpx] text-yellow-800 font-bold border-none bouncy-tap flex items-center justify-center gap-2" @click="copyContactDetail">
+        <span class="material-symbols-outlined text-[32rpx]">content_copy</span>
+        <span>{{ isPhoneNumber(currentContactPost.contact) ? '复制手机号' : '复制微信号' }}</span>
+      </view>
+      <view class="w-full mt-3 py-4 bg-surface-container rounded-full font-headline-md-mobile text-[28rpx] text-on-surface-variant font-bold border-none bouncy-tap text-center" @click="closeContactAction">取消</view>
+    </view>
+
     <!-- 话题分类 Popover (Stitch 设计还原) -->
     <view class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[80] transition-opacity duration-300"
          :class="[showTopicPopover ? 'opacity-100' : 'opacity-0 pointer-events-none']"
@@ -379,7 +404,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { onLoad, onReachBottom, onShow } from '@dcloudio/uni-app'
 import { get, post } from '@/utils/request.js'
-import { postApi, categoryApi, universityApi, rankApi } from '@/api/index.js'
+import { postApi, categoryApi, universityApi, rankApi, chatApi } from '@/api/index.js'
 import { useUserStore } from '@/stores/user'
 import { useInteractionStore } from '@/stores/interaction'
 import { formatTimeAgo } from '@/composables/useTimeAgo'
@@ -397,7 +422,9 @@ const showShare = ref(false)
 const showReport = ref(false)
 const showDropdownPanel = ref(false)
 const showTopicPopover = ref(false)
+const showContactAction = ref(false)
 const currentSharePost = ref(null)
+const currentContactPost = ref(null)
 
 const categoryGroups = ref([])
 const activeGroupIndex = ref(null)
@@ -675,7 +702,67 @@ const copyContact = (text) => {
   })
 }
 
+const isPhoneNumber = (text) => /^1[3-9]\d{9}$/.test(String(text).trim())
 
+const openContactAction = (post) => {
+  currentContactPost.value = post
+  showContactAction.value = true
+}
+
+const closeContactAction = () => {
+  showContactAction.value = false
+  currentContactPost.value = null
+}
+
+const copyContactDetail = () => {
+  const post = currentContactPost.value
+  if (!post || !post.contact) return
+  copyContact(post.contact)
+  closeContactAction()
+}
+
+const toPrivateMessageFromPost = async () => {
+  const post = currentContactPost.value
+  if (!post || !post.userId) {
+    uni.showToast({ title: '无法发起私聊', icon: 'none' })
+    return
+  }
+  if (!requireLogin()) return
+  closeContactAction()
+  try {
+    uni.showLoading({ title: '加载聊天中...' })
+    const response = await get(chatApi.getSessionList().url)
+    if (response.code === 200 && response.data) {
+      const existingSession = response.data.find(s => s.chatPartnerId === post.userId)
+      if (existingSession) {
+        uni.navigateTo({
+          url: `/pages/message/chat-detail?sessionId=${existingSession.id}&name=${encodeURIComponent(existingSession.chatPartnerName)}&avatar=${encodeURIComponent(existingSession.chatPartnerAvatar || '')}&partnerId=${existingSession.chatPartnerId}`
+        })
+      } else {
+        const createResponse = await post(chatApi.sendMessage().url, {
+          receiverId: post.userId,
+          content: '你好~',
+          messageType: 1
+        })
+        if (createResponse.code === 200) {
+          const sessionsResponse = await get(chatApi.getSessionList().url)
+          if (sessionsResponse.code === 200 && sessionsResponse.data) {
+            const newSession = sessionsResponse.data.find(s => s.chatPartnerId === post.userId)
+            if (newSession) {
+              uni.navigateTo({
+                url: `/pages/message/chat-detail?sessionId=${newSession.id}&name=${encodeURIComponent(newSession.chatPartnerName)}&avatar=${encodeURIComponent(newSession.chatPartnerAvatar || '')}&partnerId=${newSession.chatPartnerId}`
+              })
+            }
+          }
+        }
+      }
+    }
+  } catch (error) {
+    uni.showToast({ title: '操作失败，请重试', icon: 'none' })
+  } finally {
+    uni.hideLoading()
+  }
+}
 
 const toggleLike = async (postItem) => {
   if (!requireLogin()) return
