@@ -128,21 +128,39 @@
               <text class="material-symbols-outlined text-[28rpx] mr-1">refresh</text>刷新
             </text>
           </view>
-          
+
+          <!-- 热搜周期 Tab -->
+          <view class="flex p-1 bg-surface-container-low rounded-full mb-4">
+            <view v-for="tab in hotSearchPeriodTabs" :key="tab.value"
+                  class="flex-1 py-1.5 rounded-full text-center text-[24rpx] font-bold transition-all bouncy-tap"
+                  :class="hotSearchPeriod === tab.value ? 'bg-primary text-white shadow-sm' : 'text-on-surface-variant'"
+                  @click="switchHotSearchPeriod(tab.value)">
+              {{ tab.label }}
+            </view>
+          </view>
+
           <view class="bg-surface-container-lowest rounded-[40rpx] sticker-shadow doodle-border p-[32rpx] space-y-1">
-            <view 
-              class="bouncy-tap flex items-center gap-4 py-3 border-b border-outline-variant/30 last:border-0" 
-              v-for="(item, index) in hotSearchList" :key="item.id" @click="searchByKeyword(item.keyword)">
-              
+            <view
+              class="bouncy-tap flex items-center gap-4 py-3 border-b border-outline-variant/30 last:border-0"
+              v-for="(item, index) in hotSearchList" :key="item.keyword" @click="searchByKeyword(item.keyword)">
+
               <view class="w-[44rpx] h-[44rpx] flex items-center justify-center rounded-full font-bold shadow-sm text-[22rpx]" :class="getRankClass(index)">
                 {{ index + 1 }}
               </view>
-              
+
               <text class="flex-1 text-[28rpx] text-on-surface truncate" :class="index < 3 ? 'font-bold' : ''">{{ item.keyword }}</text>
-              
-              <view class="flex items-center gap-1 px-2 py-0.5 rounded-full text-[20rpx] font-bold" :class="item.type === '热' ? 'bg-error-container text-on-error-container' : 'bg-tertiary-container text-on-tertiary-container'">
-                <text class="material-symbols-outlined text-[24rpx]" v-if="item.type === '热'" style="font-variation-settings: 'FILL' 1;">local_fire_department</text>
-                {{ item.type }}
+
+              <view class="flex items-center gap-2">
+                <text v-if="item.trend === 'up'" class="material-symbols-outlined text-error text-[24rpx]">trending_up</text>
+                <text v-else-if="item.trend === 'down'" class="material-symbols-outlined text-success text-[24rpx]">trending_down</text>
+                <text v-else-if="item.trend === 'new'" class="material-symbols-outlined text-primary text-[24rpx]">fiber_new</text>
+                <text v-else class="material-symbols-outlined text-outline-variant text-[24rpx]">trending_flat</text>
+
+                <view class="flex items-center gap-1 px-2 py-0.5 rounded-full text-[20rpx] font-bold" :class="getTypeClass(item.type)">
+                  <text class="material-symbols-outlined text-[24rpx]" v-if="item.type === '爆'" style="font-variation-settings: 'FILL' 1;">local_fire_department</text>
+                  <text class="material-symbols-outlined text-[24rpx]" v-else-if="item.type === '热'" style="font-variation-settings: 'FILL' 1;">whatshot</text>
+                  {{ item.type }}
+                </view>
               </view>
             </view>
           </view>
@@ -163,7 +181,7 @@
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { get } from '@/utils/request.js'
-import { searchApi } from '@/api/index.js'
+import { searchApi, rankApi } from '@/api/index.js'
 import { formatTimeAgo } from '@/composables/useTimeAgo'
 
 const statusBarHeight = ref(uni.getSystemInfoSync().statusBarHeight || 20)
@@ -198,6 +216,24 @@ const selectScope = (value) => {
 
 // 热搜榜单
 const hotSearchList = ref([])
+const hotSearchPeriod = ref('day')
+const hotSearchPeriodTabs = [
+  { label: '24h', value: 'day' },
+  { label: '7天', value: 'week' },
+  { label: '30天', value: 'month' }
+]
+
+const switchHotSearchPeriod = (period) => {
+  if (hotSearchPeriod.value === period) return
+  hotSearchPeriod.value = period
+  loadHotSearch()
+}
+
+const getTypeClass = (type) => {
+  if (type === '爆') return 'bg-error text-white'
+  if (type === '热') return 'bg-error-container text-on-error-container'
+  return 'bg-tertiary-container text-on-tertiary-container'
+}
 
 // 搜索历史
 const historyList = ref([])
@@ -209,7 +245,7 @@ onLoad(() => {
   statusBarHeight.value = systemInfo.statusBarHeight || 20
 
   loadSearchHistory()
-  loadHotSearch()  
+  loadHotSearch()
 })
 
 // 监听输入
@@ -311,14 +347,15 @@ const refreshHotSearch = async () => {
 // 加载热搜榜单
 const loadHotSearch = async () => {
   try {
-    const apiConfig = searchApi.getHotSearch(10)
-    const response = await get(apiConfig.url, { limit: 10 })
-    if (response.data && Array.isArray(response.data)) {
-      hotSearchList.value = response.data.map((item) => ({
-        id: item.id,
+    const apiConfig = rankApi.getHotSearchRank(hotSearchPeriod.value, 10)
+    const response = await get(apiConfig.url, { period: hotSearchPeriod.value, limit: 10 })
+    if (response.data && Array.isArray(response.data.list)) {
+      hotSearchList.value = response.data.list.map((item) => ({
         keyword: item.keyword,
         type: item.type,
-        searchCount: item.searchCount
+        searchCount: item.searchCount,
+        trend: item.trend,
+        changeRank: item.changeRank
       }))
     }
   } catch (error) {

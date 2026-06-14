@@ -343,19 +343,58 @@ export const searchApi = {
     method: 'GET',
     params
   }),
-  
-  // 获取热搜榜单
+
+  // 获取热搜榜单（旧接口，保留兼容）
   getHotSearch: (limit = 10) => ({
     url: '/api/v1/search/hot',
     method: 'GET',
     params: { limit }
   }),
-  
+
   // 记录搜索（可选）
   recordSearch: (keyword) => ({
     url: '/api/v1/search/record',
     method: 'POST',
     params: { keyword }
+  })
+}
+
+// 榜单相关接口
+export const rankApi = {
+  // 获取热帖榜单（日榜/周榜/月榜）
+  getHotPostRank: (period = 'day', limit = 10, scope) => ({
+    url: '/api/v1/ranks/posts',
+    method: 'GET',
+    params: { period, limit, ...(scope !== undefined && scope !== null ? { scope } : {}) }
+  }),
+
+  // 获取热搜榜单（日榜/周榜/月榜）
+  getHotSearchRank: (period = 'day', limit = 10) => ({
+    url: '/api/v1/ranks/search-hot',
+    method: 'GET',
+    params: { period, limit }
+  })
+}
+
+// 学生认证相关接口
+export const verificationApi = {
+  // 上传认证图片
+  uploadImage: (side) => ({
+    url: '/api/v1/verification/upload?side=' + side,
+    method: 'POST'
+  }),
+
+  // 提交认证
+  submit: (data) => ({
+    url: '/api/v1/verification/submit',
+    method: 'POST',
+    data
+  }),
+
+  // 查询认证状态
+  getStatus: () => ({
+    url: '/api/v1/verification/status',
+    method: 'GET'
   })
 }
 

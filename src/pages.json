@@ -197,6 +197,13 @@
       }
     },
     {
+      "path": "pages/user/student-verification",
+      "style": {
+        "navigationBarTitleText": "学生认证",
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/user/feedback",
       "style": {
         "navigationBarTitleText": "意见反馈",

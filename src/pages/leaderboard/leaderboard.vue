@@ -20,7 +20,7 @@
           </view>
           <view class="flex flex-col">
             <text class="text-white font-bold text-[44rpx] tracking-tight">人气帖子榜</text>
-            <text class="text-white/60 text-[24rpx] font-medium mt-0.5">按浏览量实时更新排序</text>
+            <text class="text-white/60 text-[24rpx] font-medium mt-0.5">全省高校人气实时排行</text>
           </view>
         </view>
         
@@ -102,7 +102,7 @@
 
         <view class="flex flex-col items-center justify-center py-12 opacity-30">
           <text class="material-symbols-outlined text-primary text-5xl mb-2">auto_awesome</text>
-          <text class="font-label-md font-bold text-[24rpx]">你已经刷到全校榜单的宇宙尽头啦 ~</text>
+          <text class="font-label-md font-bold text-[24rpx]">你已经刷到全省榜单的宇宙尽头啦 ~</text>
         </view>
 
       </view>
@@ -114,7 +114,7 @@
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { get } from '@/utils/request.js'
-import { postApi } from '@/api/index.js'
+import { rankApi } from '@/api/index.js'
 
 const statusBarHeight = ref(uni.getSystemInfoSync().statusBarHeight || 20)
 const defaultAvatar = '/static/images/anonymous-avatar.png'
@@ -134,36 +134,37 @@ onLoad((options) => {
 const fetchLeaderboard = async (scope) => {
   loading.value = true
   try {
-    const apiConfig = postApi.getLeaderboard(20, scope)
-    const response = await get(apiConfig.url, { limit: 20, ...(scope !== null && scope !== undefined ? { scope } : {}) })
+    const apiConfig = rankApi.getHotPostRank('week', 20, scope)
+    const response = await get(apiConfig.url, apiConfig.params)
 
     if (response.code === 200 && response.data) {
       leaderboardList.value = response.data.map(item => ({
-        id: item.id,
-        author: item.author || '匿名用户',
-        avatar: item.avatar || defaultAvatar,
-        createTime: item.createTime,
-        content: item.content,
-        images: item.images || [],
-        tags: item.tags || [],
+        id: item.postId,
+        author: item.post?.author || '匿名用户',
+        avatar: item.post?.avatar || defaultAvatar,
+        createTime: item.post?.createTime,
+        content: item.post?.content || '',
+        images: item.post?.images || [],
+        tags: item.post?.tags || [],
         viewCount: item.viewCount || 0,
         likeCount: item.likeCount || 0,
         commentCount: item.commentCount || 0,
-        isAnonymous: item.isAnonymous || false,
-        // 板块差异化字段
-        boardCode: item.boardCode || '',
-        price: item.price,
-        salary: item.salary,
-        infoFee: item.infoFee,
-        contact: item.contact,
-        bannerImage: item.bannerImage || '',
-        isTop: item.isTop || 0,
-        isSold: item.isSold || 0,
-        memberAvatars: item.memberAvatars || [],
-        memberCount: item.memberCount || 0,
-        maxMembers: item.maxMembers || null,
-        hasJoined: item.hasJoined || false
+        isAnonymous: item.post?.isAnonymous || false,
+        boardCode: item.post?.boardCode || '',
+        price: item.post?.price,
+        salary: item.post?.salary,
+        infoFee: item.post?.infoFee,
+        contact: item.post?.contact,
+        bannerImage: item.post?.bannerImage || '',
+        isTop: item.post?.isTop || 0,
+        isSold: item.post?.isSold || 0,
+        memberAvatars: item.post?.memberAvatars || [],
+        memberCount: item.post?.memberCount || 0,
+        maxMembers: item.post?.maxMembers || null,
+        hasJoined: item.post?.hasJoined || false
       }))
+    } else {
+      leaderboardList.value = []
     }
   } catch (error) {
     console.error('❌ 拉取排行榜数据异常:', error)

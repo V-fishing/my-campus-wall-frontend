@@ -379,13 +379,15 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { onLoad, onReachBottom, onShow } from '@dcloudio/uni-app'
 import { get, post } from '@/utils/request.js'
-import { postApi, categoryApi, universityApi } from '@/api/index.js'
+import { postApi, categoryApi, universityApi, rankApi } from '@/api/index.js'
 import { useUserStore } from '@/stores/user'
 import { useInteractionStore } from '@/stores/interaction'
 import { formatTimeAgo } from '@/composables/useTimeAgo'
 import { useAuthGuard } from '@/composables/useAuthGuard'
 import AvatarStack from '@/components/AvatarStack/AvatarStack.vue'
 import CustomTabBar from "@/components/CustomTabBar/CustomTabBar.vue";
+
+
 
 const systemInfo = uni.getSystemInfoSync()
 const statusBarHeight = ref(systemInfo.statusBarHeight || 20)
@@ -456,19 +458,21 @@ const fetchCategories = async () => {
 
 const fetchHotPosts = async () => {
   try {
-    const response = await get(postApi.getHotPosts(10, 0).url, { limit: 10, scope: 0 })
+    const apiConfig = rankApi.getHotPostRank('week', 10, 0)
+    const response = await get(apiConfig.url, apiConfig.params)
     if (response.data && response.data.length > 0) {
       hotPosts.value = response.data.map(item => ({
-        id: item.id,
-        category: item.category || '推荐',
-        content: item.content,
+        id: item.postId,
+        category: item.post?.category || '推荐',
+        content: item.post?.content || '',
         viewCount: item.viewCount || 0
       }))
     }
   } catch (error) {
-    console.error('获取热门帖子失败:', error)
+    console.error('获取周热帖失败:', error)
   }
 }
+
 
 const fetchCampuses = async () => {
   try {
