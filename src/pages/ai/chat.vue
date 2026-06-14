@@ -2,7 +2,7 @@
   <view class="bg-[#F4F5F7] text-on-surface font-body-lg-mobile min-h-screen flex flex-col relative selection:bg-primary-container">
 
     <!-- 顶部导航栏 -->
-    <view class="fixed top-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md shadow-sm shadow-[0_12px_40px_rgba(255,143,163,0.12)] pr-capsule-safe-zone"
+    <view class="fixed top-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md shadow-sm pr-capsule-safe-zone"
           :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 64) + 'px' }">
       <view class="relative w-full h-full flex items-center px-margin-page">
         <!-- 左侧：菜单按钮 -->
@@ -51,7 +51,7 @@
 
         <!-- 新建对话按钮 -->
         <view class="px-4 py-3 border-b border-outline-variant/10">
-          <view class="flex items-center gap-2 px-4 py-3 rounded-full bg-white border border-outline-variant/20 active:scale-[0.98] transition-transform kawaii-shadow"
+          <view class="flex items-center gap-2 px-4 py-3 rounded-full bg-white border border-outline-variant/20 active:scale-[0.98] transition-transform"
                 @click="startNewChat">
             <text class="material-symbols-outlined text-primary text-[28rpx]">add</text>
             <text class="font-label-md-mobile text-[26rpx] text-primary font-bold">新建对话</text>
@@ -114,7 +114,7 @@
             <text class="material-symbols-outlined text-on-tertiary-container text-[40rpx]">smart_toy</text>
           </view>
           <view class="flex flex-col gap-2 max-w-[85%]">
-            <view class="bubble-ai bg-white p-4 kawaii-shadow rounded-[40rpx] rounded-tl-none">
+            <view class="bubble-ai bg-white p-4 rounded-[40rpx] rounded-tl-none">
               <text class="font-body-lg-mobile text-on-surface block leading-relaxed">你好同学！我是嘉应AI学长。我已经学习了学校的《新生手册》、《选课指南》和近期的校园通知。有什么我可以帮你的吗？</text>
             </view>
             <view class="space-y-2 mt-2">
@@ -148,9 +148,9 @@
 
           <view class="flex flex-col gap-2 max-w-[80%]">
             <view
-              class="p-4 kawaii-shadow"
+              class="p-4"
               :class="msg.role === 'user' ?
-                'bubble-user text-white rounded-[40rpx] rounded-tr-none bg-gradient-to-br from-[#7EC8E3] to-[#5BA4F0]' :
+                'bubble-user text-white rounded-[40rpx] rounded-tr-none bg-tertiary' :
                 'bubble-ai bg-white border-l-8 border-primary-container rounded-[40rpx] rounded-tl-none'"
             >
               <text v-if="msg.role === 'user'" class="font-body-lg-mobile block leading-relaxed text-white">{{ msg.content }}</text>
@@ -187,7 +187,7 @@
           <view class="w-10 h-10 rounded-full bg-tertiary-container flex-shrink-0 flex items-center justify-center shadow-sm">
             <text class="material-symbols-outlined text-on-tertiary-container text-[40rpx]">smart_toy</text>
           </view>
-          <view class="bubble-ai bg-white px-6 py-4 kawaii-shadow rounded-[40rpx] rounded-tl-none flex items-center gap-2">
+          <view class="bubble-ai bg-white px-6 py-4 rounded-[40rpx] rounded-tl-none flex items-center gap-2">
             <view class="w-2 h-2 rounded-full bg-primary/40 thinking-dot"></view>
             <view class="w-2 h-2 rounded-full bg-primary/60 thinking-dot"></view>
             <view class="w-2 h-2 rounded-full bg-primary/80 thinking-dot"></view>
@@ -214,7 +214,7 @@
 
         <view
           class="w-[80rpx] h-[80rpx] rounded-full flex items-center justify-center shadow-md transition-all duration-300"
-          :class="inputText.trim().length > 0 ? 'bg-gradient-to-br from-[#7EC8E3] to-[#5BA4F0] text-white active:scale-90' : 'bg-surface-variant text-outline-variant'"
+          :class="inputText.trim().length > 0 ? 'bg-tertiary text-white active:scale-90' : 'bg-surface-variant text-outline-variant'"
           @click="sendMessage"
         >
           <text class="material-symbols-outlined text-[40rpx]" :style="inputText.trim().length > 0 ? 'font-variation-settings:\'FILL\' 1' : ''">send</text>
@@ -482,7 +482,6 @@ const scrollToBottom = () => {
 .bubble-user { border-radius: 40rpx 40rpx 0 40rpx; }
 
 /* 柔和彩色弥散阴影 */
-.kawaii-shadow { box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.12); }
 
 /* --- 动画组 --- */
 
@@ -525,8 +524,7 @@ const scrollToBottom = () => {
   background: #fff;
   border-radius: 28rpx;
   padding: 16rpx;
-  box-shadow: 0 8rpx 24rpx rgba(255, 143, 163, 0.12);
-  border: 2rpx solid rgba(255, 143, 163, 0.2);
+  border: 2rpx solid rgba(0, 0, 0, 0.08);
 }
 .ai-post-thumb {
   width: 128rpx;
@@ -563,7 +561,7 @@ const scrollToBottom = () => {
   margin-top: 10rpx;
   padding: 4rpx 20rpx;
   border-radius: 999rpx;
-  background: linear-gradient(135deg, #7EC8E3, #5BA4F0);
+  background: #5BA4F0;
   color: #fff;
   font-size: 22rpx;
   font-weight: bold;

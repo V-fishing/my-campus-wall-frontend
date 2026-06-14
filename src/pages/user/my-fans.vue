@@ -1,7 +1,7 @@
 <template>
   <view class="bg-[#F4F5F7] min-h-screen flex flex-col relative selection:bg-primary-fixed">
     
-    <header class="fixed top-0 left-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md flex items-center px-4 pt-status-bar h-[100px] border-b border-dashed border-outline-variant/20 shadow-sm">
+    <header class="fixed top-0 left-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md flex items-center px-4 pt-status-bar h-[100px] border-b border-outline-variant/20 shadow-sm">
       <view class="flex items-center w-full justify-between pr-capsule-safe-zone">
         <view class="w-10 h-10 flex items-center justify-center rounded-full bouncy-tap text-primary cursor-pointer -ml-2" @click="handleBack">
           <text class="material-symbols-outlined text-[44rpx]">arrow_back_ios_new</text>
@@ -31,7 +31,7 @@
 
         <view class="space-y-4" v-else>
           <view v-for="(item, index) in fansList" :key="index" @click="goToUserHome(item.userId)"
-                class="bg-surface-container-low/80 p-padding-inner rounded-[40rpx] flex items-center gap-4 kawaii-shadow border-2 border-dashed border-outline-variant/30 active:scale-[0.98] transition-all duration-200">
+                class="bg-surface-container-low/80 p-padding-inner rounded-[40rpx] flex items-center gap-4 border-2 border-outline-variant/30 active:scale-[0.98] transition-all duration-200">
             
             <view class="relative shrink-0">
               <image class="w-[100rpx] h-[100rpx] rounded-full border-2 border-white shadow-sm bg-white object-cover" :src="item.avatar || defaultAvatar" mode="aspectFill"></image>
@@ -209,22 +209,16 @@ const handleBack = () => uni.navigateBack()
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 弥散悬浮板底阴影 */
-.kawaii-shadow {
-  box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.08);
-}
+/* 弥散悬浮板底阴影 */
 
-/* 贴纸白描拼贴高光外边 */
-.sticker-shadow {
-  box-shadow: 0 4rpx 12rpx rgba(255, 143, 163, 0.15), 0 0 0 4rpx white;
-}
+/* 贴纸白描拼贴高光外边 */
 
 /* 粉黄、紫粉核心三大色盘色彩体系 */
 .pink-gradient {
-  background: linear-gradient(135deg, #ff8fa3 0%, #ffb2bd 100%);
+  background: #ffb2bd;
 }
 .purple-gradient {
-  background: linear-gradient(135deg, #c5a3ff 0%, #ecdcff 100%);
+  background: #ecdcff;
 }
 
 /* 淡入渐隐动画 */

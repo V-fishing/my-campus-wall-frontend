@@ -1,7 +1,7 @@
 <template>
   <view class="bg-[#F4F5F7] min-h-screen flex flex-col relative selection:bg-primary-fixed">
     
-    <header class="fixed top-0 left-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md pt-status-bar h-[100px] flex items-center px-4 border-b border-dashed border-outline-variant/20 shadow-sm">
+    <header class="fixed top-0 left-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md pt-status-bar h-[100px] flex items-center px-4 border-b border-outline-variant/20 shadow-sm">
       <view class="flex items-center w-full relative justify-between pr-capsule-safe-zone">
         <view class="bouncy-tap p-2 rounded-full -ml-2 text-primary flex items-center justify-center cursor-pointer" @click="handleBack">
           <text class="material-symbols-outlined text-[44rpx]">arrow_back_ios_new</text>
@@ -31,10 +31,10 @@
 
         <view class="flex flex-col gap-gutter-card" v-else>
           <view v-for="(item, index) in followList" :key="index" @click="goToUserHome(item.userId)"
-                class="bg-surface-container-low kawaii-shadow rounded-[40rpx] p-padding-inner border-2 border-transparent hover:border-dashed hover:border-primary-fixed-dim transition-all flex items-center gap-4 group">
+                class="bg-surface-container-low rounded-[40rpx] p-padding-inner border-2 border-transparent hover: hover:border-primary-fixed-dim transition-all flex items-center gap-4 group">
             
             <view class="relative shrink-0">
-              <image class="w-14 h-14 rounded-full bg-primary-fixed/30 border-2 border-white object-cover sticker-stroke shadow-sm" :src="item.avatar || defaultAvatar" mode="aspectFill" />
+              <image class="w-14 h-14 rounded-full bg-primary-fixed/30 border-2 border-white object-cover shadow-sm" :src="item.avatar || defaultAvatar" mode="aspectFill" />
               <view class="absolute -bottom-1 -right-1 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-sm"
                     :class="item.gender === 1 ? 'bg-blue-400' : (item.gender === 2 ? 'bg-pink-400' : 'bg-on-surface-variant')">
                 <text class="material-symbols-outlined text-[12rpx] font-bold">
@@ -217,15 +217,9 @@ const handleBack = () => uni.navigateBack()
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 弥散悬浮大基板阴影 */
-.kawaii-shadow {
-  box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.08);
-}
+/* 弥散悬浮大基板阴影 */
 
-/* 标志性贴纸白描外发光边 */
-.sticker-stroke {
-  filter: drop-shadow(0 0 2rpx #ffffff) drop-shadow(0 4rpx 10rpx rgba(255, 143, 163, 0.12));
-}
+/* 标志性贴纸白描外发光边 */
 
 /* 限定单行截断溢出 */
 .line-clamp-1 {

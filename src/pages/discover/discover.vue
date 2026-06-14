@@ -1,7 +1,7 @@
 <template>
   <view class="bg-[#F4F5F7] font-body-lg text-on-surface antialiased min-h-screen pb-24 flex flex-col">
     
-    <view class="fixed top-0 left-0 w-full z-50 bg-[#F4F5F7]/80 backdrop-blur-xl flex items-center px-margin-page border-b border-primary/5 shadow-[0_4px_20px_rgba(155,64,83,0.05)]" 
+    <view class="fixed top-0 left-0 w-full z-50 bg-[#F4F5F7]/80 backdrop-blur-xl flex items-center px-margin-page border-b border-primary/5" 
           :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 54) + 'px' }">
       <view class="flex-1 flex justify-start">
         <view class="w-10 h-10 flex items-center justify-center rounded-full bg-primary-container/10 text-primary active:scale-90 transition-transform bouncy-press" @click="goToSearch">
@@ -212,7 +212,7 @@
 
     </scroll-view>
 
-    <view class="fixed bottom-28 right-6 w-14 h-14 bg-gradient-to-br from-primary to-secondary rounded-full text-white shadow-[0_8px_24px_rgba(155,64,83,0.3)] flex items-center justify-center z-40 border-2 border-white bouncy-press" @click="handlePublish">
+    <view class="fixed bottom-28 right-6 w-14 h-14 bg-primary rounded-full text-white flex items-center justify-center z-40 border-2 border-white bouncy-press" @click="handlePublish">
       <text class="material-symbols-outlined text-[64rpx]">add</text>
       <view class="absolute -top-1 -right-1 text-[24rpx]">✨</view>
     </view>
@@ -351,7 +351,7 @@
         </view>
         <view
           class="flex-[2] py-4 rounded-full text-center font-headline-md text-headline-md text-white bouncy-press"
-          :class="customSchoolNames.length > 0 ? 'gradient-primary shadow-[0_12rpx_32rpx_rgba(255,143,163,0.3)]' : 'bg-outline-variant/50'"
+          :class="customSchoolNames.length > 0 ? 'gradient-primary' : 'bg-outline-variant/50'"
           @click="confirmCustomSchools"
         >
           确认（{{ customSchoolNames.length }}）
@@ -902,7 +902,7 @@ onShow(() => {
 
 /* 主按钮渐变 */
 .gradient-primary {
-  background: linear-gradient(135deg, #FF8FA3 0%, #FFC46B 100%);
+  background: #FFC46B;
 }
 
 /* 按钮点击回弹效果 */
@@ -913,7 +913,7 @@ onShow(() => {
 
 /* 盲盒流光溢彩背景 */
 .mystery-gradient {
-  background: linear-gradient(135deg, #c5a3ff, #ff8fa3, #86b6db);
+  background: #86b6db;
   background-size: 200% 200%;
   animation: gradientMove 6s ease infinite;
 }
@@ -924,11 +924,7 @@ onShow(() => {
 }
 
 /* 盲盒高光扫过动画 */
-.shimmer {
-  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
-  background-size: 200% 100%;
-  animation: shimmer 3s infinite;
-}
+.shimmer { background: rgba(255,255,255,0.15); }
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -951,7 +947,6 @@ onShow(() => {
 
 /* 柔和彩色弥散阴影 */
 .custom-shadow {
-  box-shadow: 0 24rpx 80rpx rgba(255, 143, 163, 0.12);
 }
 
 /* 淡入动画 */

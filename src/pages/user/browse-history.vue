@@ -1,7 +1,7 @@
 <template>
   <view class="bg-[#F4F5F7] min-h-screen flex flex-col relative selection:bg-primary-container selection:text-on-primary-container">
     
-    <nav class="fixed top-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md border-b border-dashed border-outline-variant/30 shadow-[0_4px_20px_rgba(255,143,163,0.08)]" :style="{ paddingTop: statusBarHeight + 'px' }">
+    <nav class="fixed top-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md border-b border-outline-variant/30" :style="{ paddingTop: statusBarHeight + 'px' }">
       <view class="flex items-center justify-between px-margin-page h-[44px] w-full relative">
         <view class="flex items-center gap-2">
           <view class="bouncy-tap p-2 -ml-2 text-primary flex items-center justify-center" @click="goBack">
@@ -38,7 +38,7 @@
 
         <view class="space-y-3" v-else>
           <view v-for="item in historyList" :key="item.id" @click="goToPost(item.postId)"
-                class="relative group bg-surface-container-lowest p-4 rounded-[40rpx] sticker-shadow border border-transparent active:border-primary-container transition-all flex items-start gap-3 bouncy-tap">
+                class="relative group bg-surface-container-lowest p-4 rounded-[40rpx] border border-transparent active:border-primary-container transition-all flex items-start gap-3 bouncy-tap">
             
             <view class="flex-shrink-0 w-9 h-9 rounded-full overflow-hidden border-2 border-primary-fixed">
               <image class="w-full h-full object-cover bg-surface-container-low" :src="item.authorAvatar || defaultAvatar" mode="aspectFill"></image>
@@ -233,10 +233,7 @@ const goBack = () => uni.navigateBack()
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 弥散阴影板 */
-.sticker-shadow {
-  box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.08);
-}
+/* 弥散阴影板 */
 
 /* 文字限定多行溢出切碎 */
 .line-clamp-2 {

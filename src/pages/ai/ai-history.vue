@@ -1,7 +1,7 @@
 <template>
   <view class="bg-[#F4F5F7] min-h-screen flex flex-col relative selection:bg-primary-container selection:text-on-primary-container">
     
-    <header class="fixed top-0 left-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md border-b-2 border-dashed border-outline-variant/30 h-[88px] flex flex-col justify-end pb-3">
+    <header class="fixed top-0 left-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md border-b-2 border-outline-variant/30 h-[88px] flex flex-col justify-end pb-3">
       <view class="flex items-center px-margin-page h-[44px] relative">
         <view class="flex items-center justify-center w-8 h-8 rounded-full bouncy-tap text-on-surface" @click="goBack">
           <text class="material-symbols-outlined text-[40rpx]">chevron_left</text>
@@ -23,7 +23,7 @@
         </view>
 
         <view class="mt-12 flex flex-col items-center justify-center text-center px-8" v-if="!loading && historyList.length === 0">
-          <view class="w-32 h-32 rounded-full bg-secondary-container/20 flex items-center justify-center mb-6 relative sticker-shadow">
+          <view class="w-32 h-32 rounded-full bg-secondary-container/20 flex items-center justify-center mb-6 relative">
             <text class="text-[80rpx]">📚</text>
             <view class="absolute -top-1 -right-1 bg-primary-container text-white p-2 rounded-full shadow-sm">
               <text class="material-symbols-outlined text-[24rpx]">edit</text>
@@ -33,18 +33,18 @@
             还没有向 AI 学长提问过哦~<br/>灵感总是值得被珍藏的。
           </text>
           <view class="w-full px-6">
-            <button class="w-full h-11 bg-gradient-to-r from-[#FF8FA3] to-[#FFB3C1] text-white font-bold rounded-full shadow-md bouncy-tap flex items-center justify-center gap-2 text-[28rpx]" @click="goToNewChat">
+            <button class="w-full h-11 bg-primary text-white font-bold rounded-full shadow-md bouncy-tap flex items-center justify-center gap-2 text-[28rpx]" @click="goToNewChat">
               去问问学长 ✨
             </button>
           </view>
         </view>
 
         <view v-else-if="historyList.length > 0">
-          <view class="bg-surface-container-lowest rounded-[40rpx] border-2 border-dashed border-outline-variant/60 p-2 shadow-sm overflow-hidden">
+          <view class="bg-surface-container-lowest rounded-[40rpx] border-2 border-outline-variant/60 p-2 shadow-sm overflow-hidden">
             <view v-for="(item, index) in historyList" :key="item.sessionId" @click="goToChatDetail(item.sessionId)">
               
               <view class="bouncy-card bg-white flex items-center p-4 rounded-[36rpx] my-1 transition-all active:bg-surface-container-low">
-                <view class="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-[#E3F2FD] to-[#BBDEFB] shadow-inner shrink-0 sticker-shadow">
+                <view class="w-10 h-10 rounded-full flex items-center justify-center bg-tertiary-fixed shadow-inner shrink-0">
                   <text class="text-xl">🤖</text>
                 </view>
                 <view class="ml-4 flex-1 min-w-0 pr-2">
@@ -159,13 +159,7 @@ export default {
   transition: transform 0.15rpx cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 果冻卡片多层次白描外阴影 */
-.sticker-shadow {
-  filter: drop-shadow(0 0 2rpx #ffffff) drop-shadow(0 4rpx 12rpx rgba(255, 143, 163, 0.15));
-}
+/* 果冻卡片多层次白描外阴影 */
 
-/* 虚线涂鸦围栏 */
-.dashed-doodle {
-  border: 4rpx dashed #dac0c3;
-}
+/* 虚线涂鸦围栏 */
 </style>

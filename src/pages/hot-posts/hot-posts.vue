@@ -44,7 +44,7 @@
       <view class="px-4 space-y-5 pt-4 pb-12 w-full flex flex-col items-center">
 
         <view v-for="(item, index) in hotPosts.slice(0, 3)" :key="item.postId" @click="goToDetail(item.postId)"
-              class="bg-white rounded-[48rpx] kawaii-shadow sticker-border p-5 flex flex-col gap-3 relative transition-all active:scale-[0.99] w-full">
+              class="bg-white rounded-[48rpx] p-5 flex flex-col gap-3 relative transition-all active:scale-[0.99] w-full">
 
           <view class="flex gap-3 items-start">
             <view class="rank-mochi w-12 h-12 flex-shrink-0 rounded-[36rpx] flex items-center justify-center border-2 border-white/60"
@@ -95,7 +95,7 @@
         </view>
 
         <view v-for="(item, index) in hotPosts.slice(3)" :key="item.postId" @click="goToDetail(item.postId)"
-              class="bg-white rounded-[36rpx] kawaii-shadow sticker-border p-4 flex gap-4 transition-all active:scale-[0.99] items-center w-full">
+              class="bg-white rounded-[36rpx] p-4 flex gap-4 transition-all active:scale-[0.99] items-center w-full">
           <view class="w-11 h-11 bg-surface-container-high flex-shrink-0 rounded-[28rpx] flex items-center justify-center border-2 border-white shadow-sm">
             <text class="text-on-surface-variant font-extrabold text-[28rpx]">{{ index + 4 }}</text>
           </view>
@@ -248,15 +248,9 @@ const goBack = () => uni.navigateBack()
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 弥散阴影 */
-.kawaii-shadow {
-  box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.1);
-}
+/* 弥散阴影 */
 
-/* 棉花糖手账虚线圈 */
-.sticker-border {
-  border: 4rpx dashed rgba(155, 64, 83, 0.15);
-}
+/* 棉花糖手账虚线圈 */
 
 /* 核心 Mochi 立体果冻高光特效色盘 */
 .rank-mochi {
@@ -268,7 +262,7 @@ const goBack = () => uni.navigateBack()
 
 /* 炫彩渐变大封头板 */
 .candy-header-v2 {
-  background: linear-gradient(135deg, #FF99A5 0%, #FFD3B6 100%);
+  background: #FFD3B6;
 }
 
 /* 限制正文文本多行裁剪 */

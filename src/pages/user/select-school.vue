@@ -11,7 +11,7 @@
 
     <main class="px-4 pb-8 space-y-6">
       <!-- 提示 Banner -->
-      <view class="bg-gradient-to-r from-[#fff9c4] to-[#fff3e0] rounded-xxl p-4 flex items-start gap-3 border-2 border-white kawaii-shadow">
+      <view class="bg-yellow-50 rounded-xxl p-4 flex items-start gap-3 border-2 border-white">
         <text class="material-symbols-outlined text-[#ef6c00]">warning</text>
         <p class="text-[26rpx] text-[#e65100]">学校信息仅能修改一次，请慎重选择。</p>
       </view>
@@ -31,14 +31,14 @@
                 :class="currentStep >= 0 ? 'gradient-primary text-white shadow-md' : 'bg-surface-container text-outline'" @click="goToStep(0)">
           {{ selectedProvince || '选择省份' }}
         </button>
-        <view class="w-4 border-b border-dashed border-outline-variant"></view>
+        <view class="w-4 border-b border-outline-variant"></view>
         <button class="px-6 py-2 rounded-full text-[26rpx] font-bold bouncy-btn shrink-0"
                 :class="currentStep >= 1 ? 'gradient-primary text-white shadow-md' : 'bg-surface-container text-outline'" @click="goToStep(1)">
           {{ selectedCity || '选择市' }}
         </button>
-        <view class="w-4 border-b border-dashed border-outline-variant"></view>
+        <view class="w-4 border-b border-outline-variant"></view>
         <button class="px-6 py-2 rounded-full text-[26rpx] font-bold bouncy-btn shrink-0"
-                :class="canSelectSchool ? 'border-2 border-dashed border-primary-container text-primary' : 'bg-surface-container text-outline'"
+                :class="canSelectSchool ? 'border-2 border-primary-container text-primary' : 'bg-surface-container text-outline'"
                 @click="goToStep(2)">
           学校
         </button>
@@ -48,7 +48,7 @@
       <scroll-view scroll-y class="h-[60vh]">
         <view class="space-y-4">
           <view v-for="item in displayList" :key="item.id"
-                class="bg-white rounded-[24px] p-4 flex items-center justify-between border-2 border-dashed border-outline-variant/30 kawaii-shadow bouncy-btn"
+                class="bg-white rounded-[24px] p-4 flex items-center justify-between border-2 border-outline-variant/30 bouncy-btn"
                 @click="onItemClick(item)">
             <view class="flex items-center gap-4">
               <view class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center">
@@ -247,8 +247,7 @@ const handleBack = () => uni.navigateBack()
 </script>
 
 <style scoped>
-.gradient-primary { background: linear-gradient(135deg, #FF8FA3 0%, #FFB2BD 100%); }
-.bouncy-btn:active { transform: scale(0.95); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.sticker-stroke { filter: drop-shadow(0 0 2px #fff); }
+.gradient-primary { background: #FFB2BD; }
+.bouncy-btn:active { transform: scale(0.95); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 </style>

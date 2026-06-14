@@ -18,7 +18,7 @@
       <view class="px-margin-page space-y-6 pt-4 pb-12">
         
         <!-- 1. 品牌展示区 -->
-        <section class="bg-white w-full flex flex-col items-center justify-center relative overflow-hidden rounded-[32rpx] kawaii-shadow p-6 min-h-[220px]">
+        <section class="bg-white w-full flex flex-col items-center justify-center relative overflow-hidden rounded-[32rpx] p-6 min-h-[220px]">
           <view class="z-10 flex flex-col items-center text-center">
             <view class="bg-primary-fixed/50 p-4 rounded-[32px] floating-element">
               <image class="w-[100rpx] h-[100rpx] object-contain" src="/static/logo.png" mode="aspectFit"></image>
@@ -32,19 +32,19 @@
         <section class="space-y-3">
           <text class="font-headline-md text-[30rpx] font-bold text-on-surface px-1 block">产品特色</text>
           <view class="grid grid-cols-2 gap-3">
-            <view class="bg-white rounded-[24px] p-4 flex flex-col items-center justify-center gap-2 kawaii-shadow min-h-[140rpx] bouncy-tap">
+            <view class="bg-white rounded-[24px] p-4 flex flex-col items-center justify-center gap-2 min-h-[140rpx] bouncy-tap">
               <text class="material-symbols-outlined text-primary text-[48rpx]">forum</text>
               <text class="text-[24rpx] font-bold text-on-surface">动态分享</text>
             </view>
-            <view class="bg-white rounded-[24px] p-4 flex flex-col items-center justify-center gap-2 kawaii-shadow min-h-[140rpx] bouncy-tap">
+            <view class="bg-white rounded-[24px] p-4 flex flex-col items-center justify-center gap-2 min-h-[140rpx] bouncy-tap">
               <text class="material-symbols-outlined text-secondary text-[48rpx]">smart_toy</text>
               <text class="text-[24rpx] font-bold text-on-surface">AI 助手</text>
             </view>
-            <view class="bg-white rounded-[24px] p-4 flex flex-col items-center justify-center gap-2 kawaii-shadow min-h-[140rpx] bouncy-tap">
+            <view class="bg-white rounded-[24px] p-4 flex flex-col items-center justify-center gap-2 min-h-[140rpx] bouncy-tap">
               <text class="material-symbols-outlined text-tertiary text-[48rpx]">newspaper</text>
               <text class="text-[24rpx] font-bold text-on-surface">校园资讯</text>
             </view>
-            <view class="bg-white rounded-[24px] p-4 flex flex-col items-center justify-center gap-2 kawaii-shadow min-h-[140rpx] bouncy-tap">
+            <view class="bg-white rounded-[24px] p-4 flex flex-col items-center justify-center gap-2 min-h-[140rpx] bouncy-tap">
               <text class="material-symbols-outlined text-primary text-[48rpx]">chat_bubble</text>
               <text class="text-[24rpx] font-bold text-on-surface">私信交流</text>
             </view>
@@ -54,7 +54,7 @@
         <!-- 3. 合规文档手账白描卡片群组 -->
         <section class="space-y-3">
           <text class="font-headline-md text-[30rpx] font-bold text-on-surface px-1 block">合规及法律文档</text>
-          <view class="bg-white rounded-[32rpx] p-2 kawaii-shadow relative overflow-hidden">
+          <view class="bg-white rounded-[32rpx] p-2 relative overflow-hidden">
             <view v-for="(item, idx) in docLinks" :key="item.type" @click="navigateToDocument(item.type)">
               <view class="flex items-center justify-between p-4 active:bg-surface-container-low transition-colors rounded-full bouncy-tap">
                 <view class="flex items-center gap-3">
@@ -136,9 +136,6 @@ const goBack = () => uni.navigateBack()
 }
 
 /* 弥散阴影基板 */
-.kawaii-shadow {
-  box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.08);
-}
 
 /* 品牌Logo可爱的上下微浮动律动 */
 .floating-element {

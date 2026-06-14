@@ -14,17 +14,17 @@
       
       <section class="flex flex-col items-center mt-6 mb-10">
         <view class="relative group" @click="showAvatarPicker">
-          <view class="w-[200rpx] h-[200rpx] rounded-full p-[6rpx] bg-white kawaii-shadow ring-4 ring-primary-fixed">
+          <view class="w-[200rpx] h-[200rpx] rounded-full p-[6rpx] bg-white ring-4 ring-primary-fixed">
             <image :src="editForm.avatar || defaultAvatar" mode="aspectFill" class="w-full h-full object-cover rounded-full"></image>
           </view>
-          <view class="absolute bottom-0 right-0 bg-secondary-container p-3 rounded-full border-[4rpx] border-white kawaii-shadow bouncy-press">
+          <view class="absolute bottom-0 right-0 bg-secondary-container p-3 rounded-full border-[4rpx] border-white bouncy-press">
             <text class="material-symbols-outlined text-white text-[32rpx]" style="font-variation-settings: 'FILL' 1;">photo_camera</text>
           </view>
         </view>
         <text class="mt-4 font-label-sm text-[24rpx] text-on-surface-variant/70 tracking-wide">点击更换头像</text>
       </section>
 
-      <view class="bg-surface-container-low rounded-[40rpx] overflow-hidden kawaii-shadow sticker-border p-2">
+      <view class="bg-surface-container-low rounded-[40rpx] overflow-hidden p-2">
         <view class="flex items-center justify-between p-[32rpx] hover:bg-surface-variant/30 active:bg-surface-variant transition-colors group" @click="editNickname">
           <text class="text-[30rpx] font-medium text-on-surface-variant">昵称</text>
           <view class="flex items-center gap-2">
@@ -70,7 +70,7 @@
     <view class="fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-md border-t border-outline-variant/20 z-50 pb-[env(safe-area-inset-bottom)]">
       <view class="px-[32rpx] py-[24rpx]">
         <button class="w-full h-[100rpx] flex items-center justify-center rounded-[50rpx] font-bold text-[36rpx] transition-all duration-300 bouncy-spring text-white"
-                :class="saving ? 'bg-[#C1C1C1]' : 'gradient-publish shadow-[0_12px_32px_rgba(255,143,163,0.3)]'"
+                :class="saving ? 'bg-[#C1C1C1]' : 'gradient-publish'"
                 @click="saveUserInfo">
           <text v-if="saving" class="material-symbols-outlined animate-spin text-[40rpx]">progress_activity</text>
           <text v-else>保存</text>
@@ -505,10 +505,8 @@ const showCollegePicker = () => {
 
 
 <style scoped>
-/* 引入你在 App.vue 定义的全局工具类 */
-.kawaii-shadow { box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.12); }
-.sticker-border { border: 2rpx dashed rgba(218, 192, 195, 0.5); }
+/* 引入你在 App.vue 定义的全局工具类 */
 .bouncy-press:active { transform: scale(0.95); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .bouncy-spring:active { transform: scale(0.95); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.gradient-publish { background: linear-gradient(135deg, #FF8FA3 0%, #FFB2BD 100%); }
+.gradient-publish { background: #FFB2BD; }
 </style>

@@ -36,7 +36,7 @@
                   @click="closeAuthModal">
               稍后再说
             </view>
-            <view class="flex-1 h-[88rpx] flex items-center justify-center rounded-full bg-gradient-to-r from-[#FF8FA3] to-[#FFB3C1] text-white font-bold text-[28rpx] shadow-md active:scale-95 transition-transform"
+            <view class="flex-1 h-[88rpx] flex items-center justify-center rounded-full bg-primary text-white font-bold text-[28rpx] shadow-md active:scale-95 transition-transform"
                   @click="goToRealNameAuth">
               去认证
             </view>
@@ -47,7 +47,7 @@
 
     <scroll-view scroll-y class="h-screen w-full" @scroll="onScroll">
       <view class="relative h-[560rpx] w-full overflow-hidden">
-        <view class="absolute inset-0 bg-gradient-to-br from-[#FF8FA3] via-[#C5A3FF] to-[#5BA4F0] noise-bg"></view>
+        <view class="absolute inset-0 bg-[#F4F5F7] noise-bg"></view>
         <view class="absolute top-10 left-10 w-[200rpx] h-[200rpx] bg-white/20 rounded-full blur-2xl bubble-float"></view>
         <view class="absolute top-20 right-10 w-[250rpx] h-[250rpx] bg-white/10 rounded-full blur-3xl bubble-float" style="animation-delay: 2s;"></view>
         <view class="absolute bottom-0 left-0 w-full h-[120rpx] wave-bg"></view>
@@ -56,7 +56,7 @@
       <view class="relative -mt-[140rpx] px-[32rpx] z-10 space-y-[24rpx]">
 
         <!-- 用户信息卡片 -->
-        <view class="bg-white/90 backdrop-blur-md rounded-[40rpx] p-[32rpx] border border-white/50 kawaii-shadow">
+        <view class="bg-white/90 backdrop-blur-md rounded-[40rpx] p-[32rpx] border border-white/50">
           <view class="flex flex-col items-center -mt-[100rpx] text-center">
             <view class="flex flex-col items-center text-center" @click="handleEditProfile">
               <view class="relative mb-3">
@@ -81,7 +81,7 @@
 
             <!-- 未认证提示条 -->
             <view v-if="!userInfo?.isRealNameAuth" class="w-full mt-4">
-              <view class="flex items-center justify-between px-4 py-3 rounded-full bg-gradient-to-r from-[#FFF3F0] to-[#FFEBEE] border border-dashed border-[#FF8FA3]/30 active:scale-[0.98] transition-transform"
+              <view class="flex items-center justify-between px-4 py-3 rounded-full bg-primary-fixed border active:scale-[0.98] transition-transform"
                     @click="goToRealNameAuth">
                 <view class="flex items-center gap-2">
                   <text class="material-symbols-outlined text-[#FF8FA3] text-[32rpx]">error</text>
@@ -92,7 +92,7 @@
             </view>
 
             <!-- 数据看板 -->
-            <view class="grid grid-cols-4 w-full mt-6 py-4 border-t border-dashed border-outline-variant/50">
+            <view class="grid grid-cols-4 w-full mt-6 py-4 border-t border-outline-variant/50">
               <view class="flex flex-col items-center bouncy-press">
                 <text class="text-[36rpx] font-bold text-on-surface">{{ userInfo?.likeCount || 0 }}</text>
                 <text class="text-[22rpx] text-on-surface-variant mt-1">获赞</text>
@@ -115,19 +115,19 @@
 
         <!-- 快捷功能宫格 -->
         <view class="grid grid-cols-3 gap-3">
-          <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 kawaii-shadow bouncy-press" @click="handleNav('我的动态')">
+          <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 bouncy-press" @click="handleNav('我的动态')">
             <view class="w-[80rpx] h-[80rpx] rounded-full bg-blue-50 flex items-center justify-center">
               <text class="material-symbols-outlined text-blue-500 text-[40rpx]">article</text>
             </view>
             <text class="text-[24rpx] text-on-surface font-medium">我的动态</text>
           </view>
-          <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 kawaii-shadow bouncy-press" @click="handleNav('我的收藏')">
+          <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 bouncy-press" @click="handleNav('我的收藏')">
             <view class="w-[80rpx] h-[80rpx] rounded-full bg-purple-50 flex items-center justify-center">
               <text class="material-symbols-outlined text-purple-500 text-[40rpx]">bookmark</text>
             </view>
             <text class="text-[24rpx] text-on-surface font-medium">我的收藏</text>
           </view>
-          <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 kawaii-shadow bouncy-press" @click="handleNav('浏览历史')">
+          <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 bouncy-press" @click="handleNav('浏览历史')">
             <view class="w-[80rpx] h-[80rpx] rounded-full bg-green-50 flex items-center justify-center">
               <text class="material-symbols-outlined text-green-500 text-[40rpx]">history</text>
             </view>
@@ -136,7 +136,7 @@
         </view>
 
         <!-- 课程安排 Tab -->
-        <view class="bg-white rounded-[32rpx] p-[32rpx] kawaii-shadow mt-4">
+        <view class="bg-white rounded-[32rpx] p-[32rpx] mt-4">
           <view class="flex items-center justify-between active:opacity-60 transition-opacity" @click="handleNav('课程安排')">
             <view class="flex items-center gap-3">
               <view class="w-[80rpx] h-[80rpx] rounded-full bg-primary-fixed/50 flex items-center justify-center">
@@ -155,7 +155,7 @@
         </view>
 
         <!-- 系统设置列表 -->
-        <view class="bg-white rounded-[32rpx] p-[32rpx] kawaii-shadow mt-4">
+        <view class="bg-white rounded-[32rpx] p-[32rpx] mt-4">
           <view class="space-y-6">
             <view class="flex items-center justify-between active:opacity-60 transition-opacity" @click="handleNav('系统设置')">
               <view class="flex items-center gap-3">
@@ -411,13 +411,10 @@ const handleLogout = () => {
 }
 
 /* 弥散阴影 */
-.kawaii-shadow {
-  box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.12);
-}
 
 /* 渐变文字 */
 .text-gradient-candy {
-  background: linear-gradient(135deg, #FF8FA3 0%, #C5A3FF 50%, #5BA4F0 100%);
+  background: #5BA4F0;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

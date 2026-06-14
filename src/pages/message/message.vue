@@ -11,7 +11,7 @@
       
       <view class="grid grid-cols-3 gap-gutter-card mb-8">
         <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform relative" @click="goToInteraction('likes')">
-          <view v-if="unreadStats.likes > 0" class="absolute -top-2 -right-2 bg-error text-on-error text-[20rpx] font-bold min-w-[40rpx] h-[40rpx] px-1 rounded-full flex items-center justify-center sticker-shadow z-10">{{ unreadStats.likes }}</view>
+          <view v-if="unreadStats.likes > 0" class="absolute -top-2 -right-2 bg-error text-on-error text-[20rpx] font-bold min-w-[40rpx] h-[40rpx] px-1 rounded-full flex items-center justify-center z-10">{{ unreadStats.likes }}</view>
           <view class="w-[72rpx] h-[72rpx] rounded-full bg-pink-50 flex items-center justify-center">
             <text class="material-symbols-outlined text-primary text-[36rpx]" style="font-variation-settings: 'FILL' 1;">thumb_up</text>
           </view>
@@ -19,7 +19,7 @@
         </view>
 
         <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform relative" @click="goToInteraction('comments')">
-          <view v-if="unreadStats.comments > 0" class="absolute -top-2 -right-2 bg-error text-on-error text-[20rpx] font-bold min-w-[40rpx] h-[40rpx] px-1 rounded-full flex items-center justify-center sticker-shadow z-10">{{ unreadStats.comments }}</view>
+          <view v-if="unreadStats.comments > 0" class="absolute -top-2 -right-2 bg-error text-on-error text-[20rpx] font-bold min-w-[40rpx] h-[40rpx] px-1 rounded-full flex items-center justify-center z-10">{{ unreadStats.comments }}</view>
           <view class="w-[72rpx] h-[72rpx] rounded-full bg-blue-50 flex items-center justify-center">
             <text class="material-symbols-outlined text-tertiary text-[36rpx]" style="font-variation-settings: 'FILL' 1;">chat_bubble</text>
           </view>
@@ -27,7 +27,7 @@
         </view>
 
         <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform relative" @click="goToInteraction('system')">
-          <view v-if="unreadStats.follows > 0" class="absolute -top-2 -right-2 bg-error text-on-error text-[20rpx] font-bold min-w-[40rpx] h-[40rpx] px-1 rounded-full flex items-center justify-center sticker-shadow z-10">{{ unreadStats.follows }}</view>
+          <view v-if="unreadStats.follows > 0" class="absolute -top-2 -right-2 bg-error text-on-error text-[20rpx] font-bold min-w-[40rpx] h-[40rpx] px-1 rounded-full flex items-center justify-center z-10">{{ unreadStats.follows }}</view>
           <view class="w-[72rpx] h-[72rpx] rounded-full bg-yellow-50 flex items-center justify-center">
             <text class="material-symbols-outlined text-yellow-500 text-[36rpx]" style="font-variation-settings: 'FILL' 1;">star</text>
           </view>
@@ -44,7 +44,7 @@
         </view>
 
         <view class="flex flex-col gap-3" v-if="chatList.length > 0">
-          <view class="bg-white rounded-[32rpx] p-padding-inner flex items-center gap-3 kawaii-shadow active:bg-surface-container-low transition-colors" 
+          <view class="bg-white rounded-[32rpx] p-padding-inner flex items-center gap-3 active:bg-surface-container-low transition-colors" 
                 v-for="chat in chatList" :key="chat.id" @click="openChat(chat)">
             
             <view class="relative shrink-0">
@@ -62,7 +62,7 @@
             </view>
 
             <view class="shrink-0 flex items-center gap-2">
-              <view v-if="chat.unreadCount > 0" class="bg-primary text-on-primary text-label-sm font-bold min-w-[40rpx] h-[40rpx] px-1 rounded-full flex items-center justify-center sticker-shadow">{{ chat.unreadCount }}</view>
+              <view v-if="chat.unreadCount > 0" class="bg-primary text-on-primary text-label-sm font-bold min-w-[40rpx] h-[40rpx] px-1 rounded-full flex items-center justify-center">{{ chat.unreadCount }}</view>
               
               <view class="w-[56rpx] h-[56rpx] flex items-center justify-center rounded-full text-outline-variant active:bg-error/10 active:text-error transition-colors" @click.stop="deleteChatSession(chat)">
                 <text class="material-symbols-outlined text-[32rpx]">delete</text>
@@ -238,13 +238,4 @@ const handlePublish = () => {
 }
 
 /* 核心阴影与特效 */
-.bouncy-shadow { 
-  box-shadow: 0 24rpx 80rpx rgba(255, 143, 163, 0.12); 
-}
-.kawaii-shadow { 
-  box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.12); 
-}
-.sticker-shadow { 
-  box-shadow: 0 0 0 4rpx #ffffff, 0 8rpx 24rpx rgba(255, 143, 163, 0.2); 
-}
 </style>

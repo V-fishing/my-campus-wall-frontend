@@ -1,7 +1,7 @@
 <template>
   <view class="bg-[#F4F5F7] min-h-screen flex flex-col relative selection:bg-primary-container selection:text-on-primary-container">
     
-    <header class="fixed top-0 w-full h-[88px] z-50 bg-[#F4F5F7]/85 backdrop-blur-md flex flex-col justify-end pb-2 border-b border-dashed border-outline-variant/20 shadow-sm">
+    <header class="fixed top-0 w-full h-[88px] z-50 bg-[#F4F5F7]/85 backdrop-blur-md flex flex-col justify-end pb-2 border-b border-outline-variant/20 shadow-sm">
       <view class="flex items-center px-margin-page pr-capsule-safe-zone h-[44px] relative w-full">
         <view class="bouncy-tap text-primary flex items-center justify-center w-10 h-10 -ml-2 cursor-pointer" @click="goBack">
           <text class="material-symbols-outlined text-[48rpx]">arrow_back_ios_new</text>
@@ -37,7 +37,7 @@
 
         <view v-else class="space-y-4">
           <view v-for="item in notificationList" :key="item.id" @click="handleNotificationClick(item)"
-                class="bg-surface-container-lowest rounded-[40rpx] p-padding-inner sugar-border shadow-[0_12px_40px_rgba(255,143,163,0.08)] relative overflow-hidden transition-all duration-300">
+                class="bg-surface-container-lowest rounded-[40rpx] p-padding-inner sugar-border relative overflow-hidden transition-all duration-300">
             
             <view class="flex gap-3">
               <view class="relative shrink-0">
@@ -71,7 +71,7 @@
               </text>
             </view>
 
-            <view class="mt-4 flex justify-end items-center gap-6 pt-2 border-t border-dashed border-outline-variant/10">
+            <view class="mt-4 flex justify-end items-center gap-6 pt-2 border-t border-outline-variant/10">
               <view class="bouncy-tap flex items-center gap-1 cursor-pointer" @click.stop="handleReply(item)">
                 <text class="material-symbols-outlined text-primary text-[36rpx]">reply</text>
                 <text class="text-primary font-black text-[24rpx]">回复</text>
@@ -261,20 +261,17 @@ const goBack = () => uni.navigateBack()
 
 /* 萌系手账虚线外框圈 */
 .sugar-border {
-  border: 4rpx dashed rgba(255, 143, 163, 0.25);
+  border: 4rpx dashed rgba(0, 0, 0, 0.08);
 }
 
 /* 炫彩渐变 Tab 底部激活呼吸线 */
 .active-tab-glow {
-  background: linear-gradient(90deg, #c5a3ff 0%, #86b6db 100%);
+  background: #86b6db;
   height: 6rpx;
   border-radius: 3rpx;
 }
 
-/* 卡片发光双叠白外描阴影 */
-.sticker-shadow {
-  box-shadow: 0 0 0 4rpx #ffffff, 0 8px 24px rgba(255, 143, 163, 0.15);
-}
+/* 卡片发光双叠白外描阴影 */
 
 /* 文字线长限定截断 */
 .line-clamp-2 {

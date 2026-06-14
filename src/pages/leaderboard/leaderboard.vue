@@ -1,7 +1,7 @@
 <template>
   <view class="bg-[#F4F5F7] min-h-screen flex flex-col relative selection:bg-primary-container">
     
-    <header class="fixed top-0 w-full z-50 bg-[#F4F5F7]/90 backdrop-blur-md flex items-end justify-between px-margin-page h-[88px] pb-4 border-b border-dashed border-outline-variant/20 shadow-sm">
+    <header class="fixed top-0 w-full z-50 bg-[#F4F5F7]/90 backdrop-blur-md flex items-end justify-between px-margin-page h-[88px] pb-4 border-b border-outline-variant/20 shadow-sm">
       <view class="bouncy-tap h-10 w-10 flex items-center justify-start text-primary p-1 -ml-1" @click="goBack">
         <text class="material-symbols-outlined text-[48rpx]">arrow_back</text>
       </view>
@@ -43,7 +43,7 @@
           <text class="block text-outline-variant mt-2 text-[24rpx]">正在从云端调阅人气风云榜...</text>
         </view>
 
-        <view class="flex flex-col items-center justify-center py-20 text-center bg-white rounded-[40rpx] border-2 border-dashed border-outline-variant/60 kawaii-shadow" v-else-if="leaderboardList.length === 0">
+        <view class="flex flex-col items-center justify-center py-20 text-center bg-white rounded-[40rpx] border-2 border-outline-variant/60" v-else-if="leaderboardList.length === 0">
           <text class="material-symbols-outlined text-[100rpx] text-outline-variant mb-2">📊</text>
           <text class="font-headline-md text-[28rpx] text-outline font-bold">暂无今日排行数据</text>
         </view>
@@ -51,20 +51,20 @@
         <view v-else class="space-y-4">
           <view v-for="(post, index) in leaderboardList" :key="post.id" @click="goToDetail(post.id)"
                 class="bg-white rounded-[48rpx] p-5 flex gap-4 relative transition-all active:scale-[0.99] w-full"
-                :class="index <= 2 ? 'kawaii-shadow dashed-border-card' : 'bg-white/60 rounded-[40rpx] dashed-border-card opacity-95'">
+                :class="index <= 2 ? '' : 'bg-white/60 rounded-[40rpx] opacity-95'">
             
             <view class="flex flex-col items-center justify-center min-w-[96rpx] shrink-0">
               <view class="medal-bubble w-11 h-11 border-[3rpx] border-white" :class="index <= 2 ? 'shadow-md' : 'bg-surface-container-high/60 shadow-inner rounded-2xl'">
-                <text class="text-3xl sticker-stroke" v-if="index === 0">🥇</text>
-                <text class="text-3xl sticker-stroke" v-else-if="index === 1">🥈</text>
-                <text class="text-3xl sticker-stroke" v-else-if="index === 2">🥉</text>
+                <text class="text-3xl" v-if="index === 0">🥇</text>
+                <text class="text-3xl" v-else-if="index === 1">🥈</text>
+                <text class="text-3xl" v-else-if="index === 2">🥉</text>
                 <text class="text-[30rpx] font-black text-outline/60" v-else>{{ index + 1 }}</text>
               </view>
             </view>
 
             <view class="relative flex-1 flex gap-3 min-w-0">
               <view class="w-1.5 rounded-full view-bar-glow shrink-0 self-stretch relative overflow-hidden bg-surface-container" v-if="maxViews > 0">
-                <view class="absolute bottom-0 left-0 w-full rounded-full bg-gradient-to-t from-[#86b6db] to-[#4A90E2]" 
+                <view class="absolute bottom-0 left-0 w-full rounded-full bg-tertiary" 
                       :style="{ height: (post.viewCount / maxViews * 100) + '%' }"></view>
               </view>
               
@@ -219,19 +219,13 @@ const goBack = () => uni.navigateBack()
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 弥散阴影大基板 */
-.bouncy-shadow {
-  box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.1);
-}
+/* 弥散阴影大基板 */
 
-/* 手账虚线裁切外边框 */
-.dashed-border-card {
-  border: 4rpx dashed #dac0c3;
-}
+/* 手账虚线裁切外边框 */
 
 /* 火焰气泡流光溢彩 */
 .fire-glow {
-  filter: drop-shadow(0 0 12rpx rgba(255, 143, 163, 0.6));
+  filter: none;
 }
 
 /* 勋章独立悬浮圆形容器 */
@@ -248,13 +242,13 @@ const goBack = () => uni.navigateBack()
 
 /* 渐变长条发光遮罩 */
 .view-bar-glow {
-  background: linear-gradient(to bottom, #86b6db, rgba(134, 182, 219, 0.05));
-  box-shadow: 0 0 8rpx rgba(134, 182, 219, 0.2);
+  background: #86b6db;
+  box-shadow: none;
 }
 
 /* 沉浸式极光梦夜渐变色盘盘口 */
 .midnight-dream-gradient {
-  background: linear-gradient(180deg, #3a3a7b 0%, #2a1b3d 100%);
+  background: #2a1b3d;
 }
 
 /* 规律性浮动微动效指引 */
@@ -274,8 +268,5 @@ const goBack = () => uni.navigateBack()
   overflow: hidden;
 }
 
-/* 贴纸文字白描高光外边缘 */
-.sticker-stroke {
-  filter: drop-shadow(0 0 2rpx #ffffff);
-}
+/* 贴纸文字白描高光外边缘 */
 </style>

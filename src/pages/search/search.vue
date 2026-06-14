@@ -33,7 +33,7 @@
           </view>
         </view>
 
-        <view class="flex-1 relative flex items-center bg-surface-container-low rounded-full px-4 h-[80rpx] sticker-shadow border border-outline-variant/20 transition-all focus-within:ring-2 focus-within:ring-primary-container">
+        <view class="flex-1 relative flex items-center bg-surface-container-low rounded-full px-4 h-[80rpx] border border-outline-variant/20 transition-all focus-within:ring-2 focus-within:ring-primary-container">
           <text class="material-symbols-outlined text-primary/60 text-[40rpx] mr-2">search</text>
           <input 
             class="flex-1 bg-transparent border-none text-on-surface font-body-lg text-[28rpx]" 
@@ -67,7 +67,7 @@
 
         <view class="space-y-4" v-else>
           <view 
-            class="bg-white rounded-[40rpx] p-[32rpx] kawaii-shadow border border-outline-variant/20 bouncy-tap mb-4" 
+            class="bg-white rounded-[40rpx] p-[32rpx] border border-outline-variant/20 bouncy-tap mb-4" 
             v-for="post in resultList" :key="post.id" @click="goToDetail(post.id)">
             
             <view class="flex items-center mb-3">
@@ -139,7 +139,7 @@
             </view>
           </view>
 
-          <view class="bg-surface-container-lowest rounded-[40rpx] sticker-shadow doodle-border p-[32rpx] space-y-1">
+          <view class="bg-surface-container-lowest rounded-[40rpx] p-[32rpx] space-y-1">
             <view
               class="bouncy-tap flex items-center gap-4 py-3 border-b border-outline-variant/30 last:border-0"
               v-for="(item, index) in hotSearchList" :key="item.keyword" @click="searchByKeyword(item.keyword)">
@@ -326,9 +326,9 @@ const clearInput = () => {
 
 // 获取排名背景样式
 const getRankClass = (index) => {
-  if (index === 0) return 'bg-gradient-to-br from-[#FFD700] to-[#FF8C00] text-white'
-  if (index === 1) return 'bg-gradient-to-br from-[#E0E0E0] to-[#9E9E9E] text-white'
-  if (index === 2) return 'bg-gradient-to-br from-[#CD7F32] to-[#8B4513] text-white'
+  if (index === 0) return 'bg-amber-500 text-white'
+  if (index === 1) return 'bg-gray-400 text-white'
+  if (index === 2) return 'bg-amber-700 text-white'
   return 'bg-surface-container-high text-on-surface-variant'
 }
 
@@ -434,20 +434,11 @@ const goBack = () => uni.navigateBack()
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 柔和彩色弥散阴影 */
-.kawaii-shadow {
-  box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.12);
-}
+/* 柔和彩色弥散阴影 */
 
-/* 输入框与贴纸组件的外发光阴影 */
-.sticker-shadow {
-  box-shadow: 0 0 0 4rpx #ffffff, 0 8rpx 24rpx rgba(255, 143, 163, 0.2);
-}
+/* 输入框与贴纸组件的外发光阴影 */
 
-/* 虚线边框 */
-.doodle-border {
-  border: 4rpx dashed rgba(155, 64, 83, 0.2);
-}
+/* 虚线边框 */
 
 /* 文本超出行省略 */
 .line-clamp-3 {
