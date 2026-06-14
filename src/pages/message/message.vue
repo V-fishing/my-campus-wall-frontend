@@ -10,7 +10,7 @@
     <scroll-view scroll-y class="flex-1 overflow-y-auto hide-scrollbar px-margin-page pt-4">
       
       <view class="grid grid-cols-3 gap-gutter-card mb-8">
-        <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 kawaii-shadow active:scale-95 transition-transform relative" @click="goToInteraction('likes')">
+        <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform relative" @click="goToInteraction('likes')">
           <view v-if="unreadStats.likes > 0" class="absolute -top-2 -right-2 bg-error text-on-error text-[20rpx] font-bold min-w-[40rpx] h-[40rpx] px-1 rounded-full flex items-center justify-center sticker-shadow z-10">{{ unreadStats.likes }}</view>
           <view class="w-[72rpx] h-[72rpx] rounded-full bg-pink-50 flex items-center justify-center">
             <text class="material-symbols-outlined text-primary text-[36rpx]" style="font-variation-settings: 'FILL' 1;">thumb_up</text>
@@ -18,7 +18,7 @@
           <text class="text-[24rpx] text-on-surface font-medium">赞与收藏</text>
         </view>
 
-        <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 kawaii-shadow active:scale-95 transition-transform relative" @click="goToInteraction('comments')">
+        <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform relative" @click="goToInteraction('comments')">
           <view v-if="unreadStats.comments > 0" class="absolute -top-2 -right-2 bg-error text-on-error text-[20rpx] font-bold min-w-[40rpx] h-[40rpx] px-1 rounded-full flex items-center justify-center sticker-shadow z-10">{{ unreadStats.comments }}</view>
           <view class="w-[72rpx] h-[72rpx] rounded-full bg-blue-50 flex items-center justify-center">
             <text class="material-symbols-outlined text-tertiary text-[36rpx]" style="font-variation-settings: 'FILL' 1;">chat_bubble</text>
@@ -26,7 +26,7 @@
           <text class="text-[24rpx] text-on-surface font-medium">回复与@</text>
         </view>
 
-        <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 kawaii-shadow active:scale-95 transition-transform relative" @click="goToInteraction('system')">
+        <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform relative" @click="goToInteraction('system')">
           <view v-if="unreadStats.follows > 0" class="absolute -top-2 -right-2 bg-error text-on-error text-[20rpx] font-bold min-w-[40rpx] h-[40rpx] px-1 rounded-full flex items-center justify-center sticker-shadow z-10">{{ unreadStats.follows }}</view>
           <view class="w-[72rpx] h-[72rpx] rounded-full bg-yellow-50 flex items-center justify-center">
             <text class="material-symbols-outlined text-yellow-500 text-[36rpx]" style="font-variation-settings: 'FILL' 1;">star</text>

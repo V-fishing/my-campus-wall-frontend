@@ -198,8 +198,8 @@
     </scroll-view>
 
     <!-- 底部输入区域 -->
-    <view class="fixed left-0 w-full z-40 bg-gradient-to-t from-background via-background to-transparent px-margin-page pb-4 pt-8" style="bottom: calc(120rpx + env(safe-area-inset-bottom));">
-      <view class="bg-white rounded-full h-[112rpx] flex items-center px-4 gap-3 kawaii-shadow border border-outline-variant/30">
+    <view class="fixed left-0 w-full z-40 bg-[#F4F5F7] px-margin-page pb-4 pt-8" style="bottom: calc(120rpx + env(safe-area-inset-bottom));">
+      <view class="bg-white rounded-full h-[112rpx] flex items-center px-4 gap-3 border border-outline-variant/30">
         <view class="text-on-surface-variant active:text-primary transition-colors flex items-center justify-center">
           <text class="material-symbols-outlined text-[56rpx]">add_circle</text>
         </view>
