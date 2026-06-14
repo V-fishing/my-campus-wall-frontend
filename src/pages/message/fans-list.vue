@@ -1,5 +1,5 @@
 <template>
-  <view class="bg-[#fef8f8] min-h-screen flex flex-col relative selection:bg-primary-container">
+  <view class="bg-[#F4F5F7] min-h-screen flex flex-col relative selection:bg-primary-container">
     
     <header class="fixed top-0 w-full h-[88px] z-50 glass-header bg-surface/85 flex flex-col justify-end pb-2 border-b border-dashed border-outline-variant/20 shadow-sm">
       <view class="flex items-center justify-between px-margin-page h-[44px] relative w-full">

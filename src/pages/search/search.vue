@@ -1,7 +1,7 @@
 <template>
-  <view class="bg-background min-h-screen flex flex-col relative w-full overflow-x-hidden selection:bg-primary-container">
+  <view class="bg-[#F4F5F7] min-h-screen flex flex-col relative w-full overflow-x-hidden selection:bg-primary-container">
     
-    <view class="sticky top-0 z-50 bg-background/85 backdrop-blur-md px-margin-page border-b border-outline-variant/30 flex flex-col justify-end pb-2 transition-all" 
+    <view class="sticky top-0 z-50 bg-[#F4F5F7]/85 backdrop-blur-md px-margin-page border-b border-outline-variant/30 flex flex-col justify-end pb-2 transition-all" 
           :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 50) + 'px' }">
       <view class="flex items-center w-full">
         <view class="bouncy-tap mr-4 text-primary flex items-center justify-center" @click="goBack">

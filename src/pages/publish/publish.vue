@@ -1,7 +1,7 @@
 <template>
-  <view class="bg-background text-on-surface font-body-lg min-h-screen flex flex-col selection:bg-primary-fixed selection:text-on-primary-fixed relative pb-[200rpx]">
+  <view class="bg-[#F4F5F7] text-on-surface font-body-lg min-h-screen flex flex-col selection:bg-primary-fixed selection:text-on-primary-fixed relative pb-[200rpx]">
 
-    <header class="sticky top-0 z-[60] bg-background/85 backdrop-blur-md flex justify-between items-center w-full px-margin-page border-b border-outline-variant/20 transition-all"
+    <header class="sticky top-0 z-[60] bg-[#F4F5F7]/85 backdrop-blur-md flex justify-between items-center w-full px-margin-page border-b border-outline-variant/20 transition-all"
             :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 56) + 'px' }">
       <view class="bouncy-tap p-2 -ml-2 text-on-surface-variant flex items-center justify-center" @click="handleCancel">
         <text class="material-symbols-outlined text-[56rpx]">close</text>

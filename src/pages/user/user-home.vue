@@ -1,7 +1,7 @@
 <template>
-  <view class="bg-background text-on-surface font-body-lg text-body-lg min-h-screen custom-scrollbar overflow-x-hidden pb-12">
+  <view class="bg-[#F4F5F7] text-on-surface font-body-lg text-body-lg min-h-screen custom-scrollbar overflow-x-hidden pb-12">
     
-    <header class="fixed top-0 left-0 w-full z-50 h-[88px] bg-background/85 backdrop-blur-md flex items-end pb-3 px-margin-page" :style="{ paddingTop: statusBarHeight + 'px' }">
+    <header class="fixed top-0 left-0 w-full z-50 h-[88px] bg-[#F4F5F7]/85 backdrop-blur-md flex items-end pb-3 px-margin-page" :style="{ paddingTop: statusBarHeight + 'px' }">
       <view class="flex items-center space-x-4 w-full">
         <view class="bouncy-tap p-1 -ml-1 text-primary cursor-pointer flex items-center justify-center" @click="handleBack">
           <text class="material-symbols-outlined text-[48rpx]">arrow_back_ios</text>

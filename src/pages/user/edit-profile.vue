@@ -1,7 +1,7 @@
 <template>
-  <view class="bg-background min-h-screen flex flex-col selection:bg-primary-container">
+  <view class="bg-[#F4F5F7] min-h-screen flex flex-col selection:bg-primary-container">
     
-    <header class="sticky top-0 z-[60] bg-background/85 backdrop-blur-md flex justify-between items-center w-full px-margin-page transition-all" 
+    <header class="sticky top-0 z-[60] bg-[#F4F5F7]/85 backdrop-blur-md flex justify-between items-center w-full px-margin-page transition-all" 
             :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 56) + 'px' }">
       <view class="bouncy-tap p-2 -ml-2 text-primary" @click="handleBack">
         <text class="material-symbols-outlined text-[56rpx]">arrow_back</text>

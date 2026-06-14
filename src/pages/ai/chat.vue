@@ -1,8 +1,8 @@
 <template>
-  <view class="bg-background text-on-surface font-body-lg-mobile min-h-screen flex flex-col relative selection:bg-primary-container">
+  <view class="bg-[#F4F5F7] text-on-surface font-body-lg-mobile min-h-screen flex flex-col relative selection:bg-primary-container">
 
     <!-- 顶部导航栏 -->
-    <view class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-md shadow-sm shadow-[0_12px_40px_rgba(255,143,163,0.12)] pr-capsule-safe-zone"
+    <view class="fixed top-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md shadow-sm shadow-[0_12px_40px_rgba(255,143,163,0.12)] pr-capsule-safe-zone"
           :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 64) + 'px' }">
       <view class="relative w-full h-full flex items-center px-margin-page">
         <!-- 左侧：菜单按钮 -->

@@ -1,9 +1,9 @@
 <template>
-  <view class="bg-background text-on-surface font-body-lg min-h-screen flex flex-col relative selection:bg-primary-fixed overflow-hidden">
+  <view class="bg-[#F4F5F7] text-on-surface font-body-lg min-h-screen flex flex-col relative selection:bg-primary-fixed overflow-hidden">
     
     <!-- 顶部固定毛玻璃高光 AppBar 导航栏 -->
     <header
-      class="fixed top-0 left-0 w-full z-50 bg-surface/85 backdrop-blur-md flex flex-col justify-end pb-2 border-b border-dashed border-outline-variant/20 shadow-sm"
+      class="fixed top-0 left-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md flex flex-col justify-end pb-2 border-b border-dashed border-outline-variant/20 shadow-sm"
       :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 48) + 'px' }"
     >
       <view class="h-status-bar w-full"></view>

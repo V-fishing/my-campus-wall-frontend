@@ -1,7 +1,7 @@
 <template>
-  <view class="bg-background min-h-screen flex flex-col relative w-full overflow-x-hidden selection:bg-primary-container pb-[200rpx]">
+  <view class="bg-[#F4F5F7] min-h-screen flex flex-col relative w-full overflow-x-hidden selection:bg-primary-container pb-[200rpx]">
     
-    <view class="sticky top-0 z-50 flex items-center bg-background/85 backdrop-blur-md px-[32rpx] border-b border-outline-variant/30 transition-all duration-300"
+    <view class="sticky top-0 z-50 flex items-center bg-[#F4F5F7]/85 backdrop-blur-md px-[32rpx] border-b border-outline-variant/30 transition-all duration-300"
           :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 56) + 'px' }">
       <view class="flex items-center gap-1 cursor-pointer active:opacity-70 transition-opacity" @click="goBack">
         <text class="material-symbols-outlined text-primary text-[48rpx]">arrow_back</text>

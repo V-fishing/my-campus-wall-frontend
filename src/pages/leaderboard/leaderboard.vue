@@ -1,7 +1,7 @@
 <template>
-  <view class="bg-[#fef8f8] min-h-screen flex flex-col relative selection:bg-primary-container">
+  <view class="bg-[#F4F5F7] min-h-screen flex flex-col relative selection:bg-primary-container">
     
-    <header class="fixed top-0 w-full z-50 bg-[#fef8f8]/90 backdrop-blur-md flex items-end justify-between px-margin-page h-[88px] pb-4 border-b border-dashed border-outline-variant/20 shadow-sm">
+    <header class="fixed top-0 w-full z-50 bg-[#F4F5F7]/90 backdrop-blur-md flex items-end justify-between px-margin-page h-[88px] pb-4 border-b border-dashed border-outline-variant/20 shadow-sm">
       <view class="bouncy-tap h-10 w-10 flex items-center justify-start text-primary p-1 -ml-1" @click="goBack">
         <text class="material-symbols-outlined text-[48rpx]">arrow_back</text>
       </view>

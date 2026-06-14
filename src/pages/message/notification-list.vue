@@ -1,7 +1,7 @@
 <template>
-  <view class="bg-[#fef8f8] min-h-screen flex flex-col relative selection:bg-primary-container selection:text-on-primary-container">
+  <view class="bg-[#F4F5F7] min-h-screen flex flex-col relative selection:bg-primary-container selection:text-on-primary-container">
     
-    <header class="fixed top-0 w-full h-[88px] z-50 bg-[#fef8f8]/85 backdrop-blur-md flex flex-col justify-end pb-2 border-b border-dashed border-outline-variant/20 shadow-sm">
+    <header class="fixed top-0 w-full h-[88px] z-50 bg-[#F4F5F7]/85 backdrop-blur-md flex flex-col justify-end pb-2 border-b border-dashed border-outline-variant/20 shadow-sm">
       <view class="flex items-center px-margin-page pr-capsule-safe-zone h-[44px] relative w-full">
         <view class="bouncy-tap text-primary flex items-center justify-center w-10 h-10 -ml-2 cursor-pointer" @click="goBack">
           <text class="material-symbols-outlined text-[48rpx]">arrow_back_ios_new</text>
@@ -13,7 +13,7 @@
 
     <scroll-view class="w-full flex-1" scroll-y :style="{ height: 'calc(100vh - 88px)', marginTop: '88px' }" @scrolltolower="loadMore">
       
-      <view class="sticky top-0 bg-[#fef8f8]/95 backdrop-blur-md z-40 flex px-margin-page py-3 gap-8 border-b border-outline-variant/10 shadow-[0_2px_10rpx_rgba(0,0,0,0.01)] shrink-0">
+      <view class="sticky top-0 bg-[#F4F5F7]/95 backdrop-blur-md z-40 flex px-margin-page py-3 gap-8 border-b border-outline-variant/10 shadow-[0_2px_10rpx_rgba(0,0,0,0.01)] shrink-0">
         <view class="relative pb-1 cursor-pointer" @click="switchTab('all')">
           <text class="font-headline-md text-[30rpx] transition-all" :class="currentTab === 'all' ? 'text-primary font-bold' : 'text-on-surface-variant'">全部</text>
           <view class="absolute bottom-0 left-0 w-full active-tab-glow" v-if="currentTab === 'all'"></view>

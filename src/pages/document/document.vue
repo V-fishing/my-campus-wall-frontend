@@ -206,7 +206,7 @@ const goBack = () => {
 <style lang="scss" scoped>
 .document-container {
   min-height: 100vh;
-  background-color: #f5f6f8;
+  background-color: #F4F5F7;
   display: flex;
   flex-direction: column;
 }

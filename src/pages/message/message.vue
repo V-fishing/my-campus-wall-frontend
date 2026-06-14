@@ -1,7 +1,7 @@
 <template>
-  <view class="bg-background text-on-background min-h-screen flex flex-col relative w-full overflow-x-hidden pb-[160rpx]">
+  <view class="bg-[#F4F5F7] text-on-background min-h-screen flex flex-col relative w-full overflow-x-hidden pb-[160rpx]">
     
-    <view class="bg-surface/90 backdrop-blur-md sticky top-0 z-50" :style="{ paddingTop: statusBarHeight + 'px' }">
+    <view class="bg-[#F4F5F7]/90 backdrop-blur-md sticky top-0 z-50" :style="{ paddingTop: statusBarHeight + 'px' }">
       <view class="h-[88rpx] flex items-center justify-center">
         <text class="text-headline-md text-on-surface text-center font-bold">消息</text>
       </view>

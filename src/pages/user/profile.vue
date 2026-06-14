@@ -185,10 +185,6 @@
           <text class="text-[#FF3B30] text-[32rpx] font-bold active:opacity-60 transition-opacity" @click="handleLogout">退出登录</text>
         </view>
 
-        <view class="flex justify-center pb-8 pt-4">
-          <text class="material-symbols-outlined text-outline-variant/40 animate-pulse text-[48rpx]">colors_spark</text>
-        </view>
-
       </view>
     </scroll-view>
 

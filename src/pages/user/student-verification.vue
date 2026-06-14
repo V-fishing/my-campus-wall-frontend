@@ -1,6 +1,6 @@
 <template>
-  <view class="bg-[#fef8f8] min-h-screen pb-12">
-    <header class="sticky top-0 z-[60] bg-surface/85 backdrop-blur-md border-b border-dashed border-outline-variant/30 flex items-center px-margin-page transition-all"
+  <view class="bg-[#F4F5F7] min-h-screen pb-12">
+    <header class="sticky top-0 z-[60] bg-[#F4F5F7]/85 backdrop-blur-md border-b border-dashed border-outline-variant/30 flex items-center px-margin-page transition-all"
             :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 56) + 'px' }">
       <view class="bouncy-tap p-2 -ml-2 text-primary" @click="goBack">
         <text class="material-symbols-outlined text-[56rpx]">arrow_back_ios</text>

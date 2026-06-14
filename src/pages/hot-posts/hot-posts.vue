@@ -1,7 +1,7 @@
 <template>
-  <view class="bg-[#fef8f8] min-h-screen pb-8 selection:bg-primary-container">
+  <view class="bg-[#F4F5F7] min-h-screen pb-8 selection:bg-primary-container">
 
-    <header class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-md flex flex-col h-[88px]">
+    <header class="fixed top-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md flex flex-col h-[88px]">
       <view class="h-[44px] w-full"></view>
       <view class="flex items-center justify-between px-margin-page h-[44px] relative w-full">
         <view class="flex items-center w-[40px] relative z-10 text-primary bouncy-tap p-1" @click="goBack">

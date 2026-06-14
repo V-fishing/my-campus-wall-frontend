@@ -1,5 +1,5 @@
 <template>
-  <view class="bg-[#fefcf5] min-h-screen">
+  <view class="bg-[#F4F5F7] min-h-screen">
     <!-- 顶部导航 -->
     <header class="flex items-center px-4 pt-status-bar h-20">
       <view class="bouncy-tap p-2 text-primary" @click="handleBack">
