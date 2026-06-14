@@ -160,7 +160,8 @@
                 'bubble-user text-white rounded-[40rpx] rounded-tr-none bg-gradient-to-br from-[#7EC8E3] to-[#5BA4F0]' :
                 'bubble-ai bg-white border-l-8 border-primary-container rounded-[40rpx] rounded-tl-none'"
             >
-              <text class="font-body-lg-mobile block leading-relaxed" :class="msg.role === 'user' ? 'text-white' : 'text-on-surface'">{{ msg.content }}</text>
+              <text v-if="msg.role === 'user'" class="font-body-lg-mobile block leading-relaxed text-white">{{ msg.content }}</text>
+              <rich-text v-else class="font-body-lg-mobile block leading-relaxed text-on-surface" :nodes="renderMarkdown(msg.content)"></rich-text>
             </view>
 
             <!-- 智能推荐帖子卡片（08）：AI 把匹配帖子推给你，问"是这个吗?" -->
@@ -234,6 +235,7 @@
 
 <script setup>
 import { ref, nextTick, onMounted } from 'vue'
+import { marked } from 'marked'
 import { onShow } from '@dcloudio/uni-app'
 import { request, get } from '@/utils/request'
 import { aiApi } from '@/api/index'
@@ -394,6 +396,13 @@ const goToPreferenceFromSidebar = () => {
 const sendQuickMsg = (text) => {
   inputText.value = text
   sendMessage()
+}
+
+// 将 Markdown 解析为 HTML，供 rich-text 渲染
+const renderMarkdown = (content) => {
+  if (!content) return ''
+  const html = marked.parse(content, { breaks: true, gfm: true })
+  return `<div style="color: #1d1b1b; font-size: 15px; line-height: 1.625; word-break: break-word;">${html}</div>`
 }
 
 // 发送消息：单一入口，交给后端 agent 自主判断（查知识库 / 查帖子 / 两者综合）
