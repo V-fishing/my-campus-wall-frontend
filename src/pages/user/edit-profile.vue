@@ -1,77 +1,134 @@
 <template>
-  <view class="bg-[#F4F5F7] min-h-screen flex flex-col selection:bg-primary-container">
-    
-    <header class="sticky top-0 z-[60] bg-[#F4F5F7]/85 backdrop-blur-md flex justify-between items-center w-full px-margin-page transition-all" 
-            :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 56) + 'px' }">
-      <view class="bouncy-tap p-2 -ml-2 text-primary" @click="handleBack">
-        <text class="material-symbols-outlined text-[56rpx]">arrow_back</text>
+  <view class="bg-[#F4F5F7] min-h-screen relative selection:bg-primary-container">
+    <!-- 顶部导航栏 -->
+    <view
+      class="fixed top-0 left-0 w-full z-50 transition-all duration-300"
+      :class="{ 'bg-surface/90 backdrop-blur-md shadow-sm': scrollY > 50 }"
+    >
+      <view :style="{ height: statusBarHeight + 'px' }"></view>
+      <view class="flex items-center justify-between px-[32rpx] w-full h-[44px]">
+        <view class="flex items-center gap-2">
+          <text
+            class="material-symbols-outlined active:opacity-70 transition-colors text-[48rpx]"
+            :class="scrollY > 50 ? 'text-on-surface' : 'text-white'"
+            @click="handleBack"
+            >arrow_back</text
+          >
+          <text
+            class="font-headline-md text-[36rpx] font-bold transition-opacity text-on-surface"
+            :class="scrollY > 50 ? 'opacity-100' : 'opacity-0'"
+            >编辑资料</text
+          >
+        </view>
+        <view class="w-10"></view>
       </view>
-      <text class="font-headline-md text-[36rpx] text-primary font-bold">编辑资料</text>
-      <view class="w-10"></view>
-    </header>
+    </view>
 
-    <main class="flex-1 px-margin-page pb-[200rpx]">
-      
-      <section class="flex flex-col items-center mt-6 mb-10">
-        <view class="relative group" @click="showAvatarPicker">
-          <view class="w-[200rpx] h-[200rpx] rounded-full p-[6rpx] bg-white ring-4 ring-primary-fixed">
-            <image :src="editForm.avatar || defaultAvatar" mode="aspectFill" class="w-full h-full object-cover rounded-full"></image>
-          </view>
-          <view class="absolute bottom-0 right-0 bg-secondary-container p-3 rounded-full border-[4rpx] border-white bouncy-press">
-            <text class="material-symbols-outlined text-white text-[32rpx]" style="font-variation-settings: 'FILL' 1;">photo_camera</text>
-          </view>
-        </view>
-        <text class="mt-4 font-label-sm text-[24rpx] text-on-surface-variant/70 tracking-wide">点击更换头像</text>
-      </section>
+    <scroll-view scroll-y class="h-screen w-full" @scroll="onScroll">
+      <view class="relative h-[480rpx] w-full overflow-hidden">
+        <view class="absolute inset-0 bg-[#F4F5F7] noise-bg"></view>
+        <view
+          class="absolute top-10 left-10 w-[200rpx] h-[200rpx] bg-white/20 rounded-full blur-2xl bubble-float"
+        ></view>
+        <view
+          class="absolute top-20 right-10 w-[250rpx] h-[250rpx] bg-white/10 rounded-full blur-3xl bubble-float"
+          style="animation-delay: 2s"
+        ></view>
+        <view class="absolute bottom-0 left-0 w-full h-[120rpx] wave-bg"></view>
+      </view>
 
-      <view class="bg-surface-container-low rounded-[40rpx] overflow-hidden p-2">
-        <view class="flex items-center justify-between p-[32rpx] hover:bg-surface-variant/30 active:bg-surface-variant transition-colors group" @click="editNickname">
-          <text class="text-[30rpx] font-medium text-on-surface-variant">昵称</text>
-          <view class="flex items-center gap-2">
-            <text class="text-[28rpx] text-on-surface">{{ editForm.nickname || '未设置' }}</text>
-            <text class="material-symbols-outlined text-outline-variant">chevron_right</text>
-          </view>
-        </view>
-
-        <view class="flex items-center justify-between p-[32rpx] border-t border-outline-variant/10" @click="showGenderPicker">
-          <text class="text-[30rpx] font-medium text-on-surface-variant">性别</text>
-          <view class="flex items-center gap-2">
-            <text class="text-[28rpx] text-on-surface">{{ genderText[editForm.gender] }}</text>
-            <text class="material-symbols-outlined text-outline-variant">chevron_right</text>
-          </view>
-        </view>
-
-        <view class="flex items-center justify-between p-[32rpx] border-t border-outline-variant/10" @click="showSignatureEditor">
-          <text class="text-[30rpx] font-medium text-on-surface-variant shrink-0">个性签名</text>
-          <view class="flex items-center gap-2 overflow-hidden ml-4">
-            <text class="text-[28rpx] text-on-surface truncate text-right">{{ editForm.signature || '写点什么介绍自己吧~' }}</text>
-            <text class="material-symbols-outlined text-outline-variant shrink-0">chevron_right</text>
+      <view class="relative -mt-[140rpx] px-[32rpx] z-10 space-y-[24rpx] pb-[200rpx]">
+        <!-- 头像卡片 -->
+        <view class="bg-white/90 backdrop-blur-md rounded-[40rpx] p-[32rpx] border border-white/50">
+          <view class="flex flex-col items-center text-center" @click="showAvatarPicker">
+            <view class="relative mb-3">
+              <image
+                :src="editForm.avatar || defaultAvatar"
+                mode="aspectFill"
+                class="w-[160rpx] h-[160rpx] rounded-full border-[6rpx] border-white object-cover shadow-sm"
+              ></image>
+              <view
+                class="absolute bottom-0 right-0 bg-secondary-container p-3 rounded-full border-[4rpx] border-white bouncy-press"
+              >
+                <text
+                  class="material-symbols-outlined text-white text-[32rpx]"
+                  style="font-variation-settings: 'FILL' 1"
+                  >photo_camera</text
+                >
+              </view>
+            </view>
+            <text class="text-[24rpx] text-on-surface-variant bg-surface-container-low px-3 py-1 rounded-full"
+              >点击更换头像</text
+            >
           </view>
         </view>
 
-        <view class="flex items-center justify-between p-[32rpx] border-t border-outline-variant/10" @click="showCampusPicker">
-          <text class="text-[30rpx] font-medium text-on-surface-variant">校区</text>
-          <view class="flex items-center gap-2">
-            <text class="text-[28rpx] text-on-surface">{{ editForm.campus || '选择校区' }}</text>
-            <text class="material-symbols-outlined text-outline-variant">chevron_right</text>
-          </view>
-        </view>
-
-        <view class="flex items-center justify-between p-[32rpx] border-t border-outline-variant/10" @click="showCollegePicker">
-          <text class="text-[30rpx] font-medium text-on-surface-variant">院系</text>
-          <view class="flex items-center gap-2">
-            <text class="text-[28rpx] text-on-surface">{{ editForm.college || '选择院系' }}</text>
-            <text class="material-symbols-outlined text-outline-variant">chevron_right</text>
+        <!-- 资料列表 -->
+        <view class="bg-white rounded-[32rpx] p-[32rpx]">
+          <view class="space-y-6">
+            <view class="flex items-center justify-between active:opacity-60 transition-opacity" @click="editNickname">
+              <text class="text-[28rpx] text-on-surface">昵称</text>
+              <view class="flex items-center gap-2">
+                <text class="text-[28rpx] text-on-surface-variant">{{ editForm.nickname || '未设置' }}</text>
+                <text class="material-symbols-outlined text-outline-variant text-[40rpx]">chevron_right</text>
+              </view>
+            </view>
+            <view
+              class="flex items-center justify-between active:opacity-60 transition-opacity"
+              @click="showGenderPicker"
+            >
+              <text class="text-[28rpx] text-on-surface">性别</text>
+              <view class="flex items-center gap-2">
+                <text class="text-[28rpx] text-on-surface-variant">{{ genderText[editForm.gender] }}</text>
+                <text class="material-symbols-outlined text-outline-variant text-[40rpx]">chevron_right</text>
+              </view>
+            </view>
+            <view
+              class="flex items-center justify-between active:opacity-60 transition-opacity"
+              @click="showSignatureEditor"
+            >
+              <text class="text-[28rpx] text-on-surface shrink-0">个性签名</text>
+              <view class="flex items-center gap-2 overflow-hidden ml-4">
+                <text class="text-[28rpx] text-on-surface-variant truncate text-right">{{
+                  editForm.signature || '写点什么介绍自己吧~'
+                }}</text>
+                <text class="material-symbols-outlined text-outline-variant text-[40rpx] shrink-0">chevron_right</text>
+              </view>
+            </view>
+            <view
+              class="flex items-center justify-between active:opacity-60 transition-opacity"
+              @click="showCampusPicker"
+            >
+              <text class="text-[28rpx] text-on-surface">校区</text>
+              <view class="flex items-center gap-2">
+                <text class="text-[28rpx] text-on-surface-variant">{{ editForm.campus || '选择校区' }}</text>
+                <text class="material-symbols-outlined text-outline-variant text-[40rpx]">chevron_right</text>
+              </view>
+            </view>
+            <view
+              class="flex items-center justify-between active:opacity-60 transition-opacity"
+              @click="showCollegePicker"
+            >
+              <text class="text-[28rpx] text-on-surface">院系</text>
+              <view class="flex items-center gap-2">
+                <text class="text-[28rpx] text-on-surface-variant">{{ editForm.college || '选择院系' }}</text>
+                <text class="material-symbols-outlined text-outline-variant text-[40rpx]">chevron_right</text>
+              </view>
+            </view>
           </view>
         </view>
       </view>
-    </main>
+    </scroll-view>
 
-    <view class="fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-md border-t border-outline-variant/20 z-50 pb-[env(safe-area-inset-bottom)]">
+    <view
+      class="fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-md border-t border-outline-variant/20 z-50 pb-[env(safe-area-inset-bottom)]"
+    >
       <view class="px-[32rpx] py-[24rpx]">
-        <button class="w-full h-[100rpx] flex items-center justify-center rounded-[50rpx] font-bold text-[36rpx] transition-all duration-300 bouncy-spring text-white"
-                :class="saving ? 'bg-[#C1C1C1]' : 'gradient-publish'"
-                @click="saveUserInfo">
+        <button
+          class="w-full h-[100rpx] flex items-center justify-center rounded-full font-bold text-[36rpx] transition-all duration-300 active:scale-95 shadow-md text-white"
+          :class="saving ? 'bg-surface-variant' : 'bg-primary'"
+          @click="saveUserInfo"
+        >
           <text v-if="saving" class="material-symbols-outlined animate-spin text-[40rpx]">progress_activity</text>
           <text v-else>保存</text>
         </button>
@@ -92,12 +149,18 @@ const defaultAvatar = '/static/images/default-avatar.png'
 const saving = ref(false)
 const loading = ref(true)
 const statusBarHeight = ref(20)
+const scrollY = ref(0)
 const userStore = useUserStore()
+
+// 滚动监听
+const onScroll = e => {
+  scrollY.value = e.detail.scrollTop
+}
 
 // 微信用户信息
 const wechatUserInfo = ref({
   nickname: '',
-  avatar: ''
+  avatar: '',
 })
 
 // 性别文本映射
@@ -105,7 +168,7 @@ const genderText = {
   0: '保密',
   1: '男',
   2: '女',
-  3: '保密'
+  3: '保密',
 }
 
 // 校区列表（根据所选学校动态加载）
@@ -120,11 +183,11 @@ const editForm = ref({
   gender: 3,
   campus: '',
   college: '',
-  universityId: null
+  universityId: null,
 })
 
 // 根据学校名称加载校区列表
-const loadCampuses = async (collegeName) => {
+const loadCampuses = async collegeName => {
   if (!collegeName) {
     campusOptions.value = []
     return
@@ -158,13 +221,13 @@ onLoad(async () => {
   statusBarHeight.value = systemInfo.statusBarHeight || 20
 
   // 监听学校选择事件
-  uni.$on('schoolSelected', (data) => {
+  uni.$on('schoolSelected', data => {
     console.log('接收到学校选择数据:', data)
     editForm.value.college = data.college
     editForm.value.campus = data.campus
     editForm.value.universityId = data.universityId || null
     loadCampuses(data.college)
-    saveUserInfo()  // 自动保存
+    saveUserInfo() // 自动保存
   })
 
   try {
@@ -180,7 +243,7 @@ onLoad(async () => {
         gender: user.gender !== undefined ? user.gender : 3,
         campus: user.campus || '',
         college: user.college || '',
-        universityId: user.universityId || null
+        universityId: user.universityId || null,
       }
       await loadCampuses(user.college)
     }
@@ -212,7 +275,7 @@ const saveUserInfo = async () => {
     return
   }
 
-  saving.value = true  // 显示加载状态
+  saving.value = true // 显示加载状态
   try {
     const response = await put(userApi.updateUserInfo().url, {
       nickname: editForm.value.nickname.trim(),
@@ -222,7 +285,7 @@ const saveUserInfo = async () => {
       gender: editForm.value.gender,
       campus: editForm.value.campus,
       college: editForm.value.college,
-      universityId: editForm.value.universityId
+      universityId: editForm.value.universityId,
     })
 
     if (response.code === 200 && response.data) {
@@ -239,7 +302,7 @@ const saveUserInfo = async () => {
         gender: updatedUser.gender !== undefined ? updatedUser.gender : 3,
         campus: updatedUser.campus || '',
         college: updatedUser.college || '',
-        universityId: updatedUser.universityId || null
+        universityId: updatedUser.universityId || null,
       }
 
       // 同步 Pinia store 与本地缓存，确保其他页面立即展示新头像
@@ -253,7 +316,7 @@ const saveUserInfo = async () => {
     console.error('保存失败:', error)
     uni.showToast({ title: '保存失败', icon: 'none' })
   } finally {
-    saving.value = false  // 隐藏加载状态
+    saving.value = false // 隐藏加载状态
   }
 }
 
@@ -263,7 +326,7 @@ const saveUserInfo = async () => {
 const showAvatarPicker = () => {
   uni.showActionSheet({
     itemList: ['用微信头像', '从相册选择', '拍照'],
-    success: (res) => {
+    success: res => {
       if (res.tapIndex === 0) {
         // 使用微信头像
         useWechatAvatar()
@@ -274,7 +337,7 @@ const showAvatarPicker = () => {
         // 拍照
         takePhoto()
       }
-    }
+    },
   })
 }
 
@@ -296,9 +359,9 @@ const chooseFromAlbum = () => {
     count: 1,
     sizeType: ['compressed'],
     sourceType: ['album'],
-    success: (res) => {
+    success: res => {
       uploadAvatar(res.tempFilePaths[0])
-    }
+    },
   })
 }
 
@@ -308,14 +371,14 @@ const takePhoto = () => {
     count: 1,
     sizeType: ['compressed'],
     sourceType: ['camera'],
-    success: (res) => {
+    success: res => {
       uploadAvatar(res.tempFilePaths[0])
-    }
+    },
   })
 }
 
 // 上传头像到 MinIO
-const uploadAvatar = async (filePath) => {
+const uploadAvatar = async filePath => {
   const userId = getCurrentUserId()
   if (!userId) {
     uni.showToast({ title: '用户未登录', icon: 'none' })
@@ -337,23 +400,23 @@ const uploadAvatar = async (filePath) => {
         name: 'file',
         header: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          'X-Platform': 'mp'
+          'X-Platform': 'mp',
         },
         success: resolve,
-        fail: reject
+        fail: reject,
       })
     })
     data = JSON.parse(uploadRes.data)
     // #endif
 
     // #ifdef H5
-    const blob = await fetch(filePath).then((r) => r.blob())
+    const blob = await fetch(filePath).then(r => r.blob())
     const formData = new FormData()
     formData.append('file', blob, `avatar_${Date.now()}.jpg`)
     uploadRes = await fetch(`${config.apiBaseUrl}${fileApi.uploadUserAvatar(userId).url}`, {
       method: 'POST',
       credentials: 'include',
-      body: formData
+      body: formData,
     })
     data = await uploadRes.json()
     // #endif
@@ -380,7 +443,7 @@ const uploadAvatar = async (filePath) => {
 const showNicknamePicker = () => {
   uni.showActionSheet({
     itemList: ['用微信昵称', '自由编辑'],
-    success: (res) => {
+    success: res => {
       if (res.tapIndex === 0) {
         // 使用微信昵称
         useWechatNickname()
@@ -388,7 +451,7 @@ const showNicknamePicker = () => {
         // 自由编辑
         editNickname()
       }
-    }
+    },
   })
 }
 
@@ -397,7 +460,7 @@ const useWechatNickname = () => {
   if (wechatUserInfo.value.nickname) {
     editForm.value.nickname = wechatUserInfo.value.nickname
     uni.showToast({ title: '已使用微信昵称', icon: 'success' })
-    saveUserInfo()  // 立即保存
+    saveUserInfo() // 立即保存
   } else {
     uni.showToast({ title: '未获取到微信昵称', icon: 'none' })
   }
@@ -410,12 +473,12 @@ const editNickname = () => {
     editable: true,
     placeholderText: '请输入昵称',
     content: editForm.value.nickname,
-    success: (res) => {
+    success: res => {
       if (res.confirm && res.content.trim()) {
         editForm.value.nickname = res.content.trim()
-        saveUserInfo()  // 立即保存
+        saveUserInfo() // 立即保存
       }
-    }
+    },
   })
 }
 
@@ -425,12 +488,12 @@ const editNickname = () => {
 const showGenderPicker = () => {
   uni.showActionSheet({
     itemList: ['男', '女', '保密'],
-    success: (res) => {
+    success: res => {
       const genderMap = { 0: 1, 1: 2, 2: 3 }
       editForm.value.gender = genderMap[res.tapIndex]
       uni.showToast({ title: `已选择${genderText[editForm.value.gender]}`, icon: 'success' })
-      saveUserInfo()  // 立即保存
-    }
+      saveUserInfo() // 立即保存
+    },
   })
 }
 
@@ -443,12 +506,12 @@ const showSignatureEditor = () => {
     editable: true,
     placeholderText: '写下你的个性签名...',
     content: editForm.value.signature,
-    success: (res) => {
+    success: res => {
       if (res.confirm) {
         editForm.value.signature = res.content
-        saveUserInfo()  // 立即保存
+        saveUserInfo() // 立即保存
       }
-    }
+    },
   })
 }
 
@@ -466,11 +529,11 @@ const showCampusPicker = () => {
   }
   uni.showActionSheet({
     itemList: campusOptions.value,
-    success: (res) => {
+    success: res => {
       editForm.value.campus = campusOptions.value[res.tapIndex]
       uni.showToast({ title: `已选择${editForm.value.campus}`, icon: 'success' })
-      saveUserInfo()  // 立即保存
-    }
+      saveUserInfo() // 立即保存
+    },
   })
 }
 
@@ -486,27 +549,61 @@ const showCollegePicker = () => {
   if (editForm.value.campus) {
     params.push(`campus=${encodeURIComponent(editForm.value.campus)}`)
   }
-  
+
   const queryString = params.length > 0 ? `?${params.join('&')}` : ''
-  
+
   // 跳转到选择学校页面
   uni.navigateTo({
     url: `/pages/user/select-school${queryString}`,
     success: () => {
       console.log('跳转到选择学校页面')
     },
-    fail: (err) => {
+    fail: err => {
       console.error('跳转失败:', err)
       uni.showToast({ title: '页面跳转失败', icon: 'none' })
-    }
+    },
   })
 }
 </script>
 
+<style scoped lang="scss">
+/* 隐藏系统的多余滚动条 */
+::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  color: transparent;
+}
 
-<style scoped>
-/* 引入你在 App.vue 定义的全局工具类 */
-.bouncy-press:active { transform: scale(0.95); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.bouncy-spring:active { transform: scale(0.95); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.gradient-publish { background: #FFB2BD; }
+/* 萌系Q弹点击手感 */
+.bouncy-press:active {
+  transform: scale(0.96);
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 背景噪点纹理 */
+.noise-bg {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* 浮动气泡动画 */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-20rpx) scale(1.02);
+  }
+}
+.bubble-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* 波浪底部 */
+.wave-bg {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120'%3E%3Cpath fill='%23F4F5F7' d='M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z'%3E%3C/path%3E%3C/svg%3E")
+    no-repeat bottom;
+  background-size: cover;
+}
 </style>
