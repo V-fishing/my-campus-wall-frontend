@@ -15,7 +15,7 @@
       <view class="flex items-center justify-between p-margin-page">
         <view class="flex items-center gap-3" @click="goToUserHome(post)">
           <view class="relative">
-            <view class="w-[96rpx] h-[96rpx] rounded-full border-[4rpx] border-white kawaii-shadow overflow-hidden bg-surface-container">
+            <view class="w-[96rpx] h-[96rpx] rounded-full border-[4rpx] border-white overflow-hidden bg-surface-container">
               <image :src="post.isAnonymous ? defaultAvatar : post.avatar" mode="aspectFill" class="w-full h-full object-cover" />
             </view>
             <view class="absolute bottom-0 right-0 w-[28rpx] h-[28rpx] bg-[#4CD964] border-[4rpx] border-white rounded-full"></view>
@@ -46,7 +46,7 @@
       </view>
 
       <view class="px-margin-page">
-        <view class="sticker-border bg-surface-container-lowest rounded-[40rpx] p-padding-inner kawaii-shadow mb-4 relative overflow-hidden">
+        <view class=" bg-surface-container-lowest rounded-[40rpx] p-padding-inner mb-4 relative overflow-hidden">
           <!-- 置顶标识 -->
           <view v-if="post.isTop === 1" class="dt-top-tag">
             <text class="material-symbols-outlined text-[20rpx] icon-filled mr-1">push_pin</text>置顶
@@ -206,7 +206,7 @@
     </scroll-view>
 
     <view class="fixed bottom-0 left-0 right-0 z-40 flex justify-center p-4 pointer-events-none" :style="{ paddingBottom: 'calc(32rpx + env(safe-area-inset-bottom))' }">
-      <view class="flex items-center gap-3 bg-white/90 backdrop-blur-xl border border-outline-variant/30 w-full px-4 py-2 rounded-full kawaii-shadow pointer-events-auto">
+      <view class="flex items-center gap-3 bg-white/90 backdrop-blur-xl border border-outline-variant/30 w-full px-4 py-2 rounded-full pointer-events-auto">
         <view class="flex-1 flex items-center bg-surface-container h-[80rpx] px-4 rounded-full active:opacity-70 transition-opacity" @click="focusInput">
           <text class="material-symbols-outlined text-on-surface-variant text-[36rpx] mr-2">edit</text>
           <text class="text-label-md text-on-surface-variant w-full truncate">{{ replyTarget ? '回复 @' + replyTarget.author : '说点什么吧...' }}</text>
@@ -296,7 +296,7 @@
             />
             <view 
               class="h-[80rpx] px-[40rpx] rounded-full flex items-center justify-center text-[28rpx] font-bold transition-all duration-300"
-              :class="replyContent.trim() ? 'bg-gradient-to-br from-[#7EC8E3] to-[#5BA4F0] text-white active:scale-95 shadow-md' : 'bg-surface-container text-outline-variant'" 
+              :class="replyContent.trim() ? 'bg-tertiary text-white active:scale-95 shadow-md' : 'bg-surface-container text-outline-variant'" 
               @click="submitReply"
             >发送</view>
           </view>
@@ -312,7 +312,7 @@
         <view class="w-[80rpx] h-[8rpx] bg-outline-variant/40 rounded-full mx-auto mb-6"></view>
 
         <!-- 帖子操作菜单 -->
-        <view class="bg-white rounded-[40rpx] overflow-hidden kawaii-shadow mb-4" v-if="showPostMenuFlag">
+        <view class="bg-white rounded-[40rpx] overflow-hidden mb-4" v-if="showPostMenuFlag">
           <view class="flex items-center px-[40rpx] py-[32rpx] active:bg-error/10 transition-colors" @tap="handleDeletePost">
             <text class="material-symbols-outlined text-error text-[44rpx] mr-3">delete</text>
             <text class="text-error text-[32rpx] font-bold flex-1">删除帖子</text>
@@ -321,7 +321,7 @@
         
         <!-- 评论操作菜单 -->
         <template v-else>
-          <view class="bg-white rounded-[40rpx] overflow-hidden kawaii-shadow mb-4">
+          <view class="bg-white rounded-[40rpx] overflow-hidden mb-4">
             <view class="flex items-center px-[40rpx] py-[32rpx] active:bg-surface-container transition-colors" @tap="handleReplyFromMenu">
               <view class="w-[64rpx] h-[64rpx] rounded-full bg-primary-container/20 flex items-center justify-center mr-3">
                  <text class="material-symbols-outlined text-primary text-[36rpx]">chat_bubble</text>
@@ -351,7 +351,7 @@
           </view>
           
           <!-- 删除独立为一个模块块 -->
-          <view class="bg-white rounded-[40rpx] overflow-hidden kawaii-shadow">
+          <view class="bg-white rounded-[40rpx] overflow-hidden">
             <view class="flex items-center px-[40rpx] py-[32rpx] active:bg-error/10 transition-colors" @tap="handleDeleteComment">
               <view class="w-[64rpx] h-[64rpx] rounded-full bg-error/10 flex items-center justify-center mr-3">
                 <text class="material-symbols-outlined text-error text-[36rpx]">delete</text>
@@ -363,7 +363,7 @@
         
         <!-- 底部取消按钮 -->
         <view class="mt-4 pt-2 pb-2">
-          <view class="w-full bg-white rounded-full py-4 flex items-center justify-center active:scale-95 transition-transform kawaii-shadow" @tap="closeMenu">
+          <view class="w-full bg-white rounded-full py-4 flex items-center justify-center active:scale-95 transition-transform" @tap="closeMenu">
             <text class="text-[32rpx] font-bold text-on-surface-variant">取消</text>
           </view>
         </view>
@@ -1042,12 +1042,10 @@ const handleDeleteComment = async () => {
   color: transparent;
 }
 
-/* 柔和彩色弥散阴影 */
-.kawaii-shadow { box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.12); }
-/* 贴纸边框 */
-.sticker-border { border: 4rpx dashed #dac0c3; }
+/* 柔和彩色弥散阴影 */
+/* 贴纸边框 */
 /* 主题色渐变 */
-.gradient-primary { background: linear-gradient(135deg, #ff8fa3 0%, #c5a3ff 50%, #86b6db 100%); }
+.gradient-primary { background: #86b6db; }
 
 /* 评论弹窗相关样式保留 */
 .reply-modal {
@@ -1124,7 +1122,7 @@ const handleDeleteComment = async () => {
   border-radius: 999rpx;
   font-size: 24rpx;
   color: #fff;
-  background: linear-gradient(135deg, #1677ff, #69b1ff);
+  background: #69b1ff;
   box-shadow: 0 2rpx 8rpx rgba(22, 119, 255, 0.25);
 }
 .dt-contact {
@@ -1147,7 +1145,7 @@ const handleDeleteComment = async () => {
 .dt-join {
   padding: 10rpx 28rpx;
   border-radius: 999rpx;
-  background: linear-gradient(135deg, #FF8FA3, #FFC46B);
+  background: #FFC46B;
   color: #fff;
   font-size: 26rpx;
   font-weight: bold;
@@ -1168,8 +1166,7 @@ const handleDeleteComment = async () => {
   border-radius: 999rpx;
   font-size: 22rpx;
   color: #fff;
-  background: linear-gradient(135deg, #FF8FA3, #FFC46B);
-  box-shadow: 0 2rpx 8rpx rgba(255, 143, 163, 0.3);
+  background: #FFC46B;
   margin-bottom: 12rpx;
 }
 </style>

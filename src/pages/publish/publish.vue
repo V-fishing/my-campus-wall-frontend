@@ -23,7 +23,7 @@
       </section>
 
       <section class="grid grid-cols-3 gap-3 mb-8">
-        <view class="relative aspect-square rounded-[32rpx] overflow-hidden shadow-[0_8px_20px_rgba(255,143,163,0.1)] border-[4rpx] border-white bg-surface-container" v-for="(img, index) in images" :key="index">
+        <view class="relative aspect-square rounded-[32rpx] overflow-hidden border-[4rpx] border-white bg-surface-container" v-for="(img, index) in images" :key="index">
           <image :src="img" class="w-full h-full object-cover" mode="aspectFill" @click="previewImage(index)"></image>
 
           <view v-if="imageUploadStatus[index] === 'uploading'" class="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
@@ -42,7 +42,7 @@
           </view>
         </view>
 
-        <view class="aspect-square rounded-[32rpx] dashed-doodle flex flex-col items-center justify-center text-outline-variant bouncy-tap bg-surface-container-lowest" v-if="images.length < 9" @click="chooseImage">
+        <view class="aspect-square rounded-[32rpx] flex flex-col items-center justify-center text-outline-variant bouncy-tap bg-surface-container-lowest" v-if="images.length < 9" @click="chooseImage">
           <text class="material-symbols-outlined text-[64rpx]">add</text>
           <text class="font-label-sm text-[24rpx] font-bold mt-1">添加图片</text>
         </view>
@@ -50,7 +50,7 @@
 
       <section class="space-y-6">
 
-        <view class="bg-surface-container-low rounded-[40rpx] p-[32rpx] shadow-[0_4px_12px_rgba(255,143,163,0.06)] border border-outline-variant/20">
+        <view class="bg-surface-container-low rounded-[40rpx] p-[32rpx] border border-outline-variant/20">
           <view class="flex justify-between items-center mb-4">
             <view class="flex items-center gap-2">
               <text class="material-symbols-outlined text-primary-container text-[48rpx]" style="font-variation-settings: 'FILL' 1;">auto_awesome</text>
@@ -268,7 +268,7 @@
                 <input class="flex-1 h-[88rpx] bg-[#F5F6F8] rounded-[44rpx] px-[32rpx] text-[28rpx] text-on-surface placeholder:text-outline-variant"
                        v-model="customTopic" placeholder="输入话题名称（如：期末复习）" maxlength="20" />
                 <view class="h-[88rpx] px-[48rpx] rounded-[44rpx] flex items-center justify-center text-[28rpx] font-bold transition-all duration-300"
-                      :class="customTopic.trim() ? 'bg-gradient-to-br from-[#FF8FA3] to-[#C5A3FF] text-white shadow-md active:scale-95' : 'bg-[#E0E0E0] text-[#999]'"
+                      :class="customTopic.trim() ? 'bg-primary text-white shadow-md active:scale-95' : 'bg-[#E0E0E0] text-[#999]'"
                       @click="createCustomTopic">添加</view>
               </view>
 
@@ -289,9 +289,9 @@
         <view
             class="w-full h-[100rpx] flex items-center justify-center rounded-[50rpx] font-bold text-[36rpx] transition-all duration-300 active:scale-95"
             :class="canPublish
-            ? 'text-white shadow-[0_12px_32px_rgba(255,143,163,0.3)]'
+            ? 'text-white'
             : 'bg-[#F4F5F7] text-[#C1C1C1] shadow-none'"
-            :style="canPublish ? 'background: linear-gradient(135deg, #FF8FA3 0%, #FFB2BD 100%);' : ''"
+            :style="canPublish ? 'background: #FFB2BD;' : ''"
             @click="submitPost"
         >
           发布贴纸 ✨
@@ -774,10 +774,7 @@ const submitPost = async () => {
   animation: slideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* 涂鸦虚线边框，使用 base64 svg 让虚线更圆润可爱 */
-.dashed-doodle {
-  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23DAC0C3' stroke-width='2' stroke-dasharray='8%2c 8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
-}
+/* 涂鸦虚线边框，使用 base64 svg 让虚线更圆润可爱 */
 
 .hide-scrollbar {
   scrollbar-width: none;

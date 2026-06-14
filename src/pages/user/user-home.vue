@@ -18,7 +18,7 @@
       </view>
 
       <view class="px-margin-page pt-10 flex flex-col items-center justify-center text-center" v-else-if="isAnonymous">
-        <view class="w-32 h-32 rounded-full bg-surface-container-high flex items-center justify-center mb-4 sticker-shadow">
+        <view class="w-32 h-32 rounded-full bg-surface-container-high flex items-center justify-center mb-4">
           <text class="text-[80rpx]">🤫</text>
         </view>
         <text class="text-[32rpx] text-on-surface font-bold mb-2">该用户选择了匿名发布</text>
@@ -27,17 +27,17 @@
 
       <view v-else-if="userInfo">
         
-        <view class="relative w-full h-[140px]" style="background: linear-gradient(135deg, #7EC8E3 0%, #5BA4F0 100%);">
+        <view class="relative w-full h-[140px]" style="background: #5BA4F0;">
           <view class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 20px 20px;"></view>
           <text class="material-symbols-outlined absolute top-4 right-10 text-white/40 text-[40rpx] animate-pulse">colors_spark</text>
         </view>
 
         <section class="px-margin-page -mt-12 relative z-10">
-          <view class="bg-white/90 backdrop-blur-md rounded-[40rpx] p-padding-inner bouncy-shadow border border-white/50">
+          <view class="bg-white/90 backdrop-blur-md rounded-[40rpx] p-padding-inner border border-white/50">
             
             <view class="flex flex-col items-center -mt-[90rpx] mb-4">
               <view class="relative">
-                <image :src="userInfo.avatar || defaultAvatar" mode="aspectFill" class="w-[140rpx] h-[140rpx] rounded-full border-4 border-white bg-secondary-fixed sticker-stroke shadow-sm" />
+                <image :src="userInfo.avatar || defaultAvatar" mode="aspectFill" class="w-[140rpx] h-[140rpx] rounded-full border-4 border-white bg-secondary-fixed shadow-sm" />
                 <view v-if="userInfo.college" class="absolute bottom-0 right-0 bg-[#5BA4F0] text-white rounded-full p-1 border-2 border-white flex items-center justify-center shadow-sm">
                   <text class="material-symbols-outlined text-[24rpx]" style="font-variation-settings: 'FILL' 1;">verified</text>
                 </view>
@@ -60,7 +60,7 @@
               </view>
             </view>
 
-            <view class="grid grid-cols-4 gap-2 py-4 border-t border-dashed border-outline-variant/30">
+            <view class="grid grid-cols-4 gap-2 py-4 border-t border-outline-variant/30">
               <view class="flex flex-col items-center bouncy-tap" @click="goToUserPosts">
                 <text class="font-headline-md text-[34rpx] blue-gradient-text font-bold">{{ userInfo.postCount || 0 }}</text>
                 <text class="font-label-sm text-[22rpx] text-outline-variant mt-0.5">动态</text>
@@ -81,13 +81,13 @@
 
             <view class="flex gap-3 mt-2 w-full">
               <button class="flex-1 h-[88rpx] rounded-full text-white font-headline-md text-[28rpx] font-bold shadow-md transition-transform active:scale-95 flex items-center justify-center gap-1 border border-white/20"
-                      :class="isFollowed ? 'bg-surface-container-high text-on-surface-variant' : 'bg-gradient-to-r from-primary-container to-primary'"
+                      :class="isFollowed ? 'bg-surface-container-high text-on-surface-variant' : 'bg-primary'"
                       @click="toggleFollow">
                 <text class="material-symbols-outlined text-[32rpx]" v-if="isFollowed">check</text>
                 {{ isFollowed ? '已关注' : '关注' }}
               </button>
               
-              <button class="flex-1 h-[88rpx] rounded-full bg-gradient-to-r from-[#7EC8E3] to-[#5BA4F0] text-white font-headline-md text-[28rpx] font-bold shadow-md flex items-center justify-center gap-1.5 transition-transform active:scale-95 border border-white/20"
+              <button class="flex-1 h-[88rpx] rounded-full bg-tertiary text-white font-headline-md text-[28rpx] font-bold shadow-md flex items-center justify-center gap-1.5 transition-transform active:scale-95 border border-white/20"
                       @click="toPrivateMessage">
                 <text class="material-symbols-outlined text-[32rpx]">chat_bubble</text>
                 私信
@@ -98,7 +98,7 @@
         </section>
 
         <section class="mt-6 px-margin-page">
-          <view class="bg-surface-container-low/60 rounded-[40rpx] p-padding-inner border border-surface-variant/20 kawaii-shadow">
+          <view class="bg-surface-container-low/60 rounded-[40rpx] p-padding-inner border border-surface-variant/20">
             <text class="font-headline-md text-[30rpx] font-bold text-on-surface mb-4 block">基本信息</text>
             <view class="space-y-4">
               <view class="flex items-center gap-3" v-if="userInfo.campus">
@@ -106,14 +106,14 @@
                 <text class="text-on-surface-variant text-[28rpx]">校区：</text>
                 <text class="text-on-surface text-[28rpx] font-bold">{{ userInfo.campus }}</text>
               </view>
-              <view class="h-px bg-dashed border-t border-dashed border-outline-variant/20 w-full" v-if="userInfo.campus"></view>
+              <view class="h-px bg-dashed border-t border-outline-variant/20 w-full" v-if="userInfo.campus"></view>
               
               <view class="flex items-center gap-3">
                 <text class="material-symbols-outlined text-outline text-[36rpx]">person</text>
                 <text class="text-on-surface-variant text-[28rpx]">性别：</text>
                 <text class="text-on-surface text-[28rpx] font-bold">{{ userInfo.gender === 1 ? '男' : (userInfo.gender === 2 ? '女' : '未知') }}</text>
               </view>
-              <view class="h-px bg-dashed border-t border-dashed border-outline-variant/20 w-full"></view>
+              <view class="h-px bg-dashed border-t border-outline-variant/20 w-full"></view>
               
               <view class="flex items-center gap-3" v-if="userInfo.college">
                 <text class="material-symbols-outlined text-outline text-[36rpx]">school</text>
@@ -131,7 +131,7 @@
           </view>
 
           <view class="space-y-4">
-            <view class="bg-white rounded-[40rpx] p-padding-inner bouncy-shadow dashed-doodle relative overflow-hidden group active:scale-[0.99] transition-transform"
+            <view class="bg-white rounded-[40rpx] p-padding-inner relative overflow-hidden group active:scale-[0.99] transition-transform"
                   v-for="post in userPosts" :key="post.id" @click="goToPostDetail(post.id)">
               
               <view class="flex justify-between items-start mb-3">
@@ -159,7 +159,7 @@
 
             </view>
 
-            <view class="flex flex-col items-center justify-center py-12 bg-white rounded-[40rpx] dashed-doodle" v-if="userPosts.length === 0">
+            <view class="flex flex-col items-center justify-center py-12 bg-white rounded-[40rpx]" v-if="userPosts.length === 0">
               <text class="text-[72rpx] opacity-40 mb-2">📝</text>
               <text class="text-[26rpx] text-outline-variant font-bold">该用户还没有发布过贴纸</text>
             </view>
@@ -368,27 +368,18 @@ const formatTime = formatTimeAgo
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 弥散阴影 */
-.bouncy-shadow {
-  box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.12);
-}
+/* 弥散阴影 */
 
-/* 贴纸白描光边 */
-.sticker-stroke {
-  filter: drop-shadow(0 0 2rpx #ffffff) drop-shadow(0 4rpx 10rpx rgba(0, 0, 0, 0.05));
-}
+/* 贴纸白描光边 */
 
 /* 蓝青高级感色彩渐变 */
 .blue-gradient-text {
-  background: linear-gradient(135deg, #7EC8E3 0%, #5BA4F0 100%);
+  background: #5BA4F0;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* 萌系手账虚线 */
-.dashed-doodle {
-  border: 4rpx dashed #dac0c3;
-}
+/* 萌系手账虚线 */
 
 /* 限制文字溢出 */
 .line-clamp-3 {

@@ -20,7 +20,7 @@
       <view class="w-full max-w-[640rpx] bg-surface-container-lowest rounded-[48rpx] p-8 shadow-2xl flex flex-col items-center space-y-8 relative">
         
         <view class="flex flex-col items-center space-y-2 scale-95 transition-transform duration-300">
-          <view class="w-20 h-20 bg-primary-container rounded-[40rpx] flex items-center justify-center sticker-stroke shadow-sm">
+          <view class="w-20 h-20 bg-primary-container rounded-[40rpx] flex items-center justify-center shadow-sm">
             <text class="material-symbols-outlined text-[80rpx] text-on-primary-container" style="font-variation-settings: 'FILL' 1;">colors_spark</text>
           </view>
           <text class="font-headline-lg-mobile text-[48rpx] text-primary font-extrabold tracking-tight mt-2">Campus Wall</text>
@@ -218,17 +218,17 @@ const viewAgreement = (type) => {
 
 /* 标志性全屏极光色彩大色盘 */
 .bg-gradient-login {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #764ba2;
 }
 
 /* 微信专属高级质感草绿渐变纽扣 */
 .wechat-gradient {
-  background: linear-gradient(135deg, #07C160 0%, #06AD56 100%);
+  background: #06AD56;
 }
 
 /* 协议激活渐变彩色微缩复选框 */
 .checkbox-gradient {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #764ba2;
 }
 
 /* 软糯果冻响应颗粒按压机制类 */
@@ -237,10 +237,7 @@ const viewAgreement = (type) => {
   transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 标志性棉花糖贴纸白描外高光边 */
-.sticker-stroke {
-  filter: drop-shadow(0 0 2rpx #ffffff) drop-shadow(0 4rpx 10rpx rgba(0, 0, 0, 0.12));
-}
+/* 标志性棉花糖贴纸白描外高光边 */
 
 /* 核心：高精动态多粒子矩阵微弱漂浮浮空特效 */
 .bokeh-particle {

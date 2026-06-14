@@ -11,7 +11,7 @@
     <main class="pt-6 px-margin-page">
       <section class="mb-gutter-card">
         <text class="text-[24rpx] font-bold text-outline ml-4 mb-2 uppercase tracking-wider">账户设置</text>
-        <view class="bg-white rounded-[32rpx] kawaii-shadow overflow-hidden">
+        <view class="bg-white rounded-[32rpx] overflow-hidden">
           <view class="h-[112rpx] flex items-center px-6 bouncy-press border-b border-surface-variant/30" @click="navigateTo('edit-profile')">
             <text class="material-symbols-outlined text-on-surface-variant text-[40rpx] mr-4">person</text>
             <text class="flex-1 text-[30rpx] text-on-surface">个人资料</text>
@@ -43,7 +43,7 @@
 
       <section class="mb-gutter-card pt-4">
         <text class="text-[24rpx] font-bold text-outline ml-4 mb-2 uppercase tracking-wider">通用设置</text>
-        <view class="bg-white rounded-[32rpx] kawaii-shadow overflow-hidden">
+        <view class="bg-white rounded-[32rpx] overflow-hidden">
           <view class="h-[112rpx] flex items-center px-6 bouncy-press border-b border-surface-variant/30">
             <text class="material-symbols-outlined text-on-surface-variant text-[40rpx] mr-4">cleaning_services</text>
             <text class="flex-1 text-[30rpx] text-on-surface">清理缓存</text>
@@ -129,6 +129,5 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
-.kawaii-shadow { box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.12); }
 .bouncy-press:active { transform: scale(0.97); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
 </style>

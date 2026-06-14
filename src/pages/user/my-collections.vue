@@ -1,7 +1,7 @@
 <template>
   <view class="bg-[#F4F5F7] min-h-screen flex flex-col relative selection:bg-primary-container selection:text-on-primary-container">
     
-    <nav class="fixed top-0 w-full z-50 bg-[#F4F5F7]/85 glass-header border-b border-dashed border-outline-variant/30 shadow-[0_4px_20px_rgba(255,143,163,0.08)]" :style="{ paddingTop: statusBarHeight + 'px' }">
+    <nav class="fixed top-0 w-full z-50 bg-[#F4F5F7]/85 glass-header border-b border-outline-variant/30" :style="{ paddingTop: statusBarHeight + 'px' }">
       <view class="flex items-center justify-between px-margin-page h-[48px] w-full relative">
         <view class="bouncy-tap p-2 -ml-2 text-primary flex items-center justify-center" @click="handleBack">
           <text class="material-symbols-outlined !text-[40rpx]">arrow_back_ios</text>
@@ -40,7 +40,7 @@
           <view v-for="post in postList" :key="post.id" class="relative group" @click="goToDetail(post.id)">
             <view class="absolute inset-0 dashed-border pointer-events-none z-10"></view>
             
-            <view class="bg-surface-container-lowest rounded-[32rpx] p-padding-inner sticker-shadow transition-all active:scale-[0.99]">
+            <view class="bg-surface-container-lowest rounded-[32rpx] p-padding-inner transition-all active:scale-[0.99]">
               <view class="flex items-center justify-between mb-3">
                 <view class="flex items-center gap-3">
                   <view class="w-9 h-9 rounded-full border-2 border-white shadow-sm overflow-hidden bg-surface-container-low">
@@ -298,10 +298,7 @@ const handleBack = () => uni.navigateBack()
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 弥散阴影卡片 */
-.sticker-shadow {
-  box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.08);
-}
+/* 弥散阴影卡片 */
 
 /* 高精度 SVG 虚线外描圈边框 */
 .dashed-border {

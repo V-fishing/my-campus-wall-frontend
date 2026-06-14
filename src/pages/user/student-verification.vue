@@ -1,6 +1,6 @@
 <template>
   <view class="bg-[#F4F5F7] min-h-screen pb-12">
-    <header class="sticky top-0 z-[60] bg-[#F4F5F7]/85 backdrop-blur-md border-b border-dashed border-outline-variant/30 flex items-center px-margin-page transition-all"
+    <header class="sticky top-0 z-[60] bg-[#F4F5F7]/85 backdrop-blur-md border-b border-outline-variant/30 flex items-center px-margin-page transition-all"
             :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 56) + 'px' }">
       <view class="bouncy-tap p-2 -ml-2 text-primary" @click="goBack">
         <text class="material-symbols-outlined text-[56rpx]">arrow_back_ios</text>
@@ -42,7 +42,7 @@
         <text class="text-[24rpx] font-bold text-outline ml-4 mb-2 uppercase tracking-wider">上传学生证</text>
         <view class="mochi-bg sugar-card rounded-[32rpx] p-6 mb-6">
           <view class="grid grid-cols-2 gap-4">
-            <view class="aspect-[3/4] rounded-[24rpx] border-4 border-dashed border-outline-variant/30 flex items-center justify-center relative overflow-hidden bg-surface-container-low"
+            <view class="aspect-[3/4] rounded-[24rpx] border-4 border-outline-variant/30 flex items-center justify-center relative overflow-hidden bg-surface-container-low"
                   @click="handleImageClick('front')">
               <image v-if="frontUrl" :src="frontUrl" class="w-full h-full" mode="aspectFill" key="front-img" />
               <view v-if="!frontUrl" class="flex flex-col items-center justify-center absolute inset-0">
@@ -51,7 +51,7 @@
               </view>
             </view>
 
-            <view class="aspect-[3/4] rounded-[24rpx] border-4 border-dashed border-outline-variant/30 flex items-center justify-center relative overflow-hidden bg-surface-container-low"
+            <view class="aspect-[3/4] rounded-[24rpx] border-4 border-outline-variant/30 flex items-center justify-center relative overflow-hidden bg-surface-container-low"
                   @click="handleImageClick('back')">
               <image v-if="backUrl" :src="backUrl" class="w-full h-full" mode="aspectFill" key="back-img" />
               <view v-if="!backUrl" class="flex flex-col items-center justify-center absolute inset-0">
@@ -334,8 +334,7 @@ const goBack = () => uni.navigateBack()
 <style scoped>
 .sugar-card {
   border: 4rpx dashed #ffb2bd;
-  box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.12);
 }
-.mochi-bg { background: linear-gradient(135deg, #ffffff 0%, #fff5f6 100%); }
+.mochi-bg { background: #fff5f6; }
 .bouncy-press:active { transform: scale(0.97); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
 </style>

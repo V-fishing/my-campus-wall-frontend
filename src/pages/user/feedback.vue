@@ -23,7 +23,7 @@
           <view class="grid grid-cols-2 gap-3">
             <view v-for="item in typeOptions" :key="item.value"
                   @click="feedback.type = item.value"
-                  class="bouncy-tap relative rounded-[32rpx] p-4 flex flex-col items-center justify-center space-y-2 border transition-all active:scale-95 cursor-pointer kawaii-shadow"
+                  class="bouncy-tap relative rounded-[32rpx] p-4 flex flex-col items-center justify-center space-y-2 border transition-all active:scale-95 cursor-pointer"
                   :class="feedback.type === item.value ? 'bg-primary-container/20 border-primary-container/30 text-primary' : 'bg-white border-outline-variant/20 text-on-surface-variant'">
               <text class="material-symbols-outlined text-[48rpx]" 
                     :class="feedback.type === item.value ? 'text-primary' : 'text-outline-variant'">{{ item.icon }}</text>
@@ -41,7 +41,7 @@
             <text class="font-headline-md text-[32rpx] text-on-surface font-bold">详细描述</text>
             <text class="text-[#ff4d4f] ml-1 font-bold text-[32rpx]">*</text>
           </view>
-          <view class="relative bg-white rounded-[32rpx] p-4 kawaii-shadow">
+          <view class="relative bg-white rounded-[32rpx] p-4">
             <textarea 
               class="w-full h-40 bg-transparent text-[28rpx] leading-relaxed text-on-surface placeholder:text-outline-variant/60" 
               placeholder="请详细描述您遇到的问题或建议，不少于 10 个字哦... (例如：嘉应AI学长的自习室开馆时间有偏差 📖)"
@@ -56,7 +56,7 @@
 
         <section class="animate-fade-in">
           <text class="font-headline-md text-[32rpx] text-on-surface font-bold mb-3 px-1 block">联系方式 (选填)</text>
-          <view class="bg-white rounded-[32rpx] px-6 py-3 kawaii-shadow flex items-center">
+          <view class="bg-white rounded-[32rpx] px-6 py-3 flex items-center">
             <input
               class="w-full bg-transparent text-[28rpx] text-on-surface p-0 placeholder:text-outline-variant/60"
               placeholder="微信号、邮箱或手机号 (方便后续沟通~)"
@@ -85,7 +85,7 @@
 
             <view
               v-if="tempImages.length < 4"
-              class="w-[200rpx] h-[200rpx] rounded-[32rpx] border border-outline-variant/20 flex flex-col items-center justify-center gap-2 bouncy-tap bg-white kawaii-shadow"
+              class="w-[200rpx] h-[200rpx] rounded-[32rpx] border border-outline-variant/20 flex flex-col items-center justify-center gap-2 bouncy-tap bg-white"
               @click="chooseImage"
             >
               <text class="material-symbols-outlined text-[48rpx] text-outline-variant">photo_camera</text>
@@ -95,7 +95,7 @@
         </section>
 
         <section class="animate-fade-in">
-          <view class="bg-white rounded-[32rpx] p-5 kawaii-shadow">
+          <view class="bg-white rounded-[32rpx] p-5">
             <text class="font-bold text-primary text-[30rpx] mb-2 block">💡 温馨提示</text>
             <view class="flex flex-col gap-1.5 text-[24rpx] text-on-surface-variant font-medium leading-relaxed">
               <text>1. 墙墙开发团队会认真阅读每一条反馈贴纸</text>
@@ -290,9 +290,6 @@ const goBack = () => uni.navigateBack()
 }
 
 /* 弥散阴影大背板 */
-.kawaii-shadow {
-  box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.08);
-}
 
 /* 淡化淡入动画轨迹 */
 .animate-fade-in {

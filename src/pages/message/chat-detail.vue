@@ -3,7 +3,7 @@
     
     <!-- 顶部固定毛玻璃高光 AppBar 导航栏 -->
     <header
-      class="fixed top-0 left-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md flex flex-col justify-end pb-2 border-b border-dashed border-outline-variant/20 shadow-sm"
+      class="fixed top-0 left-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md flex flex-col justify-end pb-2 border-b border-outline-variant/20 shadow-sm"
       :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 48) + 'px' }"
     >
       <view class="h-status-bar w-full"></view>
@@ -48,14 +48,14 @@
         >
           <!-- 1. 时间戳智能切线分水岭（间隔5分钟以上显示） -->
           <div class="flex items-center justify-center space-x-4 opacity-40 py-2" v-if="shouldShowTime(msg, index)">
-            <div class="h-[1px] flex-1 border-t border-dashed border-outline"></div>
+            <div class="h-[1px] flex-1 border-t border-outline"></div>
             <span class="font-label-sm text-[22rpx] text-on-surface-variant font-medium">{{ formatMessageTime(msg.createTime) }}</span>
-            <div class="h-[1px] flex-1 border-t border-dashed border-outline"></div>
+            <div class="h-[1px] flex-1 border-t border-outline"></div>
           </div>
           
           <!-- 2. 撤回单条消息手账贴纸提示 -->
           <div class="flex justify-center py-2 animate-fade-in" v-if="msg.isRecalled">
-            <div class="px-6 py-1 border-2 border-dashed border-outline-variant/50 rounded-full bg-surface-container-low/30">
+            <div class="px-6 py-1 border-2 border-outline-variant/50 rounded-full bg-surface-container-low/30">
               <span class="text-[24rpx] text-on-surface-variant/60 font-bold">消息已撤回 🤫</span>
             </div>
           </div>
@@ -66,18 +66,18 @@
                 @longpress="showMessageMenu(msg)">
             
             <!-- 对方发送：头像在左侧 -->
-            <image v-if="msg.role === 'partner'" class="w-10 h-10 rounded-full sticker-border bg-surface-container shrink-0 object-cover" :src="msg.senderAvatar || partnerAvatar || defaultAvatar" mode="aspectFill" />
+            <image v-if="msg.role === 'partner'" class="w-10 h-10 rounded-full bg-surface-container shrink-0 object-cover" :src="msg.senderAvatar || partnerAvatar || defaultAvatar" mode="aspectFill" />
             
             <!-- 对话核心棉花糖包裹框 -->
             <view class="max-w-[70%] p-4 text-[28rpx] leading-relaxed shadow-sm"
                   :class="[msg.role === 'me' 
                     ? 'gradient-user text-white rounded-[40rpx] rounded-tr-none shadow-[0_12px_40px_rgba(91,164,240,0.18)]' 
-                    : 'bg-white text-on-surface-variant rounded-[40rpx] rounded-tl-none border border-surface-container-highest shadow-[0_12px_40px_rgba(255,143,163,0.05)]']">
+                    : 'bg-white text-on-surface-variant rounded-[40rpx] rounded-tl-none border border-surface-container-highest']">
               <text class="block word-break font-medium">{{ msg.content }}</text>
             </view>
 
             <!-- 我方发送：头像在右侧 -->
-            <image v-if="msg.role === 'me'" class="w-9 h-9 rounded-full sticker-border bg-surface-container shrink-0 object-cover" :src="msg.senderAvatar || defaultAvatar" mode="aspectFill" />
+            <image v-if="msg.role === 'me'" class="w-9 h-9 rounded-full bg-surface-container shrink-0 object-cover" :src="msg.senderAvatar || defaultAvatar" mode="aspectFill" />
           </view>
         </view>
 
@@ -92,7 +92,7 @@
     ></view>
 
     <!-- 底部固定多维柔性输入及快捷回复大底盘[cite: 17] -->
-    <footer class="fixed bottom-0 left-0 w-full z-50 bg-gradient-to-t from-[#fef8f8] via-[#fef8f8] to-transparent pt-4">
+    <footer class="fixed bottom-0 left-0 w-full z-50 bg-[#F4F5F7] pt-4">
       
       <!-- 快捷回复流（支持横向手账滑移隐藏滚动条）[cite: 17] -->
       <div class="px-margin-page pb-3" v-if="messageList.length > 0">
@@ -105,10 +105,10 @@
       </div>
 
       <!-- 输入对话框主结构栏 -->
-      <div class="bg-surface-container-low/90 backdrop-blur-md rounded-t-[48rpx] border-t border-dashed border-outline-variant/60 shadow-[0_-8px_30px_rgba(255,143,163,0.08)] px-padding-inner pb-[calc(24rpx+env(safe-area-inset-bottom))] pt-4">
+      <div class="bg-surface-container-low/90 backdrop-blur-md rounded-t-[48rpx] border-t border-outline-variant/60 px-padding-inner pb-[calc(24rpx+env(safe-area-inset-bottom))] pt-4">
         <div class="flex items-center space-x-3">
           <!-- 媒体加号扩展纽扣 -->
-          <button class="w-10 h-10 flex items-center justify-center text-outline-variant bg-white rounded-full border-2 border-dashed border-outline-variant transition-transform active:scale-95 shrink-0">
+          <button class="w-10 h-10 flex items-center justify-center text-outline-variant bg-white rounded-full border-2 border-outline-variant transition-transform active:scale-95 shrink-0">
             <text class="material-symbols-outlined text-[36rpx]">add</text>
           </button>
           
@@ -533,15 +533,11 @@ button.emoji-trigger::after {
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 标志性棉花糖贴纸白描框轮廓 */
-.sticker-border {
-  border: 4rpx solid #ffffff;
-  box-shadow: 0 4rpx 12rpx rgba(255, 143, 163, 0.12);
-}
+/* 标志性棉花糖贴纸白描框轮廓 */
 
 /* 专属天空治愈青色用户气泡背景[cite: 17] */
 .gradient-user {
-  background: linear-gradient(135deg, #7EC8E3 0%, #5BA4F0 100%);
+  background: #5BA4F0;
 }
 
 /* 多行溢出字长切断 */

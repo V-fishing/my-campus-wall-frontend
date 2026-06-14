@@ -1,7 +1,7 @@
 <template>
   <view class="bg-[#F4F5F7] min-h-screen flex flex-col relative selection:bg-primary-container">
     
-    <header class="fixed top-0 w-full h-[88px] z-50 glass-header bg-surface/85 flex flex-col justify-end pb-2 border-b border-dashed border-outline-variant/20 shadow-sm">
+    <header class="fixed top-0 w-full h-[88px] z-50 glass-header bg-surface/85 flex flex-col justify-end pb-2 border-b border-outline-variant/20 shadow-sm">
       <view class="flex items-center justify-between px-margin-page h-[44px] relative w-full">
         <view class="w-8 h-8 flex items-center justify-center text-primary bouncy-btn cursor-pointer -ml-1" @click="goBack">
           <text class="material-symbols-outlined text-[44rpx]">arrow_back</text>
@@ -30,7 +30,7 @@
 
         <view v-else class="space-y-4">
           <view v-for="(item, index) in fansList" :key="index" @click="goToUserHome(item)"
-                class="bg-surface-container-lowest rounded-[40rpx] p-4 flex items-center gap-3 shadow-[0_12px_40px_rgba(255,143,163,0.08)] border-2 border-white relative overflow-hidden transition-all duration-300">
+                class="bg-surface-container-lowest rounded-[40rpx] p-4 flex items-center gap-3 border-2 border-white relative overflow-hidden transition-all duration-300">
             
             <view class="relative shrink-0">
               <image class="w-[100rpx] h-[100rpx] rounded-full bg-primary-fixed border-2 border-white shadow-sm object-cover" :src="item.avatar || defaultAvatar" mode="aspectFill" />
@@ -45,7 +45,7 @@
             <view class="flex-1 min-w-0 pr-1">
               <view class="flex items-center gap-1.5 mb-1 flex-wrap">
                 <text class="font-bold text-[30rpx] text-on-surface truncate max-w-[180rpx]">{{ item.nickname || '未知用户' }}</text>
-                <view class="bg-gradient-to-r from-secondary-container to-secondary text-white px-2.5 py-0.5 rounded-full text-[20rpx] font-bold border border-white/20 shadow-sm shrink-0" v-if="item.college">
+                <view class="bg-secondary text-white px-2.5 py-0.5 rounded-full text-[20rpx] font-bold border border-white/20 shadow-sm shrink-0" v-if="item.college">
                   {{ item.college }}
                 </view>
               </view>
@@ -56,7 +56,7 @@
               <button v-if="item.isFollowing" class="bouncy-btn border-2 border-outline-variant text-outline px-4 py-1.5 rounded-full text-[24rpx] font-bold bg-white shadow-sm transition-all duration-300">
                 已关注
               </button>
-              <button v-else class="bouncy-btn bg-gradient-to-br from-primary-container to-primary text-white px-5 py-1.5 rounded-full text-[24rpx] font-bold shadow-md transition-all duration-300">
+              <button v-else class="bouncy-btn bg-primary text-white px-5 py-1.5 rounded-full text-[24rpx] font-bold shadow-md transition-all duration-300">
                 回关
               </button>
             </view>
@@ -241,10 +241,7 @@ const goBack = () => uni.navigateBack()
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 弥散阴影大基板 */
-.kawaii-shadow {
-  box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.08);
-}
+/* 弥散阴影大基板 */
 
 /* 模糊毛玻璃滤镜头部 */
 .glass-header {
@@ -252,10 +249,7 @@ const goBack = () => uni.navigateBack()
   -webkit-backdrop-filter: blur(10px);
 }
 
-/* 标志性棉花糖贴纸白描外高光发光边 */
-.sticker-stroke {
-  filter: drop-shadow(0 0 2rpx #ffffff) drop-shadow(0 4rpx 10rpx rgba(255, 143, 163, 0.15));
-}
+/* 标志性棉花糖贴纸白描外高光发光边 */
 
 /* 淡化淡入特效 */
 .animate-fade-in {

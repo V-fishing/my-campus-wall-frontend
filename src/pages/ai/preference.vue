@@ -1,7 +1,7 @@
 <template>
   <view class="bg-[#F4F5F7] min-h-screen pb-[220rpx] selection:bg-primary-container selection:text-on-primary-container relative">
     
-    <header class="fixed top-0 left-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md border-b-2 border-dashed border-outline-variant/30 flex items-center px-margin-page transition-all"
+    <header class="fixed top-0 left-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md border-b-2 border-outline-variant/30 flex items-center px-margin-page transition-all"
             :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 56) + 'px' }">
       <view class="flex items-center w-full justify-between pr-[100rpx]">
         <view class="bouncy-tap p-2 -ml-2 text-primary flex items-center justify-center" @click="goBack">
@@ -23,7 +23,7 @@
             <view v-for="item in personalityOptions" :key="item.value"
                   @click="preference.personality = item.value"
                   class="rounded-[40rpx] p-5 flex flex-col items-center justify-center space-y-2 border-2 transition-all active:scale-95 relative"
-                  :class="preference.personality === item.value ? 'peach-gradient text-white border-white sticker-stroke shadow-md' : 'bg-white border-dashed border-outline-variant/60'">
+                  :class="preference.personality === item.value ? 'peach-gradient text-white border-white shadow-md' : 'bg-white border-outline-variant/60'">
               <text class="material-symbols-outlined text-[64rpx]" :class="preference.personality === item.value ? 'text-white' : 'text-outline'">{{ item.icon }}</text>
               <text class="font-label-md text-[28rpx] font-bold">{{ item.label }}</text>
               <view v-if="preference.personality === item.value" class="absolute top-3 right-3 bg-white rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
@@ -38,7 +38,7 @@
             <text class="material-symbols-outlined text-primary text-[40rpx]" style="font-variation-settings: 'FILL' 1;">translate</text>
             <text class="font-headline-md text-[32rpx] text-on-surface-variant font-bold">语言风格</text>
           </view>
-          <view class="bg-white rounded-[48rpx] border-2 border-dashed border-outline-variant/60 overflow-hidden kawaii-shadow">
+          <view class="bg-white rounded-[48rpx] border-2 border-outline-variant/60 overflow-hidden">
             <view v-for="item in styleOptions" :key="item.value"
                   @click="preference.languageStyle = item.value"
                   class="flex items-center justify-between p-4 border-b border-outline-variant/20 last:border-b-0 transition-colors active:bg-surface-container-low"
@@ -61,7 +61,7 @@
             <view v-for="item in areaOptions" :key="item.value"
                   @click="preference.expertiseArea = item.value"
                   class="px-5 py-2.5 rounded-full text-[26rpx] font-bold flex items-center gap-1 border-2 transition-all active:scale-95 cursor-pointer"
-                  :class="preference.expertiseArea === item.value ? 'purple-gradient text-on-secondary-container border-white sticker-stroke shadow-sm' : 'bg-white border-outline-variant/60 text-outline'">
+                  :class="preference.expertiseArea === item.value ? 'purple-gradient text-on-secondary-container border-white shadow-sm' : 'bg-white border-outline-variant/60 text-outline'">
               <text v-if="preference.expertiseArea === item.value" class="material-symbols-outlined text-[28rpx]">check</text>
               {{ item.label }}
             </view>
@@ -73,7 +73,7 @@
             <text class="material-symbols-outlined text-primary text-[40rpx]" style="font-variation-settings: 'FILL' 1;">short_text</text>
             <text class="font-headline-md text-[32rpx] text-on-surface-variant font-bold">回复长度</text>
           </view>
-          <view class="bg-white rounded-[48rpx] p-6 border-2 border-dashed border-outline-variant/60 space-y-6 kawaii-shadow">
+          <view class="bg-white rounded-[48rpx] p-6 border-2 border-outline-variant/60 space-y-6">
             <view class="relative w-full px-2">
               <slider 
                 :value="getSliderValue(preference.responseLength)"
@@ -98,7 +98,7 @@
             <text class="material-symbols-outlined text-primary text-[40rpx]" style="font-variation-settings: 'FILL' 1;">edit_note</text>
             <text class="font-headline-md text-[32rpx] text-on-surface-variant font-bold">自定义指令</text>
           </view>
-          <view class="bg-white rounded-[48rpx] p-5 border-2 border-dashed border-outline-variant/60 relative focus-within:border-primary transition-all kawaii-shadow">
+          <view class="bg-white rounded-[48rpx] p-5 border-2 border-outline-variant/60 relative focus-within:border-primary transition-all">
             <textarea 
               class="w-full h-32 bg-transparent border-none text-[28rpx] leading-relaxed text-on-surface placeholder:text-outline-variant/60" 
               placeholder="描述你希望AI学长如何回答... (例如：希望学长多鼓励我，使用更多颜文字 🌟)"
@@ -113,11 +113,11 @@
       </view>
     </scroll-view>
 
-    <view class="fixed bottom-0 left-0 w-full z-[90] bg-gradient-to-t from-[#fef8f8] via-[#fef8f8] to-transparent pt-4 pb-[calc(24rpx+env(safe-area-inset-bottom))] flex justify-center">
+    <view class="fixed bottom-0 left-0 w-full z-[90] bg-[#F4F5F7] pt-4 pb-[calc(24rpx+env(safe-area-inset-bottom))] flex justify-center">
       <view class="w-full px-margin-page">
         <view 
-          class="w-full h-[100rpx] flex items-center justify-center rounded-[50rpx] font-bold text-[36rpx] text-white shadow-[0_12px_32px_rgba(255,143,163,0.35)] transition-all duration-300 bouncy-tap"
-          style="background: linear-gradient(135deg, #ff8fa3 0%, #ffb2bd 100%);"
+          class="w-full h-[100rpx] flex items-center justify-center rounded-[50rpx] font-bold text-[36rpx] text-white transition-all duration-300 bouncy-tap"
+          style="background: #ffb2bd;"
           @click="handleSave"
         >
           保存偏好 ✨
@@ -243,22 +243,16 @@ const goBack = () => uni.navigateBack()
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 弥散阴影 */
-.kawaii-shadow {
-  box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.12);
-}
+/* 弥散阴影 */
 
-/* 贴纸高光边缘过滤 */
-.sticker-stroke {
-  filter: drop-shadow(0 0 2rpx #ffffff) drop-shadow(0 4rpx 8rpx rgba(255, 143, 163, 0.15));
-}
+/* 贴纸高光边缘过滤 */
 
 /* 三大核心粉紫渐变色盘体系 */
 .peach-gradient {
-  background: linear-gradient(135deg, #ff8fa3 0%, #ffb2bd 100%);
+  background: #ffb2bd;
 }
 .purple-gradient {
-  background: linear-gradient(135deg, #c5a3ff 0%, #ecdcff 100%);
+  background: #ecdcff;
 }
 
 /* 淡化动画 */

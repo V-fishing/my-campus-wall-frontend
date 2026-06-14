@@ -1,7 +1,7 @@
 <template>
   <view class="bg-[#F4F5F7] min-h-screen flex flex-col relative selection:bg-primary-container">
     
-    <header class="fixed top-0 w-full h-[88px] z-50 bg-[#F4F5F7]/85 backdrop-blur-md flex flex-col justify-end pb-2 shadow-[0_12px_40px_rgba(255,143,163,0.12)]">
+    <header class="fixed top-0 w-full h-[88px] z-50 bg-[#F4F5F7]/85 backdrop-blur-md flex flex-col justify-end pb-2">
       <view class="flex items-center px-margin-page relative h-11 pr-[90px] w-full">
         <view class="bouncy-tap p-2 -ml-2 text-primary flex items-center justify-center cursor-pointer animate-fade-in" @click="goBack">
           <text class="material-symbols-outlined text-[48rpx]">arrow_back</text>
@@ -41,11 +41,11 @@
 
         <view v-else class="space-y-4">
           <view 
-            class="bouncy-card bg-white rounded-[40rpx] p-padding-inner shadow-[0_12px_40px_rgba(255,143,163,0.06)] relative overflow-hidden transition-all duration-300"
+            class="bouncy-card bg-white rounded-[40rpx] p-padding-inner relative overflow-hidden transition-all duration-300"
             v-for="(item, index) in notificationList" 
             :key="item.id"
             @click="handleNotificationClick(item)"
-            :class="[!item.isRead ? 'sticker-border bg-[#fff9f9]' : 'border border-surface-variant/40']"
+            :class="[!item.isRead ? ' bg-[#fff9f9]' : 'border border-surface-variant/40']"
           >
             <view class="flex items-start gap-3">
               <view class="relative shrink-0">
@@ -76,7 +76,7 @@
                   </text>
                 </view>
                 
-                <view class="flex justify-end items-center mt-3 pt-1 border-t border-dashed border-outline-variant/10">
+                <view class="flex justify-end items-center mt-3 pt-1 border-t border-outline-variant/10">
                   <view class="more-btn p-1 -mr-1 cursor-pointer bouncy-tap" @click.stop="showMoreMenu(item)">
                     <text class="more-icon font-black text-outline-variant text-[32rpx]">⋯</text>
                   </view>
@@ -302,10 +302,7 @@ const goBack = () => uni.navigateBack()
   transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* 棉花糖手账虚线圈 */
-.sticker-border {
-  border: 4rpx dashed rgba(255, 143, 163, 0.3);
-}
+/* 棉花糖手账虚线圈 */
 
 /* 核心未读指示灯环高频率呼吸动效 */
 .pulse-dot {
