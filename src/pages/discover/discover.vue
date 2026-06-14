@@ -121,7 +121,7 @@
       </view>
 
       <view class="space-y-gutter-card pb-10" v-if="postList.length > 0">
-        <view class="bg-white rounded-[64rpx] dashed-border custom-shadow p-padding-inner mb-4" 
+        <view class="bg-white rounded-[64rpx] custom-shadow p-padding-inner mb-4" 
               v-for="post in postList" :key="post.id" @click="goToPostDetail(post)">
           
           <view class="flex flex-col gap-3">
@@ -214,7 +214,6 @@
 
     <view class="fixed bottom-28 right-6 w-14 h-14 bg-primary rounded-full text-white flex items-center justify-center z-40 border-2 border-white bouncy-press" @click="handlePublish">
       <text class="material-symbols-outlined text-[64rpx]">add</text>
-      <view class="absolute -top-1 -right-1 text-[24rpx]">✨</view>
     </view>
 
     <!-- 举报面板 -->
@@ -310,7 +309,7 @@
             class="flex items-center justify-between p-4 rounded-[32rpx] border transition-all bouncy-press"
             :class="isSchoolSelected(uni.universityName)
               ? 'bg-primary/10 border-primary/30'
-              : 'bg-surface-container-lowest border-outline-variant/10 dashed-border'"
+              : 'bg-surface-container-lowest border-outline-variant/10'"
           >
             <view class="flex items-center gap-3">
               <view
