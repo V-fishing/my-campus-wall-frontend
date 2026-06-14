@@ -1,7 +1,7 @@
 <template>
-  <view class="bg-[#fef8f8] min-h-screen pb-[240rpx] selection:bg-primary-container selection:text-on-primary-container relative">
+  <view class="bg-[#F4F5F7] min-h-screen pb-[240rpx] selection:bg-primary-container selection:text-on-primary-container relative">
     
-    <header class="fixed top-0 w-full z-50 bg-[#fef8f8]/85 backdrop-blur-md border-b border-dashed border-outline-variant/30 h-[88px] flex flex-col justify-end pb-3">
+    <header class="fixed top-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md h-[88px] flex flex-col justify-end pb-3">
       <view class="flex items-center justify-between px-margin-page h-[44px] w-full relative">
         <view class="bouncy-tap p-2 -ml-2 text-primary flex items-center justify-center" @click="goBack">
           <text class="material-symbols-outlined text-[44rpx]">arrow_back_ios</text>
@@ -23,13 +23,13 @@
           <view class="grid grid-cols-2 gap-3">
             <view v-for="item in typeOptions" :key="item.value"
                   @click="feedback.type = item.value"
-                  class="bouncy-tap relative rounded-[40rpx] p-4 flex flex-col items-center justify-center space-y-2 border-2 transition-all active:scale-95 cursor-pointer shadow-sm"
-                  :class="feedback.type === item.value ? 'bg-secondary-container/20 border-secondary-container text-on-secondary-container' : 'bg-white border-transparent'">
-              <text class="material-symbols-outlined text-[60rpx]" 
-                    :class="feedback.type === item.value ? 'text-secondary' : 'text-outline-variant'">{{ item.icon }}</text>
-              <text class="text-[26rpx] font-bold" :class="feedback.type === item.value ? 'text-on-secondary-container' : 'text-on-surface-variant'">{{ item.label }}</text>
+                  class="bouncy-tap relative rounded-[32rpx] p-4 flex flex-col items-center justify-center space-y-2 border transition-all active:scale-95 cursor-pointer kawaii-shadow"
+                  :class="feedback.type === item.value ? 'bg-primary-container/20 border-primary-container/30 text-primary' : 'bg-white border-outline-variant/20 text-on-surface-variant'">
+              <text class="material-symbols-outlined text-[48rpx]" 
+                    :class="feedback.type === item.value ? 'text-primary' : 'text-outline-variant'">{{ item.icon }}</text>
+              <text class="text-[26rpx] font-bold" :class="feedback.type === item.value ? 'text-primary' : 'text-on-surface-variant'">{{ item.label }}</text>
               
-              <view v-if="feedback.type === item.value" class="absolute top-2 right-2 bg-secondary text-white rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
+              <view v-if="feedback.type === item.value" class="absolute top-2 right-2 bg-primary text-on-primary rounded-full w-5 h-5 flex items-center justify-center">
                 <text class="material-symbols-outlined text-[20rpx]" style="font-weight: 700;">check</text>
               </view>
             </view>
@@ -41,7 +41,7 @@
             <text class="font-headline-md text-[32rpx] text-on-surface font-bold">详细描述</text>
             <text class="text-[#ff4d4f] ml-1 font-bold text-[32rpx]">*</text>
           </view>
-          <view class="relative bg-surface-container-low rounded-[48rpx] p-4 border border-outline-variant/10 shadow-[inset_0_2px_8rpx_rgba(0,0,0,0.02)]">
+          <view class="relative bg-white rounded-[32rpx] p-4 kawaii-shadow">
             <textarea 
               class="w-full h-40 bg-transparent text-[28rpx] leading-relaxed text-on-surface placeholder:text-outline-variant/60" 
               placeholder="请详细描述您遇到的问题或建议，不少于 10 个字哦... (例如：嘉应AI学长的自习室开馆时间有偏差 📖)"
@@ -56,7 +56,7 @@
 
         <section class="animate-fade-in">
           <text class="font-headline-md text-[32rpx] text-on-surface font-bold mb-3 px-1 block">联系方式 (选填)</text>
-          <view class="bg-surface-container-low rounded-[50rpx] px-6 py-3 border border-outline-variant/10 shadow-sm flex items-center">
+          <view class="bg-white rounded-[32rpx] px-6 py-3 kawaii-shadow flex items-center">
             <input
               class="w-full bg-transparent text-[28rpx] text-on-surface p-0 placeholder:text-outline-variant/60"
               placeholder="微信号、邮箱或手机号 (方便后续沟通~)"
@@ -85,7 +85,7 @@
 
             <view
               v-if="tempImages.length < 4"
-              class="w-[200rpx] h-[200rpx] rounded-[32rpx] border-2 border-dashed border-outline-variant/30 flex flex-col items-center justify-center gap-2 bouncy-tap bg-surface-container-low/50"
+              class="w-[200rpx] h-[200rpx] rounded-[32rpx] border border-outline-variant/20 flex flex-col items-center justify-center gap-2 bouncy-tap bg-white kawaii-shadow"
               @click="chooseImage"
             >
               <text class="material-symbols-outlined text-[48rpx] text-outline-variant">photo_camera</text>
@@ -95,31 +95,25 @@
         </section>
 
         <section class="animate-fade-in">
-          <view class="bg-[#fff7e6] border-2 border-dashed border-[#ffd591] rounded-[40rpx] p-5 shadow-sm">
-            <text class="font-bold text-[#fa8c16] text-[30rpx] mb-2 block">💡 温馨提示</text>
-            <view class="flex flex-col gap-1.5 text-[24rpx] text-[#8c6b1e] font-medium leading-relaxed">
-              <text>1. 墙墙开发团队会认真阅读每一条反馈贴纸 (◕‿◕✿)</text>
+          <view class="bg-white rounded-[32rpx] p-5 kawaii-shadow">
+            <text class="font-bold text-primary text-[30rpx] mb-2 block">💡 温馨提示</text>
+            <view class="flex flex-col gap-1.5 text-[24rpx] text-on-surface-variant font-medium leading-relaxed">
+              <text>1. 墙墙开发团队会认真阅读每一条反馈贴纸</text>
               <text>2. 尽量提供清晰具体的描述，以便学长更快速地定位修复</text>
               <text>3. 如有排版错误，学长将在下一版本中全量平替重构</text>
             </view>
           </view>
         </section>
 
-        <view class="flex justify-center pt-4 opacity-40">
-          <text class="material-symbols-outlined text-primary-container mx-2 animate-bounce text-[36rpx]">colors_spark</text>
-          <text class="material-symbols-outlined text-secondary-container mx-2 animate-pulse text-[36rpx]">favorite</text>
-          <text class="material-symbols-outlined text-tertiary-container mx-2 animate-bounce text-[36rpx]">star</text>
-        </view>
-
       </view>
     </scroll-view>
 
-    <view class="fixed bottom-0 left-0 w-full z-50 px-margin-page pb-[calc(24rpx+env(safe-area-inset-bottom))] pt-4 bg-gradient-to-t from-[#fef8f8] via-[#fef8f8] to-transparent border-t-2 border-dashed border-primary-container/20 rounded-t-[48rpx] shadow-[0_-12px_40px_rgba(255,143,163,0.12)]">
+    <view class="fixed bottom-0 left-0 w-full z-50 px-margin-page pb-[calc(24rpx+env(safe-area-inset-bottom))] pt-4 bg-[#F4F5F7]/90 backdrop-blur-md">
       <view 
-        class="bouncy-tap sugar-gradient w-full h-[100rpx] rounded-[50rpx] flex items-center justify-center text-white font-bold text-[36rpx] shadow-[0_12px_32px_rgba(255,143,163,0.35)]"
+        class="bouncy-tap w-full h-[100rpx] rounded-[50rpx] flex items-center justify-center text-white font-bold text-[36rpx] bg-primary active:opacity-90 transition-opacity"
         @click="handleSubmit"
       >
-        提交反馈 ✨
+        提交反馈
       </view>
     </view>
 
@@ -296,13 +290,8 @@ const goBack = () => uni.navigateBack()
 }
 
 /* 弥散阴影大背板 */
-.sticker-shadow {
+.kawaii-shadow {
   box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.08);
-}
-
-/* 渐变全色盘：粉紫蓝高级流体剪切 */
-.sugar-gradient {
-  background: linear-gradient(135deg, #ff8fa3 0%, #c5a3ff 50%, #86b6db 100%);
 }
 
 /* 淡化淡入动画轨迹 */
