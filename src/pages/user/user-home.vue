@@ -29,7 +29,7 @@
         
         <view class="relative w-full h-[140px]" style="background: #5BA4F0;">
           <view class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 20px 20px;"></view>
-          <text class="material-symbols-outlined absolute top-4 right-10 text-white/40 text-[40rpx] animate-pulse">colors_spark</text>
+
         </view>
 
         <section class="px-margin-page -mt-12 relative z-10">
@@ -368,9 +368,11 @@ const formatTime = formatTimeAgo
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 弥散阴影 */
+/* 弥散阴影 */
 
-/* 贴纸白描光边 */
+
+/* 贴纸白描光边 */
+
 
 /* 蓝青高级感色彩渐变 */
 .blue-gradient-text {
@@ -379,7 +381,8 @@ const formatTime = formatTimeAgo
   -webkit-text-fill-color: transparent;
 }
 
-/* 萌系手账虚线 */
+/* 萌系手账虚线 */
+
 
 /* 限制文字溢出 */
 .line-clamp-3 {
