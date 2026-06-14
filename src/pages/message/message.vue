@@ -10,28 +10,28 @@
     <scroll-view scroll-y class="flex-1 overflow-y-auto hide-scrollbar px-margin-page pt-4">
       
       <view class="grid grid-cols-3 gap-gutter-card mb-8">
-        <view class="bg-pink-grad rounded-[40rpx] p-4 flex flex-col items-center justify-center relative bouncy-shadow dashed-border active:scale-95 transition-transform" @click="goToInteraction('likes')">
-          <view v-if="unreadStats.likes > 0" class="absolute -top-2 -right-2 bg-error text-on-error text-label-sm font-bold min-w-[48rpx] h-[48rpx] px-1 rounded-full flex items-center justify-center sticker-shadow z-10">{{ unreadStats.likes }}</view>
-          <view class="w-[96rpx] h-[96rpx] bg-white/50 rounded-full flex items-center justify-center mb-2">
-            <text class="material-symbols-outlined text-primary text-[56rpx]" style="font-variation-settings: 'FILL' 1;">thumb_up</text>
+        <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 kawaii-shadow active:scale-95 transition-transform relative" @click="goToInteraction('likes')">
+          <view v-if="unreadStats.likes > 0" class="absolute -top-2 -right-2 bg-error text-on-error text-[20rpx] font-bold min-w-[40rpx] h-[40rpx] px-1 rounded-full flex items-center justify-center sticker-shadow z-10">{{ unreadStats.likes }}</view>
+          <view class="w-[72rpx] h-[72rpx] rounded-full bg-pink-50 flex items-center justify-center">
+            <text class="material-symbols-outlined text-primary text-[36rpx]" style="font-variation-settings: 'FILL' 1;">thumb_up</text>
           </view>
-          <text class="text-label-md text-on-surface-variant font-bold">赞与收藏</text>
+          <text class="text-[24rpx] text-on-surface font-medium">赞与收藏</text>
         </view>
-        
-        <view class="bg-blue-grad rounded-[40rpx] p-4 flex flex-col items-center justify-center relative bouncy-shadow dashed-border border-[#9cccf2] active:scale-95 transition-transform" @click="goToInteraction('comments')">
-          <view v-if="unreadStats.comments > 0" class="absolute -top-2 -right-2 bg-error text-on-error text-label-sm font-bold min-w-[48rpx] h-[48rpx] px-1 rounded-full flex items-center justify-center sticker-shadow z-10">{{ unreadStats.comments }}</view>
-          <view class="w-[96rpx] h-[96rpx] bg-white/50 rounded-full flex items-center justify-center mb-2">
-            <text class="material-symbols-outlined text-tertiary text-[56rpx]" style="font-variation-settings: 'FILL' 1;">chat_bubble</text>
+
+        <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 kawaii-shadow active:scale-95 transition-transform relative" @click="goToInteraction('comments')">
+          <view v-if="unreadStats.comments > 0" class="absolute -top-2 -right-2 bg-error text-on-error text-[20rpx] font-bold min-w-[40rpx] h-[40rpx] px-1 rounded-full flex items-center justify-center sticker-shadow z-10">{{ unreadStats.comments }}</view>
+          <view class="w-[72rpx] h-[72rpx] rounded-full bg-blue-50 flex items-center justify-center">
+            <text class="material-symbols-outlined text-tertiary text-[36rpx]" style="font-variation-settings: 'FILL' 1;">chat_bubble</text>
           </view>
-          <text class="text-label-md text-on-surface-variant font-bold">回复与@</text>
+          <text class="text-[24rpx] text-on-surface font-medium">回复与@</text>
         </view>
-        
-        <view class="bg-yellow-grad rounded-[40rpx] p-4 flex flex-col items-center justify-center relative bouncy-shadow dashed-border border-yellow-300 active:scale-95 transition-transform" @click="goToInteraction('system')">
-          <view v-if="unreadStats.follows > 0" class="absolute -top-2 -right-2 bg-error text-on-error text-label-sm font-bold min-w-[48rpx] h-[48rpx] px-1 rounded-full flex items-center justify-center sticker-shadow z-10">{{ unreadStats.follows }}</view>
-          <view class="w-[96rpx] h-[96rpx] bg-white/50 rounded-full flex items-center justify-center mb-2">
-            <text class="material-symbols-outlined text-yellow-600 text-[56rpx]" style="font-variation-settings: 'FILL' 1;">star</text>
+
+        <view class="bg-white rounded-[32rpx] p-4 flex flex-col items-center justify-center gap-2 kawaii-shadow active:scale-95 transition-transform relative" @click="goToInteraction('system')">
+          <view v-if="unreadStats.follows > 0" class="absolute -top-2 -right-2 bg-error text-on-error text-[20rpx] font-bold min-w-[40rpx] h-[40rpx] px-1 rounded-full flex items-center justify-center sticker-shadow z-10">{{ unreadStats.follows }}</view>
+          <view class="w-[72rpx] h-[72rpx] rounded-full bg-yellow-50 flex items-center justify-center">
+            <text class="material-symbols-outlined text-yellow-500 text-[36rpx]" style="font-variation-settings: 'FILL' 1;">star</text>
           </view>
-          <text class="text-label-md text-on-surface-variant font-bold">新增粉丝</text>
+          <text class="text-[24rpx] text-on-surface font-medium">新增粉丝</text>
         </view>
       </view>
 
@@ -44,7 +44,7 @@
         </view>
 
         <view class="flex flex-col gap-3" v-if="chatList.length > 0">
-          <view class="bg-surface-container-low rounded-[40rpx] p-padding-inner flex items-center gap-3 bouncy-shadow border border-surface-variant active:bg-surface-container transition-colors" 
+          <view class="bg-white rounded-[32rpx] p-padding-inner flex items-center gap-3 kawaii-shadow active:bg-surface-container-low transition-colors" 
                 v-for="chat in chatList" :key="chat.id" @click="openChat(chat)">
             
             <view class="relative shrink-0">
@@ -64,8 +64,8 @@
             <view class="shrink-0 flex items-center gap-2">
               <view v-if="chat.unreadCount > 0" class="bg-primary text-on-primary text-label-sm font-bold min-w-[40rpx] h-[40rpx] px-1 rounded-full flex items-center justify-center sticker-shadow">{{ chat.unreadCount }}</view>
               
-              <view class="w-[64rpx] h-[64rpx] flex items-center justify-center rounded-full bg-error/10 text-error active:bg-error/20 transition-colors" @click.stop="deleteChatSession(chat)">
-                <text class="material-symbols-outlined text-[36rpx]">delete</text>
+              <view class="w-[56rpx] h-[56rpx] flex items-center justify-center rounded-full text-outline-variant active:bg-error/10 active:text-error transition-colors" @click.stop="deleteChatSession(chat)">
+                <text class="material-symbols-outlined text-[32rpx]">delete</text>
               </view>
             </view>
 
@@ -241,15 +241,10 @@ const handlePublish = () => {
 .bouncy-shadow { 
   box-shadow: 0 24rpx 80rpx rgba(255, 143, 163, 0.12); 
 }
+.kawaii-shadow { 
+  box-shadow: 0 12rpx 40rpx rgba(255, 143, 163, 0.12); 
+}
 .sticker-shadow { 
   box-shadow: 0 0 0 4rpx #ffffff, 0 8rpx 24rpx rgba(255, 143, 163, 0.2); 
 }
-.dashed-border { 
-  border: 4rpx dashed #ffb2bd; /* theme('colors.primary-fixed-dim') */
-}
-
-/* 渐变背景组 */
-.bg-pink-grad { background: linear-gradient(135deg, #ffd9dd 0%, #ffb2bd 100%); }
-.bg-blue-grad { background: linear-gradient(135deg, #cae6ff 0%, #9cccf2 100%); }
-.bg-yellow-grad { background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%); }
 </style>
