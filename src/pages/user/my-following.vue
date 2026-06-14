@@ -14,9 +14,7 @@
     <scroll-view class="w-full flex-1" scroll-y :style="{ height: 'calc(100vh - 100px)', marginTop: '100px' }" @scrolltolower="loadMore">
       <view class="px-margin-page pb-12 pt-4">
         
-        <view class="fixed top-24 right-6 opacity-40 pointer-events-none z-[-1]">
-          <text class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">colors_spark</text>
-        </view>
+
         <view class="fixed bottom-24 left-4 opacity-40 pointer-events-none z-[-1]">
           <text class="material-symbols-outlined text-secondary text-xl" style="font-variation-settings: 'FILL' 1;">favorite</text>
         </view>
@@ -217,9 +215,11 @@ const handleBack = () => uni.navigateBack()
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 弥散悬浮大基板阴影 */
+/* 弥散悬浮大基板阴影 */
 
-/* 标志性贴纸白描外发光边 */
+
+/* 标志性贴纸白描外发光边 */
+
 
 /* 限定单行截断溢出 */
 .line-clamp-1 {

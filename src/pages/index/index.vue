@@ -299,9 +299,6 @@
     <!-- 发布 FAB -->
     <view class="fixed bottom-24 right-6 w-16 h-16 hot-banner-gradient text-white rounded-full flex items-center justify-center shadow-lg border-4 border-white z-40 bouncy-tap p-0" @click="handlePublish">
       <span class="material-symbols-outlined text-[56rpx] font-bold">add</span>
-      <view class="absolute -top-1 -right-1 text-yellow-300">
-        <span class="material-symbols-outlined text-[24rpx] icon-filled">colors_spark</span>
-      </view>
     </view>
 
     <!-- 举报面板 -->

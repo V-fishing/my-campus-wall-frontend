@@ -59,9 +59,7 @@
             </view>
             <view class="w-[60rpx]" v-else></view>
 
-            <view class="absolute -top-1 -right-1">
-              <text class="material-symbols-outlined text-primary-container text-[24rpx]">colors_spark</text>
-            </view>
+
           </view>
         </view>
 
@@ -233,7 +231,8 @@ const goBack = () => uni.navigateBack()
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 弥散阴影板 */
+/* 弥散阴影板 */
+
 
 /* 文字限定多行溢出切碎 */
 .line-clamp-2 {

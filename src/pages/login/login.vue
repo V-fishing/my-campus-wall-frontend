@@ -21,7 +21,7 @@
         
         <view class="flex flex-col items-center space-y-2 scale-95 transition-transform duration-300">
           <view class="w-20 h-20 bg-primary-container rounded-[40rpx] flex items-center justify-center shadow-sm">
-            <text class="material-symbols-outlined text-[80rpx] text-on-primary-container" style="font-variation-settings: 'FILL' 1;">colors_spark</text>
+
           </view>
           <text class="font-headline-lg-mobile text-[48rpx] text-primary font-extrabold tracking-tight mt-2">Campus Wall</text>
           <text class="font-label-md text-[26rpx] text-on-surface-variant/70 font-bold">嘉应学院校园生活社区</text>
@@ -237,7 +237,8 @@ const viewAgreement = (type) => {
   transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 标志性棉花糖贴纸白描外高光边 */
+/* 标志性棉花糖贴纸白描外高光边 */
+
 
 /* 核心：高精动态多粒子矩阵微弱漂浮浮空特效 */
 .bokeh-particle {
