@@ -832,7 +832,7 @@ const goToUserHome = (post) => {
 
 const goToLeaderboard = () => {
   uni.navigateTo({
-    url: '/pages/leaderboard/leaderboard?scope=1',
+    url: '/pages/leaderboard/leaderboard?scope=2',
     fail: (err) => {
       console.error('跳转排行榜失败:', err)
       uni.showToast({ title: '排行榜开发中', icon: 'none' })

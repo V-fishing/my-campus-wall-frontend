@@ -304,7 +304,7 @@ const closeAuthModal = () => {
 const goToRealNameAuth = () => {
   showAuthModal.value = false
   uni.navigateTo({
-    url: '/pages/user/real-name-auth',
+    url: '/pages/user/student-verification',
     fail: () => {
       // 如果页面不存在，跳转到设置页
       uni.navigateTo({ url: '/pages/user/settings' })

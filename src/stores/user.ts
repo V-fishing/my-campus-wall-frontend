@@ -18,6 +18,8 @@ export const useUserStore = defineStore('user', () => {
   const campus   = ref('')
   const universityId   = ref<number | null>(null)
   const universityName = ref('')
+  const studentVerified = ref(0)
+  const studentNo = ref('')
 
   // --- 计算属性 ---
   const isLogin = computed(() => !!token.value && !!userId.value)
@@ -36,6 +38,8 @@ export const useUserStore = defineStore('user', () => {
         campus.value   = info.campus ?? ''
         universityId.value   = info.universityId ?? null
         universityName.value = info.universityName ?? ''
+        studentVerified.value = info.studentVerified ?? 0
+        studentNo.value = info.studentNo ?? ''
       }
     } catch { /* ignore */ }
   }
@@ -55,6 +59,8 @@ export const useUserStore = defineStore('user', () => {
       campus.value   = d.campus ?? ''
       universityId.value   = d.universityId ?? null
       universityName.value = d.universityName ?? ''
+      studentVerified.value = d.studentVerified ?? 0
+      studentNo.value = d.studentNo ?? ''
 
       uni.setStorageSync('token', d.token)
       uni.setStorageSync('userInfo', d)
@@ -73,6 +79,8 @@ export const useUserStore = defineStore('user', () => {
     campus.value   = ''
     universityId.value   = null
     universityName.value = ''
+    studentVerified.value = 0
+    studentNo.value = ''
     uni.removeStorageSync('token')
     uni.removeStorageSync('userInfo')
   }
@@ -91,6 +99,8 @@ export const useUserStore = defineStore('user', () => {
         campus.value   = d.campus ?? ''
         universityId.value   = d.universityId ?? null
         universityName.value = d.universityName ?? ''
+        studentVerified.value = d.studentVerified ?? 0
+        studentNo.value = d.studentNo ?? ''
         uni.setStorageSync('userInfo', d)
       }
     } catch (e) {

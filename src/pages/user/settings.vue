@@ -30,6 +30,14 @@
               <text class="material-symbols-outlined text-outline-variant">chevron_right</text>
             </view>
           </view>
+          <view class="h-[112rpx] flex items-center px-6 bouncy-press" @click="navigateTo('student-verification')">
+            <text class="text-[40rpx] mr-4">🎓</text>
+            <text class="flex-1 text-[30rpx] text-on-surface">学生认证</text>
+            <view class="flex items-center gap-2">
+              <text class="text-[26rpx]" :class="studentVerified ? 'text-[#4CAF50]' : 'text-outline'">{{ studentVerified ? '已认证' : '未认证' }}</text>
+              <text class="material-symbols-outlined text-outline-variant">chevron_right</text>
+            </view>
+          </view>
         </view>
       </section>
 
@@ -79,12 +87,14 @@ import { clearLoginInfo } from '../../utils/auth.js'
 
 const statusBarHeight = ref(uni.getSystemInfoSync().statusBarHeight)
 const authStatus = ref(false)
+const studentVerified = ref(false)
 const showAbout = ref(false)
 const isDarkMode = ref(false)
 
 onLoad(() => {
   const userInfo = uni.getStorageSync('userInfo')
   authStatus.value = userInfo?.isRealNameAuth || false
+  studentVerified.value = userInfo?.studentVerified === 1 || userInfo?.studentVerified === true || false
 })
 
 const goBack = () => uni.navigateBack()
@@ -93,7 +103,8 @@ const navigateTo = (page) => {
   const pageMap = {
     'edit-profile': '/pages/user/edit-profile',
     'security': '/pages/user/security',
-    'real-name-auth': '/pages/user/real-name-auth'
+    'real-name-auth': '/pages/user/real-name-auth',
+    'student-verification': '/pages/user/student-verification'
   }
   if (pageMap[page]) uni.navigateTo({ url: pageMap[page] })
   else uni.showToast({ title: '功能开发中', icon: 'none' })
