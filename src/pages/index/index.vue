@@ -45,7 +45,7 @@
         <view class="relative z-30 space-y-2" v-if="viewMode === 'recommend'">
 
           <!-- 第一级话题层 -->
-          <view class="relative flex items-center bg-surface-container-lowest rounded-full p-1.5 sticker-border kawaii-shadow overflow-hidden">
+          <view class="relative flex items-center bg-surface-container-lowest rounded-full p-1.5 overflow-hidden">
 
             <scroll-view scroll-x class="w-full hide-scrollbar pr-8" :show-scrollbar="false">
               <view class="flex gap-2 px-1 items-center">
@@ -70,7 +70,7 @@
           </view>
 
           <!-- 一级面板下拉框 -->
-          <view v-if="showDropdownPanel" class="bg-surface-container-lowest rounded-3xl p-4 sticker-border kawaii-shadow border-t-0 -mt-2.5 pt-6 animate-fade-in z-40 relative">
+          <view v-if="showDropdownPanel" class="bg-surface-container-lowest rounded-3xl p-4 border-t-0 -mt-2.5 pt-6 animate-fade-in z-40 relative">
             <view class="text-on-surface-variant text-label-sm mb-3 px-2">全部分类</view>
             <view class="grid grid-cols-4 gap-2">
               <view v-for="(group, gIdx) in categoryGroups" :key="'panel-'+group.id" @click="selectGroupFromPanel(gIdx)"
@@ -116,7 +116,7 @@
         <!-- 核心时光贴纸动态瀑布流卡片集群 -->
         <view class="space-y-4">
           <article
-              class="bg-surface-container-lowest rounded-3xl p-4 sticker-border kawaii-shadow space-y-3 relative overflow-hidden transition-all duration-300"
+              class="bg-surface-container-lowest rounded-3xl p-4 space-y-3 relative overflow-hidden transition-all duration-300"
               :class="{ 'opacity-60 grayscale-[20%]': post.isSold === 1 }"
               v-for="post in displayPosts" :key="post.id">
 
@@ -286,7 +286,7 @@
         <view class="text-center py-6 text-outline-variant text-[24rpx] font-medium" v-if="loading">
           <text class="material-symbols-outlined animate-spin text-[32rpx] mr-2">sync</text>正在载入动态...
         </view>
-        <view class="text-center py-20 bg-white rounded-[40rpx] border-2 border-dashed border-outline-variant/40 kawaii-shadow font-medium" v-else-if="postList.length === 0">
+        <view class="text-center py-20 bg-white rounded-[40rpx] font-medium" v-else-if="postList.length === 0">
           <text class="text-[80rpx] block mb-2">🍃</text>大厅里空空如也~
         </view>
         <view class="text-center py-6 text-outline-variant text-[24rpx] font-bold" v-else-if="!hasMore">
@@ -370,7 +370,7 @@
     <view class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[80] transition-opacity duration-300"
          :class="[showTopicPopover ? 'opacity-100' : 'opacity-0 pointer-events-none']"
          @click="closeTopicPopover"></view>
-    <view class="fixed left-[32rpx] right-[32rpx] top-[220px] bg-surface-container-low rounded-3xl p-6 z-[90] sticker-border kawaii-shadow border-2 border-dashed border-outline-variant/50 transition-all duration-300 transform"
+    <view class="fixed left-[32rpx] right-[32rpx] top-[220px] bg-surface-container-low rounded-3xl p-6 z-[90] transition-all duration-300 transform"
          :class="[showTopicPopover ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none']">
       <view class="flex items-center justify-between mb-6">
         <view class="font-headline-md-mobile text-[28rpx] text-on-surface font-bold">全部分类</view>
