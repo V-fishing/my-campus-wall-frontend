@@ -94,19 +94,19 @@
             <!-- 数据看板 -->
             <view class="grid grid-cols-4 w-full mt-6 py-4 border-t border-dashed border-outline-variant/50">
               <view class="flex flex-col items-center bouncy-press">
-                <text class="text-[36rpx] font-bold text-gradient-candy">{{ userInfo?.likeCount || 0 }}</text>
+                <text class="text-[36rpx] font-bold text-on-surface">{{ userInfo?.likeCount || 0 }}</text>
                 <text class="text-[22rpx] text-on-surface-variant mt-1">获赞</text>
               </view>
               <view class="flex flex-col items-center bouncy-press" @click.stop="goToMyCollections">
-                <text class="text-[36rpx] font-bold text-gradient-candy">{{ userInfo?.collectionCount || 0 }}</text>
+                <text class="text-[36rpx] font-bold text-on-surface">{{ userInfo?.collectionCount || 0 }}</text>
                 <text class="text-[22rpx] text-on-surface-variant mt-1">收藏</text>
               </view>
               <view class="flex flex-col items-center bouncy-press" @click.stop="goToMyFollowing">
-                <text class="text-[36rpx] font-bold text-gradient-candy">{{ userInfo?.followCount || 0 }}</text>
+                <text class="text-[36rpx] font-bold text-on-surface">{{ userInfo?.followCount || 0 }}</text>
                 <text class="text-[22rpx] text-on-surface-variant mt-1">关注</text>
               </view>
               <view class="flex flex-col items-center bouncy-press" @click.stop="goToMyFans">
-                <text class="text-[36rpx] font-bold text-gradient-candy">{{ userInfo?.fansCount || 0 }}</text>
+                <text class="text-[36rpx] font-bold text-on-surface">{{ userInfo?.fansCount || 0 }}</text>
                 <text class="text-[22rpx] text-on-surface-variant mt-1">粉丝</text>
               </view>
             </view>
@@ -136,11 +136,11 @@
         </view>
 
         <!-- 课程安排 Tab -->
-        <view class="bg-gradient-to-r from-[#E8F5E9] via-[#E3F2FD] to-[#FFF3E0] rounded-[32rpx] p-[32rpx] kawaii-shadow mt-4 border border-dashed border-primary/20">
+        <view class="bg-white rounded-[32rpx] p-[32rpx] kawaii-shadow mt-4">
           <view class="flex items-center justify-between active:opacity-60 transition-opacity" @click="handleNav('课程安排')">
             <view class="flex items-center gap-3">
-              <view class="w-[80rpx] h-[80rpx] rounded-full bg-white/80 flex items-center justify-center shadow-sm">
-                <text class="material-symbols-outlined text-[#FF8FA3] text-[44rpx]">calendar_month</text>
+              <view class="w-[80rpx] h-[80rpx] rounded-full bg-primary-fixed/50 flex items-center justify-center">
+                <text class="material-symbols-outlined text-primary text-[44rpx]">calendar_month</text>
               </view>
               <view class="flex flex-col">
                 <text class="text-[30rpx] text-on-surface font-bold">课程安排</text>
