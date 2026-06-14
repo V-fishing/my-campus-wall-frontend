@@ -51,7 +51,7 @@
 
         <!-- 新建对话按钮 -->
         <view class="px-4 py-3 border-b border-outline-variant/10">
-          <view class="flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-primary-container/40 to-secondary-container/40 border border-dashed border-outline-variant/40 active:scale-[0.98] transition-transform"
+          <view class="flex items-center gap-2 px-4 py-3 rounded-full bg-white border border-outline-variant/20 active:scale-[0.98] transition-transform kawaii-shadow"
                 @click="startNewChat">
             <text class="material-symbols-outlined text-primary text-[28rpx]">add</text>
             <text class="font-label-md-mobile text-[26rpx] text-primary font-bold">新建对话</text>
@@ -98,13 +98,6 @@
       </view>
     </view>
 
-    <!-- 背景装饰 -->
-    <view class="fixed top-32 right-4 pointer-events-none opacity-20 rotate-12 z-0">
-      <text class="material-symbols-outlined text-primary text-[80rpx]">auto_awesome</text>
-    </view>
-    <view class="fixed bottom-40 left-4 pointer-events-none opacity-20 -rotate-12 z-0">
-      <text class="material-symbols-outlined text-secondary text-[80rpx]">favorite</text>
-    </view>
 
     <scroll-view
       class="flex-1 w-full box-border z-10"
@@ -127,15 +120,15 @@
             <view class="space-y-2 mt-2">
               <text class="font-label-sm-mobile text-on-surface-variant ml-1 block">猜你想问 ✨</text>
               <view class="flex flex-wrap gap-2">
-                <view class="px-4 py-2 rounded-full bg-gradient-to-r from-[#E0F2FE] to-[#BAE6FD] text-tertiary font-label-md-mobile shadow-sm active:scale-95 transition-transform border border-white/50" @click="sendQuickMsg('北区图书馆周末几点闭馆？')">📖 图书馆闭馆时间</view>
-                <view class="px-4 py-2 rounded-full bg-gradient-to-r from-[#E0F2FE] to-[#BAE6FD] text-tertiary font-label-md-mobile shadow-sm active:scale-95 transition-transform border border-white/50" @click="sendQuickMsg('大创项目怎么申报？')">💡 大创申报流程</view>
-                <view class="px-4 py-2 rounded-full bg-gradient-to-r from-[#E0F2FE] to-[#BAE6FD] text-tertiary font-label-md-mobile shadow-sm active:scale-95 transition-transform border border-white/50" @click="sendQuickMsg('宿舍宽带怎么开通？')">🌐 宽带开通指南</view>
+                <view class="px-3 py-1.5 rounded-full bg-tertiary-fixed/50 text-tertiary text-[24rpx] font-medium active:scale-95 transition-transform" @click="sendQuickMsg('北区图书馆周末几点闭馆？')">📖 图书馆闭馆时间</view>
+                <view class="px-3 py-1.5 rounded-full bg-tertiary-fixed/50 text-tertiary text-[24rpx] font-medium active:scale-95 transition-transform" @click="sendQuickMsg('大创项目怎么申报？')">💡 大创申报流程</view>
+                <view class="px-3 py-1.5 rounded-full bg-tertiary-fixed/50 text-tertiary text-[24rpx] font-medium active:scale-95 transition-transform" @click="sendQuickMsg('宿舍宽带怎么开通？')">🌐 宽带开通指南</view>
               </view>
               <text class="font-label-sm-mobile text-on-surface-variant ml-1 block mt-3">帮你找帖子 🔍（少刷帖，直接问）</text>
               <view class="flex flex-wrap gap-2">
-                <view class="px-4 py-2 rounded-full bg-gradient-to-r from-[#FFF0F3] to-[#FFE1E6] text-[#9B4053] font-label-md-mobile shadow-sm active:scale-95 transition-transform border border-white/50" @click="sendQuickMsg('有没有人捡到蓝色的书包？')">🎒 有人捡到东西吗</view>
-                <view class="px-4 py-2 rounded-full bg-gradient-to-r from-[#FFF0F3] to-[#FFE1E6] text-[#9B4053] font-label-md-mobile shadow-sm active:scale-95 transition-transform border border-white/50" @click="sendQuickMsg('有没有人出售二手自行车？')">🚲 找二手好物</view>
-                <view class="px-4 py-2 rounded-full bg-gradient-to-r from-[#FFF0F3] to-[#FFE1E6] text-[#9B4053] font-label-md-mobile shadow-sm active:scale-95 transition-transform border border-white/50" @click="sendQuickMsg('有没有靠谱的兼职推荐？')">💼 找兼职</view>
+                <view class="px-3 py-1.5 rounded-full bg-primary-fixed/50 text-primary text-[24rpx] font-medium active:scale-95 transition-transform" @click="sendQuickMsg('有没有人捡到蓝色的书包？')">🎒 有人捡到东西吗</view>
+                <view class="px-3 py-1.5 rounded-full bg-primary-fixed/50 text-primary text-[24rpx] font-medium active:scale-95 transition-transform" @click="sendQuickMsg('有没有人出售二手自行车？')">🚲 找二手好物</view>
+                <view class="px-3 py-1.5 rounded-full bg-primary-fixed/50 text-primary text-[24rpx] font-medium active:scale-95 transition-transform" @click="sendQuickMsg('有没有靠谱的兼职推荐？')">💼 找兼职</view>
               </view>
             </view>
           </view>
