@@ -1,7 +1,7 @@
 <template>
-  <view class="bg-[#fef8f8] min-h-screen flex flex-col relative selection:bg-primary-fixed">
+  <view class="bg-[#F4F5F7] min-h-screen flex flex-col relative selection:bg-primary-fixed">
     
-    <header class="fixed top-0 left-0 w-full z-50 bg-[#fef8f8]/85 backdrop-blur-md flex items-center px-4 pt-status-bar h-[100px] border-b border-dashed border-outline-variant/20 shadow-sm">
+    <header class="fixed top-0 left-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md flex items-center px-4 pt-status-bar h-[100px] border-b border-dashed border-outline-variant/20 shadow-sm">
       <view class="flex items-center w-full justify-between pr-capsule-safe-zone">
         <view class="w-10 h-10 flex items-center justify-center rounded-full bouncy-tap text-primary cursor-pointer -ml-2" @click="handleBack">
           <text class="material-symbols-outlined text-[44rpx]">arrow_back_ios_new</text>

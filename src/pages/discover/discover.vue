@@ -1,7 +1,7 @@
 <template>
-  <view class="bg-background font-body-lg text-on-surface antialiased min-h-screen pb-24 flex flex-col">
+  <view class="bg-[#F4F5F7] font-body-lg text-on-surface antialiased min-h-screen pb-24 flex flex-col">
     
-    <view class="fixed top-0 left-0 w-full z-50 bg-surface/80 backdrop-blur-xl flex items-center px-margin-page border-b border-primary/5 shadow-[0_4px_20px_rgba(155,64,83,0.05)]" 
+    <view class="fixed top-0 left-0 w-full z-50 bg-[#F4F5F7]/80 backdrop-blur-xl flex items-center px-margin-page border-b border-primary/5 shadow-[0_4px_20px_rgba(155,64,83,0.05)]" 
           :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 54) + 'px' }">
       <view class="flex-1 flex justify-start">
         <view class="w-10 h-10 flex items-center justify-center rounded-full bg-primary-container/10 text-primary active:scale-90 transition-transform bouncy-press" @click="goToSearch">

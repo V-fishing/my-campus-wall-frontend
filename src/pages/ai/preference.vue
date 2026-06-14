@@ -1,7 +1,7 @@
 <template>
-  <view class="bg-[#fef8f8] min-h-screen pb-[220rpx] selection:bg-primary-container selection:text-on-primary-container relative">
+  <view class="bg-[#F4F5F7] min-h-screen pb-[220rpx] selection:bg-primary-container selection:text-on-primary-container relative">
     
-    <header class="fixed top-0 left-0 w-full z-50 bg-[#fef8f8]/85 backdrop-blur-md border-b-2 border-dashed border-outline-variant/30 flex items-center px-margin-page transition-all"
+    <header class="fixed top-0 left-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md border-b-2 border-dashed border-outline-variant/30 flex items-center px-margin-page transition-all"
             :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 56) + 'px' }">
       <view class="flex items-center w-full justify-between pr-[100rpx]">
         <view class="bouncy-tap p-2 -ml-2 text-primary flex items-center justify-center" @click="goBack">

@@ -1,8 +1,8 @@
 <template>
-  <view class="bg-surface text-on-surface min-h-screen flex flex-col relative pb-[140rpx] selection:bg-primary-container">
+  <view class="bg-[#F4F5F7] text-on-surface min-h-screen flex flex-col relative pb-[140rpx] selection:bg-primary-container">
 
     <!-- 顶部固定高光导航栏 -->
-    <view class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-md border-b-2 border-dashed border-outline-variant/30 px-margin-page flex items-center justify-between shadow-[0_12px_40px_rgba(255,143,163,0.12)]" :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 48) + 'px' }">
+    <view class="fixed top-0 w-full z-50 bg-[#F4F5F7]/85 backdrop-blur-md border-b-2 border-dashed border-outline-variant/30 px-margin-page flex items-center justify-between shadow-[0_12px_40px_rgba(255,143,163,0.12)]" :style="{ paddingTop: statusBarHeight + 'px', height: (statusBarHeight + 48) + 'px' }">
       <view class="bouncy-tap text-primary flex items-center justify-center w-8 h-8" @click="goToSearch">
         <span class="material-symbols-outlined text-[44rpx]">search</span>
       </view>
