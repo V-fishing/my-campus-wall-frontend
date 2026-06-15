@@ -66,16 +66,6 @@
                   mode="aspectFill"
                   class="w-[140rpx] h-[140rpx] rounded-full border-[6rpx] border-white object-cover shadow-sm"
                 />
-                <view
-                  v-if="userInfo.college"
-                  class="absolute bottom-0 right-0 bg-[#5BA4F0] p-1 rounded-full border-[4rpx] border-white flex items-center justify-center"
-                >
-                  <text
-                    class="material-symbols-outlined text-[24rpx] text-white"
-                    style="font-variation-settings: 'FILL' 1"
-                    >verified</text
-                  >
-                </view>
               </view>
               <view class="flex-1 flex items-center justify-end">
                 <view
@@ -95,8 +85,8 @@
               </view>
             </view>
 
-            <!-- 昵称/性别 -->
-            <view class="flex items-center gap-2 mb-2">
+            <!-- 昵称/性别/实名 -->
+            <view class="flex items-center gap-2 mb-2 flex-wrap">
               <text class="text-[40rpx] font-bold text-on-surface">{{ userInfo.nickname || '未设置昵称' }}</text>
               <text v-if="userInfo.gender === 1" class="material-symbols-outlined text-[32rpx] text-[#5BA4F0]"
                 >male</text
@@ -104,6 +94,21 @@
               <text v-else-if="userInfo.gender === 2" class="material-symbols-outlined text-[32rpx] text-[#FF8FA3]"
                 >female</text
               >
+              <view
+                v-if="userInfo.isRealNameAuth === true"
+                class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#5BA4F0]/10 text-[#5BA4F0]"
+              >
+                <text class="material-symbols-outlined text-[20rpx]">verified</text>
+                <text class="text-[22rpx] font-bold">已实名</text>
+              </view>
+              <!-- TODO: 等后端接口返回 isRealNameAuth 字段后启用未实名提示 -->
+              <view
+                v-else-if="userInfo.isRealNameAuth === false"
+                class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FFEBEE] text-[#E57373]"
+              >
+                <text class="material-symbols-outlined text-[20rpx]">error</text>
+                <text class="text-[22rpx] font-bold">未实名</text>
+              </view>
             </view>
 
             <!-- 签名 -->
