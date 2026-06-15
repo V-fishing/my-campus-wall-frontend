@@ -31,35 +31,36 @@
       </view>
     </view>
 
-    <!-- 左侧侧边栏浮窗 -->
-    <view v-if="showSidebar" class="fixed inset-0 z-[60]">
-      <!-- 遮罩层 -->
-      <view class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+    <!-- 左侧对话历史侧边栏 -->
+    <view v-if="showSidebar" class="fixed inset-0 z-[60] sidebar-overlay">
+      <!-- 半透明遮罩：盖住后面页面 -->
+      <view class="absolute inset-0 bg-black/25 backdrop-blur-[2px] transition-opacity"
             @click="showSidebar = false"></view>
+
       <!-- 侧边栏面板（从左侧滑入） -->
-      <view class="absolute top-0 left-0 h-full w-[75vw] max-w-[320px] bg-surface shadow-2xl flex flex-col sidebar-slide-in"
+      <view class="absolute top-0 left-0 h-full w-[72vw] max-w-[300px] bg-white/95 shadow-2xl flex flex-col sidebar-slide-in"
             :style="{ paddingTop: (statusBarHeight + 8) + 'px' }">
 
         <!-- 侧边栏头部 -->
-        <view class="flex items-center justify-between px-4 py-3 border-b border-outline-variant/20">
-          <text class="font-headline-md-mobile text-[30rpx] text-primary font-bold">对话历史</text>
-          <view class="w-8 h-8 flex items-center justify-center text-on-surface-variant active:scale-95 transition-transform rounded-full"
+        <view class="flex items-center justify-between px-5 py-4">
+          <text class="font-headline-md-mobile text-[32rpx] text-on-surface font-bold">对话历史</text>
+          <view class="w-9 h-9 flex items-center justify-center text-on-surface-variant active:scale-95 transition-transform rounded-full"
                 @click="showSidebar = false">
-            <text class="material-symbols-outlined text-[32rpx]">close</text>
+            <text class="material-symbols-outlined text-[36rpx]">close</text>
           </view>
         </view>
 
         <!-- 新建对话按钮 -->
-        <view class="px-4 py-3 border-b border-outline-variant/10">
-          <view class="flex items-center gap-2 px-4 py-3 rounded-full bg-white border border-outline-variant/20 active:scale-[0.98] transition-transform"
+        <view class="px-5 pb-3">
+          <view class="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-white border border-[#E57373] active:scale-[0.98] transition-transform shadow-sm"
                 @click="startNewChat">
-            <text class="material-symbols-outlined text-primary text-[28rpx]">add</text>
-            <text class="font-label-md-mobile text-[26rpx] text-primary font-bold">新建对话</text>
+            <text class="material-symbols-outlined text-[#E57373] text-[28rpx]">add</text>
+            <text class="font-label-md-mobile text-[28rpx] text-[#E57373] font-bold">新建对话</text>
           </view>
         </view>
 
         <!-- 历史对话列表 -->
-        <scroll-view scroll-y class="flex-1 px-4 py-2">
+        <scroll-view scroll-y class="flex-1 px-5 py-2">
           <view v-if="sidebarLoading" class="flex flex-col items-center justify-center py-12">
             <text class="material-symbols-outlined animate-spin text-primary text-[40rpx]">sync</text>
             <text class="text-[24rpx] text-outline-variant mt-2">加载中...</text>
@@ -70,31 +71,21 @@
             <text class="text-[26rpx] text-outline-variant mt-3">还没有对话记录</text>
           </view>
 
-          <view v-else class="space-y-2">
+          <view v-else class="space-y-3">
             <view v-for="item in historyList" :key="item.sessionId"
-                  class="flex items-center gap-3 p-3 rounded-[20rpx] transition-all active:bg-surface-container-low"
-                  :class="item.sessionId === conversationId ? 'bg-primary-container/20 border border-primary/20' : ''"
+                  class="flex items-start gap-3 p-3 rounded-[24rpx] transition-all active:bg-surface-container-low"
+                  :class="item.sessionId === conversationId ? 'bg-[#E3F2FD]' : ''"
                   @click="switchToSession(item.sessionId)">
-              <view class="w-8 h-8 rounded-full bg-tertiary-container/30 flex items-center justify-center shrink-0">
-                <text class="material-symbols-outlined text-on-tertiary-container text-[24rpx]">smart_toy</text>
+              <view class="w-10 h-10 rounded-full bg-[#90CAF9] flex items-center justify-center shrink-0 mt-0.5">
+                <text class="material-symbols-outlined text-white text-[28rpx]">smart_toy</text>
               </view>
               <view class="flex-1 min-w-0">
-                <text class="block text-[26rpx] font-bold text-on-surface truncate">{{ item.firstQuestion || '新的对话' }}</text>
-                <text class="block text-[20rpx] text-outline-variant mt-0.5">{{ item.createTime }}</text>
+                <text class="block text-[28rpx] font-bold text-on-surface truncate leading-tight">{{ item.firstQuestion || '新的对话' }}</text>
+                <text class="block text-[22rpx] text-outline-variant mt-1.5">{{ item.createTime }}</text>
               </view>
-              <text v-if="item.sessionId === conversationId" class="material-symbols-outlined text-primary text-[24rpx]">check_circle</text>
             </view>
           </view>
         </scroll-view>
-
-        <!-- 侧边栏底部：偏好设置入口 -->
-        <view class="px-4 py-3 border-t border-outline-variant/20 bg-surface-container-low/30">
-          <view class="flex items-center gap-2 px-3 py-2 rounded-full active:bg-surface-container-low transition-colors"
-                @click="goToPreferenceFromSidebar">
-            <text class="material-symbols-outlined text-on-surface-variant text-[28rpx]">tune</text>
-            <text class="text-[26rpx] text-on-surface-variant font-medium">AI 偏好设置</text>
-          </view>
-        </view>
       </view>
     </view>
 
