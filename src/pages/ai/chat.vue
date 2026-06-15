@@ -159,14 +159,15 @@
 
             <!-- 智能推荐帖子卡片（08）：AI 把匹配帖子推给你，问"是这个吗?" -->
             <view v-if="msg.role === 'ai' && msg.posts && msg.posts.length > 0" class="space-y-2 mt-1">
-              <view v-for="card in msg.posts" :key="card.post.id" class="ai-post-card" @click="goToPostDetail(card.post.id)">
-                <image v-if="card.post.images && card.post.images.length" :src="card.post.images[0]" class="ai-post-thumb" mode="aspectFill"></image>
+              <view v-for="(card, cardIndex) in msg.posts" :key="(card.post && card.post.id) || card.id || cardIndex" class="ai-post-card" @click="goToPostDetail((card.post && card.post.id) || card.id)">
+                <image v-if="card.post && card.post.images && card.post.images.length" :src="card.post.images[0]" class="ai-post-thumb" mode="aspectFill"></image>
+                <image v-else-if="card.images && card.images.length" :src="card.images[0]" class="ai-post-thumb" mode="aspectFill"></image>
                 <view v-else class="ai-post-thumb ai-post-thumb--empty">
                   <text class="material-symbols-outlined text-[40rpx]">image</text>
                 </view>
                 <view class="flex-1 min-w-0">
                   <text v-if="card.matchReason" class="ai-post-reason">{{ card.matchReason }}</text>
-                  <text class="ai-post-excerpt">{{ card.post.content }}</text>
+                  <text class="ai-post-excerpt">{{ (card.post && card.post.content) || card.content || '' }}</text>
                   <view class="ai-post-cta">是这个 →</view>
                 </view>
               </view>
@@ -398,6 +399,21 @@ const renderMarkdown = (content) => {
   return `<div style="color: #1d1b1b; font-size: 15px; line-height: 1.625; word-break: break-word;">${html}</div>`
 }
 
+// 统一 AI 返回的帖子卡片格式，兼容 { post, matchReason } 与直接 post 对象两种形式
+const normalizePostCards = (posts) => {
+  if (!Array.isArray(posts)) return []
+  return posts.filter(Boolean).map((card) => {
+    if (!card) return null
+    if (card.post && typeof card.post === 'object') {
+      return card
+    }
+    if (card.id || card.content !== undefined) {
+      return { post: card, matchReason: card.matchReason || '' }
+    }
+    return null
+  }).filter(Boolean)
+}
+
 // 发送消息：单一入口，交给后端 agent 自主判断（查知识库 / 查帖子 / 两者综合）
 const sendMessage = async () => {
   if (!inputText.value.trim() || isThinking.value) return
@@ -425,7 +441,7 @@ const sendMessage = async () => {
         id: 'msg-' + Date.now(),
         role: 'ai',
         content: aiData.answer,
-        posts: aiData.posts || [],   // agent 命中帖子时返回卡片，模板自动渲染
+        posts: normalizePostCards(aiData.posts),   // agent 命中帖子时返回卡片，模板自动渲染
         source: ''
       })
     } else {
