@@ -332,6 +332,30 @@ export const aiApi = {
     params: {
       sessionId
     }
+  }),
+  // AI 发帖 · 出草稿：把发帖诉求(文本 + 已上传图片 object name)交给后端，返回 {draftId, draft, status}
+  startDraft: (conversationId, text, images = []) => ({
+    url: '/api/v1/ai-senior/posts/draft',
+    method: 'POST',
+    data: {
+      conversationId,
+      text,
+      images
+    }
+  }),
+  // AI 发帖 · 续接：对草稿执行 edit / publish / cancel
+  resumeDraft: (draftId, action, patch = '') => ({
+    url: `/api/v1/ai-senior/posts/resume/${draftId}`,
+    method: 'POST',
+    data: {
+      action, // 'edit' | 'publish' | 'cancel'
+      patch
+    }
+  }),
+  // AI 发帖 · 丢弃草稿
+  cancelDraft: (draftId) => ({
+    url: `/api/v1/ai-senior/posts/draft/${draftId}`,
+    method: 'DELETE'
   })
 }
 

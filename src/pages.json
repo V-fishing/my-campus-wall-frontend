@@ -94,6 +94,13 @@
       }
     },
     {
+      "path": "pages/ai/post-draft",
+      "style": {
+        "navigationBarTitleText": "AI 帮我发帖",
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/message/message",
       "style": {
         "navigationBarTitleText": "消息"
