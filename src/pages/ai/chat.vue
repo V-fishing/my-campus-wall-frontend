@@ -192,7 +192,8 @@
     <!-- 底部输入区域 -->
     <view class="fixed left-0 w-full z-40 bg-[#F4F5F7] px-margin-page pb-4 pt-8" style="bottom: calc(120rpx + env(safe-area-inset-bottom));">
       <view class="bg-white rounded-full h-[112rpx] flex items-center px-4 gap-3 border border-outline-variant/30">
-        <view class="text-on-surface-variant active:text-primary transition-colors flex items-center justify-center">
+        <view class="text-on-surface-variant active:text-primary active:scale-90 transition-all flex items-center justify-center"
+              @click="goToAiPost">
           <text class="material-symbols-outlined text-[56rpx]">add_circle</text>
         </view>
 
@@ -295,6 +296,8 @@ const loadHistoryMessages = async (sessionId) => {
         id: 'msg-' + idx,
         role: record.role === 'USER' ? 'user' : 'ai',
         content: record.content,
+        // 历史 AI 回复里的帖子卡片存在 metadataJson(JSON 文本)里，回放时还原，避免切换会话/刷新后帖子丢失
+        posts: record.role === 'USER' ? undefined : normalizePostCards(parsePostsFromMeta(record.metadataJson)),
         source: ''
       }))
 
@@ -367,6 +370,14 @@ const goToPreference = () => {
   })
 }
 
+// 跳转「AI 帮我发帖」页面（带上当前会话 id 以便草稿归属同一会话）
+const goToAiPost = () => {
+  if (conversationId.value) {
+    uni.setStorageSync('activeSessionId', conversationId.value)
+  }
+  uni.navigateTo({ url: '/pages/ai/post-draft' })
+}
+
 // 从侧边栏跳转偏好设置
 const goToPreferenceFromSidebar = () => {
   showSidebar.value = false
@@ -388,6 +399,21 @@ const renderMarkdown = (content) => {
   if (!content) return ''
   const html = marked.parse(content, { breaks: true, gfm: true })
   return `<div style="color: #1d1b1b; font-size: 15px; line-height: 1.625; word-break: break-word;">${html}</div>`
+}
+
+// 从历史记录的 metadataJson 里取出帖子卡片数组。
+// 后端 metadata_json 列经 Java 实体以 JSON 文本返回（也兼容已是对象的情况），形如 { posts: [...] }。
+const parsePostsFromMeta = (metadataJson) => {
+  if (!metadataJson) return []
+  let meta = metadataJson
+  if (typeof metadataJson === 'string') {
+    try {
+      meta = JSON.parse(metadataJson)
+    } catch (e) {
+      return []
+    }
+  }
+  return (meta && Array.isArray(meta.posts)) ? meta.posts : []
 }
 
 // 统一 AI 返回的帖子卡片格式，兼容 { post, matchReason } 与直接 post 对象两种形式

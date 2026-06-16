@@ -80,6 +80,10 @@ export interface AiApi {
   agent: (question: string, conversationId?: string) => ApiConfig
   getHistory: (userId: number) => ApiConfig
   getHistoryDetail: (sessionId: string) => ApiConfig
+  // AI 帮我发帖（HITL）
+  startDraft: (conversationId: string, text: string, images?: string[]) => ApiConfig
+  resumeDraft: (draftId: string, action: 'edit' | 'publish' | 'cancel', patch?: string) => ApiConfig
+  cancelDraft: (draftId: string) => ApiConfig
 }
 
 // 搜索相关接口类型
