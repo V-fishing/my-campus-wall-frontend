@@ -159,9 +159,13 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { onBackPress } from '@dcloudio/uni-app'
 import { request } from '@/utils/request.js'
 import { aiApi, fileApi } from '@/api/index.js'
 import { config } from '@/config'
+
+// AI 出草稿/改稿要走 LLM(+VLM 看图)，远超 request 默认 10s，给足超时避免误报失败
+const AI_TIMEOUT = 90000
 
 const statusBarHeight = ref(uni.getSystemInfoSync().statusBarHeight || 20)
 
@@ -191,7 +195,35 @@ function uploadedObjectNames() {
   return previews.value.filter(p => p.status === 'success' && p.objectName).map(p => p.objectName)
 }
 
-const goBack = () => uni.navigateBack({ delta: 1 })
+// 草稿未发布时离开 → 确认并丢弃草稿（避免服务端残留 awaiting 草稿到过期）
+function doLeave() {
+  if (draftId.value && phase.value !== 'done') {
+    request(aiApi.cancelDraft(draftId.value)).catch(() => {})
+  }
+  uni.navigateBack({ delta: 1 })
+}
+function attemptLeave() {
+  if (phase.value === 'draft' && draftId.value) {
+    uni.showModal({
+      title: '放弃草稿？',
+      content: '草稿还没发布，离开会丢弃它',
+      confirmText: '放弃',
+      cancelText: '继续编辑',
+      success: (r) => { if (r.confirm) doLeave() }
+    })
+  } else {
+    uni.navigateBack({ delta: 1 })
+  }
+}
+const goBack = attemptLeave
+// 拦截系统/手势返回，走同一确认
+onBackPress(() => {
+  if (phase.value === 'draft' && draftId.value) {
+    attemptLeave()
+    return true
+  }
+  return false
+})
 
 const chooseImage = () => {
   const count = 9 - previews.value.length
@@ -246,7 +278,7 @@ const generateDraft = async () => {
   }
   loading.value = true
   try {
-    const res = await request(aiApi.startDraft(conversationId.value, userText.value.trim(), uploadedObjectNames()))
+    const res = await request({ ...aiApi.startDraft(conversationId.value, userText.value.trim(), uploadedObjectNames()), timeout: AI_TIMEOUT })
     if (res.code === 200 && res.data && res.data.draftId) {
       draftId.value = res.data.draftId
       draft.value = res.data.draft || {}
@@ -266,7 +298,7 @@ const submitEdit = async () => {
   if (!patchText.value.trim() || loading.value) return
   loading.value = true
   try {
-    const res = await request(aiApi.resumeDraft(draftId.value, 'edit', patchText.value.trim()))
+    const res = await request({ ...aiApi.resumeDraft(draftId.value, 'edit', patchText.value.trim()), timeout: AI_TIMEOUT })
     if (res.code === 200 && res.data && res.data.draft) {
       draft.value = res.data.draft
       roundCount.value = res.data.round_count || roundCount.value + 1
@@ -286,10 +318,12 @@ const publish = async () => {
   if (loading.value) return
   loading.value = true
   try {
-    const res = await request(aiApi.resumeDraft(draftId.value, 'publish'))
+    const res = await request({ ...aiApi.resumeDraft(draftId.value, 'publish'), timeout: AI_TIMEOUT })
     const data = res.data || {}
     if (res.code === 200 && data.status === 'published') {
       publishedPostId.value = data.postId || null
+      // 与手动发帖一致：通知圈子/发现页刷新，新帖才会出现
+      uni.setStorageSync('hasNewPost', true)
       phase.value = 'done'
     } else if (data.error) {
       // 校验未过（如二手缺价格），停在草稿页提示用户补充
