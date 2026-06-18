@@ -121,6 +121,11 @@
                 <view class="px-3 py-1.5 rounded-full bg-primary-fixed/50 text-primary text-[24rpx] font-medium active:scale-95 transition-transform" @click="sendQuickMsg('有没有人出售二手自行车？')">🚲 找二手好物</view>
                 <view class="px-3 py-1.5 rounded-full bg-primary-fixed/50 text-primary text-[24rpx] font-medium active:scale-95 transition-transform" @click="sendQuickMsg('有没有靠谱的兼职推荐？')">💼 找兼职</view>
               </view>
+              <text class="font-label-sm-mobile text-on-surface-variant ml-1 block mt-3">帮你发帖 ✍️（说一句，学长写好草稿你确认）</text>
+              <view class="flex flex-wrap gap-2">
+                <view class="px-3 py-1.5 rounded-full bg-tertiary-fixed/50 text-tertiary text-[24rpx] font-medium active:scale-95 transition-transform" @click="sendQuickMsg('帮我发个二手帖：出一台9成新iPad Air5，要价2600可小刀')">📱 发个二手</view>
+                <view class="px-3 py-1.5 rounded-full bg-tertiary-fixed/50 text-tertiary text-[24rpx] font-medium active:scale-95 transition-transform" @click="sendQuickMsg('帮我发个组队帖：周末爬山，找3个同学一起')">🧗 发个组队</view>
+              </view>
             </view>
           </view>
         </view>
@@ -139,6 +144,7 @@
 
           <view class="flex flex-col gap-2 max-w-[80%]">
             <view
+              v-if="msg.type !== 'draft'"
               class="p-4"
               :class="msg.role === 'user' ?
                 'bubble-user text-white rounded-[40rpx] rounded-tr-none bg-tertiary' :
@@ -146,6 +152,44 @@
             >
               <text v-if="msg.role === 'user'" class="font-body-lg-mobile block leading-relaxed text-white">{{ msg.content }}</text>
               <rich-text v-else class="font-body-lg-mobile block leading-relaxed text-on-surface" :nodes="renderMarkdown(msg.content)"></rich-text>
+            </view>
+
+            <!-- ===== AI 发帖草稿卡片（对话内联，不跳页） ===== -->
+            <view v-if="msg.type === 'draft'" class="draft-card" :class="msg.status === 'superseded' ? 'draft-card--old' : ''">
+              <view class="draft-head">
+                <text class="draft-cat">{{ msg.draft.category || '推荐' }}</text>
+                <text v-if="msg.roundCount > 0" class="draft-round">已改 {{ msg.roundCount }} 版</text>
+                <text v-if="msg.status === 'published'" class="draft-badge draft-badge--ok">已发布 ✓</text>
+                <text v-else-if="msg.status === 'cancelled'" class="draft-badge draft-badge--cancel">已取消</text>
+              </view>
+
+              <text class="draft-content">{{ msg.draft.content }}</text>
+
+              <view v-if="draftImageUrls(msg.draft).length" class="draft-imgs">
+                <image v-for="(u, i) in draftImageUrls(msg.draft)" :key="i" :src="u" class="draft-img" mode="aspectFill" />
+              </view>
+
+              <view v-if="msg.draft.ai_tags && msg.draft.ai_tags.length" class="draft-chips">
+                <text v-for="(t, i) in msg.draft.ai_tags" :key="i" class="draft-chip">#{{ t }}</text>
+              </view>
+
+              <view class="draft-fields">
+                <text v-if="msg.draft.price != null || msg.draft.negotiable" class="draft-field draft-field--price">💰 {{ msg.draft.price != null ? ('¥' + msg.draft.price) : '' }}{{ msg.draft.negotiable ? ' 可议价' : '' }}</text>
+                <text v-if="msg.draft.salary" class="draft-field">💼 {{ msg.draft.salary }}</text>
+                <text v-if="msg.draft.location" class="draft-field">📍 {{ msg.draft.location }}</text>
+              </view>
+
+              <view v-if="msg.error" class="draft-error">⚠ {{ msg.error }}</view>
+
+              <template v-if="msg.status === 'awaiting'">
+                <view class="draft-actions">
+                  <view class="draft-btn draft-btn--publish" @click="publishDraft(msg.draftId)">确认发布</view>
+                  <view class="draft-btn draft-btn--cancel" @click="cancelInlineDraft(msg.draftId)">取消</view>
+                </view>
+                <text class="draft-hint">想改直接在下面说，例如「价格改成 200」「换成组队板块」「正文再热情点」</text>
+              </template>
+
+              <view v-if="msg.status === 'published' && msg.postId" class="draft-btn draft-btn--view" @click="goToPostDetail(msg.postId)">去看看我的帖子 →</view>
             </view>
 
             <!-- 智能推荐帖子卡片（08）：AI 把匹配帖子推给你，问"是这个吗?" -->
@@ -191,16 +235,36 @@
 
     <!-- 底部输入区域 -->
     <view class="fixed left-0 w-full z-40 bg-[#F4F5F7] px-margin-page pb-4 pt-8" style="bottom: calc(120rpx + env(safe-area-inset-bottom));">
+      <!-- 发帖中常驻状态条：即使草稿卡片被滚走/清掉也能退出 -->
+      <view v-if="activeDraftId" class="flex items-center justify-between mb-2 px-4 py-2 rounded-full bg-tertiary/10">
+        <text class="text-[22rpx] text-tertiary font-medium">✍️ 发帖中 · 想改直接在下面说</text>
+        <view class="px-3 py-1 rounded-full bg-white text-[22rpx] text-on-surface-variant active:scale-95" @click="exitDraftMode">退出</view>
+      </view>
+      <!-- 待发图片预览（点 ＋ 选的图，随下一条发帖描述一起发） -->
+      <view v-if="pendingImages.length" class="flex gap-2 mb-2 px-1">
+        <view v-for="(img, i) in pendingImages" :key="i" class="relative w-16 h-16 rounded-xl overflow-hidden bg-surface-variant">
+          <image :src="img.preview" class="w-full h-full" mode="aspectFill" />
+          <view class="absolute top-0 right-0 w-5 h-5 rounded-full bg-black/55 flex items-center justify-center" @click="removePendingImage(i)">
+            <text class="material-symbols-outlined text-white text-[24rpx]">close</text>
+          </view>
+          <view v-if="img.status === 'uploading'" class="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <text class="material-symbols-outlined text-white animate-spin text-[28rpx]">sync</text>
+          </view>
+          <view v-if="img.status === 'error'" class="absolute inset-0 bg-black/55 flex items-center justify-center" @click="removePendingImage(i)">
+            <text class="text-white text-[18rpx]">失败</text>
+          </view>
+        </view>
+      </view>
       <view class="bg-white rounded-full h-[112rpx] flex items-center px-4 gap-3 border border-outline-variant/30">
         <view class="text-on-surface-variant active:text-primary active:scale-90 transition-all flex items-center justify-center"
-              @click="goToAiPost">
+              @click="choosePostImages">
           <text class="material-symbols-outlined text-[56rpx]">add_circle</text>
         </view>
 
         <input
           class="flex-grow bg-transparent border-none focus:ring-0 text-on-surface font-body-lg-mobile h-full"
           v-model="inputText"
-          placeholder="问问嘉应AI学长..."
+          :placeholder="inputPlaceholder"
           confirm-type="send"
           @confirm="sendMessage"
         />
@@ -220,12 +284,16 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, computed, nextTick, onMounted } from 'vue'
 import { marked } from 'marked'
 import { onShow } from '@dcloudio/uni-app'
 import { request, get } from '@/utils/request'
-import { aiApi } from '@/api/index'
+import { aiApi, fileApi } from '@/api/index'
+import { config } from '@/config'
 import { useUserStore } from '@/stores/user'
+
+// AI 出草稿/改稿走 LLM(+VLM 看图)，远超 request 默认 10s
+const AI_TIMEOUT = 90000
 
 // 获取系统状态栏高度
 const systemInfo = uni.getSystemInfoSync()
@@ -247,6 +315,17 @@ const currentUserId = ref(userStore.userId || 0)
 const showSidebar = ref(false)
 const historyList = ref([])
 const sidebarLoading = ref(false)
+
+// 对话内联「AI 发帖」状态
+const activeDraftId = ref('')          // 非空 = 正处于草稿编辑中，下一条文本走"改稿"
+const pendingImages = ref([])          // ＋ 选的待发图片 [{ preview, objectName, status }]
+
+// 输入框 placeholder 随状态变化，引导用户
+const inputPlaceholder = computed(() => {
+  if (activeDraftId.value) return '想怎么改直接说，或点卡片「确认发布」…'
+  if (pendingImages.value.length) return '说说要发什么，学长照图写草稿…'
+  return '问问 / 说「帮我发个…」让学长直接发帖'
+})
 
 // 页面加载时检查参数
 onMounted(() => {
@@ -277,6 +356,7 @@ onMounted(() => {
 onShow(() => {
   const activeSessionId = uni.getStorageSync('activeSessionId')
   if (activeSessionId && activeSessionId !== conversationId.value) {
+    clearInlineDraft()
     conversationId.value = activeSessionId
     messageList.value = []
     loadHistoryMessages(activeSessionId)
@@ -348,6 +428,7 @@ const switchToSession = (sessionId) => {
     showSidebar.value = false
     return
   }
+  clearInlineDraft()
   conversationId.value = sessionId
   showSidebar.value = false
   messageList.value = []
@@ -356,6 +437,7 @@ const switchToSession = (sessionId) => {
 
 // 新建对话
 const startNewChat = () => {
+  clearInlineDraft()
   conversationId.value = ''
   showSidebar.value = false
   messageList.value = []
@@ -370,22 +452,67 @@ const goToPreference = () => {
   })
 }
 
-// 跳转「AI 帮我发帖」页面（带上当前会话 id 以便草稿归属同一会话）
-const goToAiPost = () => {
-  if (conversationId.value) {
-    uni.setStorageSync('activeSessionId', conversationId.value)
-  }
-  uni.navigateTo({ url: '/pages/ai/post-draft' })
+// ＋ 按钮：为「AI 发帖」选图（直接在对话里发，不跳页）
+const choosePostImages = () => {
+  if (isThinking.value) return
+  const remain = 9 - pendingImages.value.length
+  if (remain <= 0) { uni.showToast({ title: '最多 9 张', icon: 'none' }); return }
+  uni.chooseImage({
+    count: remain,
+    sizeType: ['compressed'],
+    sourceType: ['album', 'camera'],
+    success: (res) => {
+      res.tempFilePaths.forEach((fp) => {
+        const item = { preview: fp, objectName: '', status: 'uploading' }
+        pendingImages.value.push(item)
+        uploadPendingImage(fp, item)
+      })
+      uni.showToast({ title: '图已加，说说要发什么', icon: 'none' })
+    }
+  })
 }
 
-// 从侧边栏跳转偏好设置
-const goToPreferenceFromSidebar = () => {
-  showSidebar.value = false
-  setTimeout(() => {
-    uni.navigateTo({
-      url: '/pages/ai/preference'
-    })
-  }, 150)
+const uploadPendingImage = (filePath, item) => {
+  const token = uni.getStorageSync('token')
+  uni.uploadFile({
+    url: `${config.apiBaseUrl}${fileApi.uploadPostTempImage().url}`,
+    filePath, name: 'file',
+    header: { Authorization: `Bearer ${token}` },
+    success: (res) => {
+      try {
+        const data = JSON.parse(res.data)
+        if (data.code === 200) { item.objectName = data.data.objectName; item.status = 'success' }
+        else item.status = 'error'
+      } catch (e) { item.status = 'error' }
+    },
+    fail: () => { item.status = 'error' }
+  })
+}
+
+const removePendingImage = (i) => pendingImages.value.splice(i, 1)
+const pendingObjectNames = () => pendingImages.value.filter(p => p.status === 'success' && p.objectName).map(p => p.objectName)
+
+// 草稿图 objectName → 可显示 URL（小程序 HTTPS 经后端代理视图）
+const draftImageUrls = (draft) => {
+  const objs = (draft && draft.images) || []
+  return objs.map(o => `${config.apiBaseUrl}/api/v1/files/view?objectName=${encodeURIComponent(o)}`)
+}
+
+// 判断是否"让 AI 替我发帖"：祈使骨架优先（避免被"攻略/流程"误排除），再排除纯问法
+const isPostIntent = (text) => {
+  const t = (text || '').trim()
+  // 1) 明确的"帮我发 / 我要发"祈使骨架，最高优先
+  const imperative = /(帮|替|给|帮忙|麻烦帮?)\s*我?\s*(发|写|发布|发个|发条|发一条|发布个)/.test(t)
+    || /我?\s*(要|想|想要)\s*(发帖|发个|发条|发一条|发布|发篇)/.test(t)
+  if (imperative) return true
+  // 2) 纯问法 → 交给问答
+  if (/(怎么|怎样|如何|为什么)/.test(t)) return false
+  if (/发帖.{0,6}(技巧|经验|攻略|流程|教程|步骤|注意|要求|规则|时间|入口|吗|呢|\?|？)/.test(t)) return false
+  // 3) 校园墙高频"裸祈使"发帖原话：出/收/求购/转/招 + 物品量词
+  if (/^(出|收|求购|转|招|出售|转让|转卖|急出|低价出|招募)\s*.{0,14}(\d|台|个|本|张|套|双|箱|斤|元|块|￥|室友|队友|搭子|门票|显示器|键盘|自行车|课本|教材|耳机|电脑|手机|平板)/.test(t)) return true
+  // 4) 直白提到"发帖"
+  if (/(发帖|代发帖|ai发帖|帮我发帖)/.test(t)) return true
+  return false
 }
 
 // 点击快捷问题
@@ -431,58 +558,187 @@ const normalizePostCards = (posts) => {
   }).filter(Boolean)
 }
 
-// 发送消息：单一入口，交给后端 agent 自主判断（查知识库 / 查帖子 / 两者综合）
+// 发送：按状态路由 —— 退出发帖 / 改稿 / 起草稿(发帖意图或带图) / 普通问答
 const sendMessage = async () => {
   if (!inputText.value.trim() || isThinking.value) return
-
   const userText = inputText.value
-  const msgId = 'msg-' + Date.now()
-  messageList.value.push({ id: msgId, role: 'user', content: userText })
-  inputText.value = ''
+  const wantDraft = !activeDraftId.value && (isPostIntent(userText) || pendingObjectNames().length > 0)
 
+  // 起草稿前若图还在上传，先拦住（避免静默掉图）
+  if (wantDraft && pendingImages.value.some(p => p.status === 'uploading')) {
+    uni.showToast({ title: '图还在上传，稍等一下再发', icon: 'none' })
+    return
+  }
+
+  messageList.value.push({ id: 'msg-' + Date.now(), role: 'user', content: userText })
+  inputText.value = ''
   scrollToBottom()
 
-  isThinking.value = true
+  if (activeDraftId.value) {
+    // 文本退出意图 → 直接取消，跳出"改稿模式"，不再硬路由到改稿
+    if (/^(算了|不发了|不发啦|取消|退出|不改了|不想发了|结束)/.test(userText.trim())) {
+      cancelInlineDraft(activeDraftId.value)
+    } else {
+      await editActiveDraft(userText)
+    }
+  } else if (wantDraft) {
+    await startInlineDraft(userText)
+  } else {
+    await askAgent(userText)
+  }
+}
 
+// 普通问答：单一入口，交给后端 agent 自主判断（查知识库 / 查帖子 / 两者综合）
+const askAgent = async (userText) => {
+  isThinking.value = true
   try {
     const res = await request(aiApi.agent(userText, conversationId.value))
     isThinking.value = false
-
     if (res.code === 200 && res.data && res.data.success) {
       const aiData = res.data
-      if (aiData.conversationId) {
-        conversationId.value = aiData.conversationId
-      }
-
+      if (aiData.conversationId) conversationId.value = aiData.conversationId
       messageList.value.push({
-        id: 'msg-' + Date.now(),
-        role: 'ai',
-        content: aiData.answer,
-        posts: normalizePostCards(aiData.posts),   // agent 命中帖子时返回卡片，模板自动渲染
-        source: ''
+        id: 'msg-' + Date.now(), role: 'ai', content: aiData.answer,
+        posts: normalizePostCards(aiData.posts), source: ''
       })
     } else {
-      messageList.value.push({
-        id: 'msg-' + Date.now(),
-        role: 'ai',
-        content: '抱歉，学长暂时无法回答这个问题，请稍后再试。',
-        source: ''
-      })
+      messageList.value.push({ id: 'msg-' + Date.now(), role: 'ai', content: '抱歉，学长暂时无法回答这个问题，请稍后再试。', source: '' })
     }
-
     scrollToBottom()
-
   } catch (error) {
     console.error('AI 助手失败:', error)
     isThinking.value = false
-    messageList.value.push({
-      id: 'msg-' + Date.now(),
-      role: 'ai',
-      content: '网络开小差了，请稍后再试~',
-      source: ''
-    })
+    messageList.value.push({ id: 'msg-' + Date.now(), role: 'ai', content: '网络开小差了，请稍后再试~', source: '' })
     scrollToBottom()
   }
+}
+
+// 起草稿：AI 发帖入口（对话内联弹卡片，不跳页）
+const startInlineDraft = async (userText) => {
+  // 草稿的 conversation_id 仅后端存在草稿行上；不要污染真实 conversationId(由问答返回时才赋值)
+  const cid = conversationId.value || ('chat-' + Date.now())
+  const images = pendingObjectNames()
+  isThinking.value = true
+  try {
+    const res = await request({ ...aiApi.startDraft(cid, userText.trim(), images), timeout: AI_TIMEOUT })
+    isThinking.value = false
+    if (res.code === 200 && res.data && res.data.draftId) {
+      activeDraftId.value = res.data.draftId
+      pendingImages.value = []
+      pushDraftCard(res.data.draftId, res.data.draft || {}, res.data.round_count || 0)
+    } else {
+      messageList.value.push({ id: 'msg-' + Date.now(), role: 'ai', content: (res.data && res.data.error) || '草稿没生成出来，换个说法再试试~', source: '' })
+    }
+    scrollToBottom()
+  } catch (e) {
+    isThinking.value = false
+    messageList.value.push({ id: 'msg-' + Date.now(), role: 'ai', content: '生成草稿超时了，稍后再试~', source: '' })
+    scrollToBottom()
+  }
+}
+
+// 改稿：草稿编辑中，用户这条文本即"改稿指令"
+const editActiveDraft = async (userText) => {
+  isThinking.value = true
+  try {
+    const res = await request({ ...aiApi.resumeDraft(activeDraftId.value, 'edit', userText.trim()), timeout: AI_TIMEOUT })
+    isThinking.value = false
+    const data = (res && res.data) || {}
+    if (res.code === 200 && data.status === 'published') {
+      // 改到第 6 版后端会直接尝试发布
+      finishPublished(activeDraftId.value, data.postId)
+    } else if (res.code === 200 && data.draft) {
+      // 改到第6版后端可能自动尝试发布失败→同时带 draft 与 error，把 error 透传到新卡片
+      supersedeActiveDraftCards()
+      pushDraftCard(activeDraftId.value, data.draft, data.round_count || 0, data.error || '')
+    } else if (data.error) {
+      const card = currentAwaitingCard()
+      if (card) card.error = data.error
+    } else {
+      messageList.value.push({ id: 'msg-' + Date.now(), role: 'ai', content: '这处没改成，换个说法告诉我？', source: '' })
+    }
+    scrollToBottom()
+  } catch (e) {
+    isThinking.value = false
+    messageList.value.push({ id: 'msg-' + Date.now(), role: 'ai', content: '改稿超时了，再说一次~', source: '' })
+    scrollToBottom()
+  }
+}
+
+// 往消息流插入一张草稿卡片
+const pushDraftCard = (draftId, draft, roundCount, error = '') => {
+  messageList.value.push({
+    id: 'msg-' + Date.now(), role: 'ai', type: 'draft',
+    draftId, draft, roundCount, status: 'awaiting', error
+  })
+}
+
+// 当前 activeDraftId 的待操作卡片
+const currentAwaitingCard = () =>
+  messageList.value.find(m => m.type === 'draft' && m.draftId === activeDraftId.value && m.status === 'awaiting')
+
+// 把旧的待操作草稿卡标记为 superseded（隐藏其按钮，只留最新一张可操作）
+const supersedeActiveDraftCards = () => {
+  messageList.value.forEach(m => {
+    if (m.type === 'draft' && m.draftId === activeDraftId.value && m.status === 'awaiting') m.status = 'superseded'
+  })
+}
+
+// 发布成功收尾
+const finishPublished = (draftId, postId) => {
+  // 当前可操作的就是 awaiting 那张；回放后卡片可能不在(找不到则只清状态+提示)
+  const card = messageList.value.find(m => m.type === 'draft' && m.draftId === draftId && m.status === 'awaiting')
+  if (card) { card.status = 'published'; card.postId = postId || null; card.error = '' }
+  activeDraftId.value = ''
+  uni.setStorageSync('hasNewPost', true)
+  messageList.value.push({ id: 'msg-' + Date.now(), role: 'ai', content: '✅ 帮你发出去啦！可以在「圈子」里看到这条帖子～', source: '' })
+}
+
+// 确认发布（卡片按钮）
+const publishDraft = async (draftId) => {
+  if (isThinking.value) return
+  isThinking.value = true
+  try {
+    const res = await request({ ...aiApi.resumeDraft(draftId, 'publish'), timeout: AI_TIMEOUT })
+    isThinking.value = false
+    const data = (res && res.data) || {}
+    if (res.code === 200 && data.status === 'published') {
+      finishPublished(draftId, data.postId)
+    } else if (data.error) {
+      const card = messageList.value.find(m => m.type === 'draft' && m.draftId === draftId && m.status === 'awaiting')
+      if (card) card.error = data.error
+      uni.showToast({ title: '还差点信息，看卡片提示补充', icon: 'none' })
+    } else {
+      uni.showToast({ title: '发布失败，请稍后再试', icon: 'none' })
+    }
+    scrollToBottom()
+  } catch (e) {
+    isThinking.value = false
+    uni.showToast({ title: '发布超时，请稍后再试', icon: 'none' })
+  }
+}
+
+// 取消草稿（卡片按钮 / 文本退出意图 / 输入栏退出按钮）
+const cancelInlineDraft = (draftId) => {
+  if (isThinking.value) return
+  const card = messageList.value.find(m => m.type === 'draft' && m.draftId === draftId && m.status === 'awaiting')
+  if (card) card.status = 'cancelled'
+  if (activeDraftId.value === draftId) activeDraftId.value = ''
+  request(aiApi.cancelDraft(draftId)).catch(() => {})
+  messageList.value.push({ id: 'msg-' + Date.now(), role: 'ai', content: '好的，这条不发了。想发别的随时跟我说～', source: '' })
+  scrollToBottom()
+}
+
+// 退出发帖模式（输入栏常驻入口，即使草稿卡被滚走/清掉也能退出）
+const exitDraftMode = () => { if (activeDraftId.value && !isThinking.value) cancelInlineDraft(activeDraftId.value) }
+
+// 清理对话内联草稿状态（切会话/新建/刷新时调用，best-effort 丢弃后端草稿，避免孤儿 awaiting 草稿）
+const clearInlineDraft = () => {
+  if (activeDraftId.value) {
+    request(aiApi.cancelDraft(activeDraftId.value)).catch(() => {})
+    activeDraftId.value = ''
+  }
+  pendingImages.value = []
 }
 
 // 跳转帖子详情
@@ -599,4 +855,44 @@ const scrollToBottom = () => {
   font-size: 22rpx;
   font-weight: bold;
 }
+
+/* ===== AI 发帖草稿卡片（对话内联） ===== */
+.draft-card {
+  background: #fff;
+  border-radius: 28rpx;
+  padding: 24rpx;
+  border: 2rpx solid rgba(91, 164, 240, 0.35);
+  box-shadow: 0 4rpx 16rpx rgba(91, 164, 240, 0.08);
+}
+.draft-card--old { opacity: 0.5; }
+.draft-head { display: flex; align-items: center; gap: 12rpx; margin-bottom: 12rpx; flex-wrap: wrap; }
+.draft-cat {
+  display: inline-block; padding: 4rpx 18rpx; border-radius: 999rpx;
+  background: rgba(91, 164, 240, 0.14); color: #2f6fb0; font-size: 22rpx; font-weight: bold;
+}
+.draft-round { font-size: 20rpx; color: #9aa0a6; }
+.draft-badge { font-size: 22rpx; font-weight: bold; padding: 2rpx 12rpx; border-radius: 999rpx; }
+.draft-badge--ok { color: #1a7f4b; background: rgba(26, 127, 75, 0.12); }
+.draft-badge--cancel { color: #9aa0a6; background: rgba(0, 0, 0, 0.05); }
+.draft-content { display: block; font-size: 28rpx; color: #1d1b1b; line-height: 1.6; white-space: pre-line; }
+.draft-imgs { display: flex; flex-wrap: wrap; gap: 10rpx; margin-top: 14rpx; }
+.draft-img { width: 150rpx; height: 150rpx; border-radius: 16rpx; background: #f1ecec; }
+.draft-chips { display: flex; flex-wrap: wrap; gap: 10rpx; margin-top: 14rpx; }
+.draft-chip { font-size: 22rpx; color: #5f6368; background: #f0f2f5; padding: 4rpx 16rpx; border-radius: 999rpx; }
+.draft-fields { display: flex; flex-direction: column; gap: 6rpx; margin-top: 14rpx; }
+.draft-field { font-size: 24rpx; color: #5f6368; }
+.draft-field--price { color: #e2574c; font-weight: bold; }
+.draft-error {
+  margin-top: 14rpx; padding: 12rpx 16rpx; border-radius: 14rpx;
+  background: rgba(226, 87, 76, 0.08); color: #c0392b; font-size: 24rpx;
+}
+.draft-actions { display: flex; gap: 16rpx; margin-top: 20rpx; }
+.draft-btn {
+  height: 76rpx; border-radius: 999rpx; display: flex; align-items: center; justify-content: center;
+  font-size: 26rpx; font-weight: bold;
+}
+.draft-btn--publish { flex: 1; background: #5BA4F0; color: #fff; }
+.draft-btn--cancel { flex: 0 0 28%; background: #f0f2f5; color: #5f6368; }
+.draft-btn--view { margin-top: 16rpx; background: rgba(26, 127, 75, 0.1); color: #1a7f4b; height: 72rpx; }
+.draft-hint { display: block; margin-top: 12rpx; font-size: 20rpx; color: #9aa0a6; }
 </style>
