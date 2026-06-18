@@ -372,14 +372,29 @@ const loadHistoryMessages = async (sessionId) => {
 
     if (response.code === 200 || response.success) {
       const records = response.data || []
-      messageList.value = records.map((record, idx) => ({
-        id: 'msg-' + idx,
-        role: record.role === 'USER' ? 'user' : 'ai',
-        content: record.content,
-        // 历史 AI 回复里的帖子卡片存在 metadataJson(JSON 文本)里，回放时还原，避免切换会话/刷新后帖子丢失
-        posts: record.role === 'USER' ? undefined : normalizePostCards(parsePostsFromMeta(record.metadataJson)),
-        source: ''
-      }))
+      messageList.value = records.map((record, idx) => {
+        const base = { id: 'msg-' + idx, role: record.role === 'USER' ? 'user' : 'ai' }
+        const mt = record.messageType
+        // 草稿卡片历史：重建为【只读】卡。awaiting 降级 superseded——MemorySaver 进程重启后 resume 已失效，
+        // 不恢复可操作态/activeDraftId（点发布会拿不到 interrupt 必败）。published/cancelled 原状态展示。
+        if (record.role !== 'USER' && (mt === 'post_draft' || mt === 'post_published')) {
+          const meta = parseMetaObj(record.metadataJson) || {}
+          let status = meta.status || (mt === 'post_published' ? 'published' : 'awaiting')
+          if (status === 'awaiting') status = 'superseded'
+          return {
+            ...base, role: 'ai', type: 'draft',
+            draftId: meta.draftId || '', draft: meta.draft || {},
+            roundCount: meta.roundCount || 0, status, postId: meta.postId || null,
+            content: '', error: ''
+          }
+        }
+        // 普通文本/帖子卡片：帖子卡片存在 metadataJson 里，回放还原，避免切换会话/刷新后丢失
+        return {
+          ...base, content: record.content,
+          posts: record.role === 'USER' ? undefined : normalizePostCards(parsePostsFromMeta(record.metadataJson)),
+          source: ''
+        }
+      })
 
       if (messageList.value.length > 0) {
         scrollToBottom()
@@ -498,23 +513,6 @@ const draftImageUrls = (draft) => {
   return objs.map(o => `${config.apiBaseUrl}/api/v1/files/view?objectName=${encodeURIComponent(o)}`)
 }
 
-// 判断是否"让 AI 替我发帖"：祈使骨架优先（避免被"攻略/流程"误排除），再排除纯问法
-const isPostIntent = (text) => {
-  const t = (text || '').trim()
-  // 1) 明确的"帮我发 / 我要发"祈使骨架，最高优先
-  const imperative = /(帮|替|给|帮忙|麻烦帮?)\s*我?\s*(发|写|发布|发个|发条|发一条|发布个)/.test(t)
-    || /我?\s*(要|想|想要)\s*(发帖|发个|发条|发一条|发布|发篇)/.test(t)
-  if (imperative) return true
-  // 2) 纯问法 → 交给问答
-  if (/(怎么|怎样|如何|为什么)/.test(t)) return false
-  if (/发帖.{0,6}(技巧|经验|攻略|流程|教程|步骤|注意|要求|规则|时间|入口|吗|呢|\?|？)/.test(t)) return false
-  // 3) 校园墙高频"裸祈使"发帖原话：出/收/求购/转/招 + 物品量词
-  if (/^(出|收|求购|转|招|出售|转让|转卖|急出|低价出|招募)\s*.{0,14}(\d|台|个|本|张|套|双|箱|斤|元|块|￥|室友|队友|搭子|门票|显示器|键盘|自行车|课本|教材|耳机|电脑|手机|平板)/.test(t)) return true
-  // 4) 直白提到"发帖"
-  if (/(发帖|代发帖|ai发帖|帮我发帖)/.test(t)) return true
-  return false
-}
-
 // 点击快捷问题
 const sendQuickMsg = (text) => {
   inputText.value = text
@@ -526,6 +524,13 @@ const renderMarkdown = (content) => {
   if (!content) return ''
   const html = marked.parse(content, { breaks: true, gfm: true })
   return `<div style="color: #1d1b1b; font-size: 15px; line-height: 1.625; word-break: break-word;">${html}</div>`
+}
+
+// 解析 metadataJson（Java 实体以 JSON 文本返回，也兼容已是对象的情况）为对象；失败返回 null。
+const parseMetaObj = (m) => {
+  if (!m) return null
+  if (typeof m === 'string') { try { return JSON.parse(m) } catch (e) { return null } }
+  return m
 }
 
 // 从历史记录的 metadataJson 里取出帖子卡片数组。
@@ -562,7 +567,9 @@ const normalizePostCards = (posts) => {
 const sendMessage = async () => {
   if (!inputText.value.trim() || isThinking.value) return
   const userText = inputText.value
-  const wantDraft = !activeDraftId.value && (isPostIntent(userText) || pendingObjectNames().length > 0)
+  // 发帖意图识别已下沉后端：文本一律走 askAgent，由后端 action 决定是否起草稿；
+  // 仅"带图"是前端显式发帖触发（选图是明确动作，非关键词猜测）
+  const wantDraft = !activeDraftId.value && pendingObjectNames().length > 0
 
   // 起草稿前若图还在上传，先拦住（避免静默掉图）
   if (wantDraft && pendingImages.value.some(p => p.status === 'uploading')) {
@@ -593,10 +600,16 @@ const askAgent = async (userText) => {
   isThinking.value = true
   try {
     const res = await request(aiApi.agent(userText, conversationId.value))
+    const aiData = (res && res.data) || {}
+    if (aiData.conversationId) conversationId.value = aiData.conversationId
+    // 后端判定为发帖意图 → 起草稿（意图识别已下沉后端，前端不再用关键词正则）
+    if (res.code === 200 && aiData.action === 'create_post') {
+      isThinking.value = false
+      await startInlineDraft(aiData.postText || userText)
+      return
+    }
     isThinking.value = false
-    if (res.code === 200 && res.data && res.data.success) {
-      const aiData = res.data
-      if (aiData.conversationId) conversationId.value = aiData.conversationId
+    if (res.code === 200 && aiData.success) {
       messageList.value.push({
         id: 'msg-' + Date.now(), role: 'ai', content: aiData.answer,
         posts: normalizePostCards(aiData.posts), source: ''
