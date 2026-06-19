@@ -309,12 +309,13 @@ export const emojiApi = {
 // AI 学长相关接口
 export const aiApi = {
   // 智能助手（agent）：单一入口，后端大模型自主判断调用工具（查知识库 / 查帖子 / 两者综合）
-  agent: (question, conversationId = '') => ({
+  agent: (question, conversationId = '', images = []) => ({
     url: '/api/v1/ai-senior/agent',
     method: 'POST',
     data: {
       question,
-      conversationId
+      conversationId,
+      images            // 对话内上传的图片 object name；后端 VLM 看图说话后并入检索
     }
   }),
   // 获取历史会话列表
