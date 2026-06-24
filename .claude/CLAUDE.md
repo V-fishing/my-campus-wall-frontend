@@ -43,7 +43,7 @@ src/
 
 ## 底部 5 Tab 与页面分组
 
-`index`(圈子/帖子列表) · `discover`(发现/分类搜索) · `ai`(AI 学长问答/历史/偏好) · `message`(私信/通知/点赞/粉丝) · `user`(个人中心/选学校/我的帖子收藏/学生认证/设置)。
+`index`(圈子/帖子列表) · `discover`(发现/分类搜索) · `ai`(AI 学长问答 + 对话内配图找帖 + 对话内联 AI 发帖草稿/历史/偏好) · `message`(私信/通知/点赞/粉丝) · `user`(个人中心/选学校/我的帖子收藏/学生认证/设置)。
 其它：`post`(详情，含二手联系卖家、组队 join/leave)、`publish`(按板块表单)、`search`、`login`、`leaderboard`、`hot-posts`、`document`。
 
 ## 后端与契约
@@ -51,7 +51,10 @@ src/
 - 唯一后端是 `campus_wall`（Java，:8080）：HTTP `/api/v1/*` + WebSocket `/ws/chat/{userId}`。
 - 统一响应 `Result<T> = { code, message, data }`，成功 `code === 200`。
 - 鉴权：JWT，请求头 `Authorization: Bearer <token>`。
-- **AI 学长唯一入口是 `POST /api/v1/ai-senior/agent`**（旧 `/ai-senior/chat`、`/chat/stream` 已下线）。AI 服务为 `campus-wall-ai`（:8011），但前端只调 Java 后端，不直连 AI 服务。
+- **AI 学长入口在 `/api/v1/ai-senior/*`**（前端只调 Java 后端，不直连 AI 服务 `campus-wall-ai`:8011；旧 `/ai-senior/chat`、`/chat/stream` 已下线）：
+  - `POST /agent`：问答 / 找帖（`aiApi.agent(question, conversationId, images)`）。**对话内可附图**——传图片 MinIO object name，后端 VLM「看图说话」转文本后并入检索去匹配帖子（带图问答用更长超时，VLM 慢）。
+  - **对话内联 AI 发帖（草稿流）**：`POST /posts/draft` 出草稿 → `POST /posts/resume/{draftId}`（edit/publish/cancel）→ `DELETE /posts/draft/{draftId}`；`chat.vue` 内联渲染草稿卡片（已改 N 版 / 已发布 ✓ / 已取消），图片复用发帖上传管线（`/files/post/temp-images`）。
+  - 历史：`/ai-senior/history/{list,detail}`。
 
 ## 常用命令
 

@@ -143,8 +143,14 @@
           </view>
 
           <view class="flex flex-col gap-2 max-w-[80%]">
+            <!-- 用户随消息发送的图片 -->
+            <view v-if="msg.role === 'user' && msg.images && msg.images.length" class="flex flex-wrap gap-2 justify-end">
+              <image v-for="(u, i) in msg.images" :key="i" :src="u" class="user-msg-img" mode="aspectFill"
+                     @click="previewImage(msg.images, i)" />
+            </view>
+
             <view
-              v-if="msg.type !== 'draft'"
+              v-if="msg.type !== 'draft' && msg.content"
               class="p-4"
               :class="msg.role === 'user' ?
                 'bubble-user text-white rounded-[40rpx] rounded-tr-none bg-tertiary' :
@@ -323,7 +329,7 @@ const pendingImages = ref([])          // ＋ 选的待发图片 [{ preview, obj
 // 输入框 placeholder 随状态变化，引导用户
 const inputPlaceholder = computed(() => {
   if (activeDraftId.value) return '想怎么改直接说，或点卡片「确认发布」…'
-  if (pendingImages.value.length) return '说说要发什么，学长照图写草稿…'
+  if (pendingImages.value.length) return '配图提问找帖，或说「帮我发个…」让学长照图发帖…'
   return '问问 / 说「帮我发个…」让学长直接发帖'
 })
 
@@ -467,7 +473,7 @@ const goToPreference = () => {
   })
 }
 
-// ＋ 按钮：为「AI 发帖」选图（直接在对话里发，不跳页）
+// ＋ 按钮：选图（可配图提问找帖，也可让学长照图发帖；直接在对话里发，不跳页）
 const choosePostImages = () => {
   if (isThinking.value) return
   const remain = 9 - pendingImages.value.length
@@ -482,7 +488,7 @@ const choosePostImages = () => {
         pendingImages.value.push(item)
         uploadPendingImage(fp, item)
       })
-      uni.showToast({ title: '图已加，说说要发什么', icon: 'none' })
+      uni.showToast({ title: '图已加，可提问找帖或发帖', icon: 'none' })
     }
   })
 }
@@ -511,6 +517,12 @@ const pendingObjectNames = () => pendingImages.value.filter(p => p.status === 's
 const draftImageUrls = (draft) => {
   const objs = (draft && draft.images) || []
   return objs.map(o => `${config.apiBaseUrl}/api/v1/files/view?objectName=${encodeURIComponent(o)}`)
+}
+
+// 点击用户气泡里的图片预览
+const previewImage = (urls, current) => {
+  if (!urls || !urls.length) return
+  uni.previewImage({ urls, current: urls[current] })
 }
 
 // 点击快捷问题
@@ -563,21 +575,25 @@ const normalizePostCards = (posts) => {
   }).filter(Boolean)
 }
 
-// 发送：按状态路由 —— 退出发帖 / 改稿 / 起草稿(发帖意图或带图) / 普通问答
+// 发送：按状态路由 —— 退出发帖 / 改稿 / 带图或普通问答(后端定意图：找帖/答疑/发帖)
 const sendMessage = async () => {
   if (!inputText.value.trim() || isThinking.value) return
   const userText = inputText.value
-  // 发帖意图识别已下沉后端：文本一律走 askAgent，由后端 action 决定是否起草稿；
-  // 仅"带图"是前端显式发帖触发（选图是明确动作，非关键词猜测）
-  const wantDraft = !activeDraftId.value && pendingObjectNames().length > 0
+  // 意图识别一律下沉后端：带不带图都走 askAgent，由后端 action 决定 找帖/答疑/发帖。
+  // 带图时后端先 VLM 看图说话把描述并入检索（找帖/答疑）；若判为发帖意图则起草稿（图随草稿）。
+  const hasImages = !activeDraftId.value && pendingObjectNames().length > 0
 
-  // 起草稿前若图还在上传，先拦住（避免静默掉图）
-  if (wantDraft && pendingImages.value.some(p => p.status === 'uploading')) {
+  // 带图时若图还在上传，先拦住（避免静默掉图）
+  if (hasImages && pendingImages.value.some(p => p.status === 'uploading')) {
     uni.showToast({ title: '图还在上传，稍等一下再发', icon: 'none' })
     return
   }
 
-  messageList.value.push({ id: 'msg-' + Date.now(), role: 'user', content: userText })
+  // 用户气泡带上本次所发图片（objectName → 后端文件视图 URL）
+  const sentImages = hasImages
+    ? pendingObjectNames().map(o => `${config.apiBaseUrl}/api/v1/files/view?objectName=${encodeURIComponent(o)}`)
+    : []
+  messageList.value.push({ id: 'msg-' + Date.now(), role: 'user', content: userText, images: sentImages })
   inputText.value = ''
   scrollToBottom()
 
@@ -588,27 +604,30 @@ const sendMessage = async () => {
     } else {
       await editActiveDraft(userText)
     }
-  } else if (wantDraft) {
-    await startInlineDraft(userText)
   } else {
-    await askAgent(userText)
+    await askAgent(userText, hasImages ? pendingObjectNames() : [])
   }
 }
 
-// 普通问答：单一入口，交给后端 agent 自主判断（查知识库 / 查帖子 / 两者综合）
-const askAgent = async (userText) => {
+// 普通问答 / 带图找帖：单一入口，交给后端 agent 自主判断（看图说话 → 查知识库 / 查帖子 / 综合 / 发帖）
+const askAgent = async (userText, images = []) => {
   isThinking.value = true
   try {
-    const res = await request(aiApi.agent(userText, conversationId.value))
+    // 带图要走后端 VLM 看图说话，远超默认 10s，用 AI_TIMEOUT
+    const res = images.length
+      ? await request({ ...aiApi.agent(userText, conversationId.value, images), timeout: AI_TIMEOUT })
+      : await request(aiApi.agent(userText, conversationId.value))
     const aiData = (res && res.data) || {}
     if (aiData.conversationId) conversationId.value = aiData.conversationId
-    // 后端判定为发帖意图 → 起草稿（意图识别已下沉后端，前端不再用关键词正则）
+    // 后端判定为发帖意图 → 起草稿（图仍在 pendingImages，startInlineDraft 会带上）
     if (res.code === 200 && aiData.action === 'create_post') {
       isThinking.value = false
       await startInlineDraft(aiData.postText || userText)
       return
     }
+    // 找帖/答疑路径：图片已被"提问"消费，清掉待发图
     isThinking.value = false
+    pendingImages.value = []
     if (res.code === 200 && aiData.success) {
       messageList.value.push({
         id: 'msg-' + Date.now(), role: 'ai', content: aiData.answer,
@@ -621,6 +640,7 @@ const askAgent = async (userText) => {
   } catch (error) {
     console.error('AI 助手失败:', error)
     isThinking.value = false
+    pendingImages.value = []
     messageList.value.push({ id: 'msg-' + Date.now(), role: 'ai', content: '网络开小差了，请稍后再试~', source: '' })
     scrollToBottom()
   }
@@ -782,6 +802,9 @@ const scrollToBottom = () => {
 /* 气泡专属圆角 */
 .bubble-ai { border-radius: 40rpx 40rpx 40rpx 0; }
 .bubble-user { border-radius: 40rpx 40rpx 0 40rpx; }
+
+/* 用户随消息发送的图片缩略图 */
+.user-msg-img { width: 160rpx; height: 160rpx; border-radius: 20rpx; background: #f1ecec; }
 
 /* 柔和彩色弥散阴影 */
 
