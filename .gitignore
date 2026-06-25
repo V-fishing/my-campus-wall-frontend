@@ -20,3 +20,9 @@ dist
 *.sln
 *.sw?
 .env.development
+
+# 小程序 appid 等敏感配置通过 .env.local 注入，不提交
+.env.local
+src/manifest.json
+src/project.config.json
+project.config.json
