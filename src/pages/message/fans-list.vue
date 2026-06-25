@@ -103,8 +103,7 @@ onLoad(() => {
 
   // 使用 Pinia store 获取当前用户ID
   currentUserId.value = userStore.userId
-  console.log('👤 粉丝通知页面加载完成, currentUserId:', currentUserId.value)
-  
+
   if (!currentUserId.value) {
     // 备用兜底本地检索
     const userInfo = uni.getStorageSync('userInfo')
@@ -241,7 +240,7 @@ const goBack = () => uni.navigateBack()
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 弥散阴影大基板 */
+/* 弥散阴影大基板 */
 
 /* 模糊毛玻璃滤镜头部 */
 .glass-header {
@@ -249,7 +248,7 @@ const goBack = () => uni.navigateBack()
   -webkit-backdrop-filter: blur(10px);
 }
 
-/* 标志性棉花糖贴纸白描外高光发光边 */
+/* 标志性棉花糖贴纸白描外高光发光边 */
 
 /* 淡化淡入特效 */
 .animate-fade-in {

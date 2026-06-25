@@ -85,14 +85,11 @@ const particleList = ref([])
 
 // 周期挂载检测拦截器
 onLoad(() => {
-  console.log('========== 校园墙登录大厅加载 ==========')
-  
   // 1. 初始化高保真非重叠浮空微粒群矩阵数据
   generateParticles()
 
   // 2. 统一认证工具库流控拦截机制：若属于已登录老用户直接安全重定向首页
   if (isLogin()) {
-    console.log('🔄 检测到有效的持久化凭证，正在秒级跳关首页...')
     uni.switchTab({
       url: '/pages/index/index',
       fail: (err) => {
@@ -136,8 +133,6 @@ const handleWechatLogin = async () => {
   loading.value = true
 
   try {
-    console.log('🚀 正在与微信底层打通握手...')
-    
     // 1. 异步换算微信临时入场凭证 Code
     const loginRes = await new Promise((resolve, reject) => {
       uni.login({
@@ -151,23 +146,19 @@ const handleWechatLogin = async () => {
       throw new Error('未获取到有效的微信登录凭证')
     }
 
-    console.log('🔑 已成功签收 Code:', loginRes.code)
-
     // 2. 投递后端安全网关进行鉴权认证
     const response = await post(userApi.login(loginRes.code).url, {
       code: loginRes.code
     })
 
-    console.log('📦 后端会话建立响应:', response)
-
     // 3. 多端持久化凭证同步写入缓存
     if (response.code === 200 && response.data) {
       const success = saveLoginInfo(response.data)
-      
+
       if (!success) {
         throw new Error('写入本地加密凭证失败')
       }
-      
+
       uni.vibrateShort()
       uni.showToast({
         title: '成功入场 ✨',
@@ -178,15 +169,14 @@ const handleWechatLogin = async () => {
       // 4. 路由切流无缝冲入 TabBar 首页工作大厅
       setTimeout(() => {
         uni.switchTab({
-          url: '/pages/index/index',
-          success: () => console.log('🎉 欢迎回到校园墙大厅')
+          url: '/pages/index/index'
         })
       }, 1500)
     } else {
       throw new Error(response.message || '登录遇到阻碍')
     }
   } catch (error) {
-    console.error('❌ 微信通道建立失败:', error)
+    console.error('微信通道建立失败:', error)
     uni.showToast({
       title: error.message || '网关开小差了，请重试',
       icon: 'none'

@@ -1,14 +1,8 @@
 <script setup lang="ts">
 import { onLaunch, onShow, onHide } from "@dcloudio/uni-app";
-onLaunch(() => {
-  console.log("App Launch");
-});
-onShow(() => {
-  console.log("App Show");
-});
-onHide(() => {
-  console.log("App Hide");
-});
+onLaunch(() => {});
+onShow(() => {});
+onHide(() => {});
 </script>
 <style lang="scss">
 /* 引入 Tailwind 基础样式（之前配置的内容） */

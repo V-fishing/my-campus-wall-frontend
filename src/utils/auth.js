@@ -64,7 +64,6 @@ export const saveLoginInfo = (loginData) => {
     const expireTime = jwtExp || (Date.now() + 7 * 24 * 60 * 60 * 1000)
     uni.setStorageSync(TOKEN_EXPIRE_KEY, expireTime)
 
-    console.log('登录信息保存成功')
     return true
   } catch (error) {
     console.error('保存登录信息异常:', error)
@@ -122,7 +121,6 @@ export const isLogin = () => {
 
   const expireTime = uni.getStorageSync(TOKEN_EXPIRE_KEY)
   if (expireTime && Date.now() > expireTime) {
-    console.warn('Token已过期')
     clearLoginInfo()
     return false
   }
@@ -141,7 +139,6 @@ export const clearLoginInfo = () => {
     uni.removeStorageSync(USER_INFO_KEY)
     uni.removeStorageSync(TOKEN_EXPIRE_KEY)
     uni.removeStorageSync(USER_ID_KEY)
-    console.log('登录信息已清除')
   } catch (error) {
     console.error('清除登录信息失败:', error)
   }

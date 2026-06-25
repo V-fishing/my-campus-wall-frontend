@@ -70,7 +70,6 @@ const responseInterceptor = (response) => {
     }
   } else if (statusCode === 401) {
     // 未授权，清除登录信息并跳转登录
-    console.warn('Token无效或已过期，清除登录状态')
     clearLoginInfo()
 
     if (!isRedirectingToLogin) {
@@ -117,14 +116,7 @@ export const request = (options) => {
         url += (url.includes('?') ? '&' : '?') + queryString
       }
     }
-    
-    // 打印请求信息用于调试
-    console.log('📤 发起请求:', {
-      method: options.method || 'GET',
-      url: url,
-      data: options.data
-    })
-    
+
     // 应用请求拦截器
     const requestConfig = requestInterceptor({
       url: url,
@@ -133,12 +125,6 @@ export const request = (options) => {
       header: options.header || {},
       timeout: options.timeout || config.requestTimeout || 10000,
       success: (res) => {
-        // 打印响应信息
-        console.log('📥 收到响应:', {
-          statusCode: res.statusCode,
-          data: res.data
-        })
-
         // 应用响应拦截器
         const result = responseInterceptor(res)
         if (result instanceof Promise) {
@@ -148,7 +134,7 @@ export const request = (options) => {
         }
       },
       fail: (err) => {
-        console.error('❌ 网络请求失败:', err)
+        console.error('网络请求失败:', err)
         uni.showToast({
           title: '网络请求失败，请检查网络连接',
           icon: 'none',

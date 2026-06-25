@@ -601,7 +601,6 @@ const fetchPostList = async (isLoadMore = false) => {
       locationKeywords: currentScope.value === 'CUSTOM' ? customSchoolNames.value.join(',') : undefined
     }
 
-    console.log('🔍 发现页请求帖子:', params)
     const apiConfig = postApi.getPostList(params)
     const response = await get(apiConfig.url, params)
 

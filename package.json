@@ -1,6 +1,7 @@
 {
-  "name": "uni-preset-vue",
-  "version": "0.0.0",
+  "name": "campus-wall-frontend",
+  "version": "1.0.0",
+  "description": "校园墙 C 端用户前端（uni-app 3 + Vue 3 + TypeScript），主端微信小程序，兼容 H5。",
   "scripts": {
     "dev:custom": "uni -p",
     "dev:h5": "uni",
@@ -35,10 +36,7 @@
     "build:quickapp-webview-huawei": "uni build -p quickapp-webview-huawei",
     "build:quickapp-webview-union": "uni build -p quickapp-webview-union",
     "test": "vitest run",
-    "type-check": "vue-tsc --noEmit",
-    "lint": "eslint src/ --ext .vue,.ts,.js --fix",
-    "format": "prettier --write \"src/**/*.{vue,ts,js,css,scss}\"",
-    "lint:check": "eslint src/ --ext .vue,.ts,.js"
+    "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@dcloudio/uni-app": "3.0.0-4080420251103001",

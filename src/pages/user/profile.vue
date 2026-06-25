@@ -246,7 +246,6 @@ const fetchUserInfo = async () => {
         isRealNameAuth: data.isRealNameAuth || false,
         isVerified: data.isVerified || false
       }
-      console.log('✅ 用户信息加载成功:', userInfo.value)
     }
   } catch (error) {
     console.error('❌ 获取用户信息失败:', error)

@@ -20,4 +20,3 @@ dist
 *.sln
 *.sw?
 .env.development
-.gitignore

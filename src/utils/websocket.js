@@ -35,7 +35,6 @@ class WebSocketManager {
    */
   connect(userId) {
     if (this.ws) {
-      console.log('WebSocket 已存在连接实例，先清理旧连接')
       this.disconnect()
     }
 
@@ -43,13 +42,8 @@ class WebSocketManager {
     const token = isH5() ? '' : (uni.getStorageSync('token') || '')
     const wsUrl = `${config.wsBaseUrl}/ws/chat/${userId}?token=${encodeURIComponent(token)}`
 
-    console.log('正在连接 WebSocket:', wsUrl)
-
     const connectOptions = {
       url: wsUrl,
-      success: () => {
-        console.log('WebSocket 连接请求已发送')
-      },
       fail: (error) => {
         console.error('WebSocket 连接请求失败:', error)
         this.emit('error', error)
@@ -64,7 +58,6 @@ class WebSocketManager {
     this.ws = uni.connectSocket(connectOptions)
 
     uni.onSocketOpen(() => {
-      console.log('WebSocket 连接成功')
       this.isReady = true
       this.reconnectCount = 0
       this.startHeartbeat()
@@ -75,7 +68,6 @@ class WebSocketManager {
     uni.onSocketMessage((res) => {
       try {
         const data = JSON.parse(res.data)
-        console.log('收到 WebSocket 消息:', data)
         this.emit('message', data)
       } catch (error) {
         console.error('解析 WebSocket 消息失败:', error)
@@ -83,7 +75,6 @@ class WebSocketManager {
     })
 
     uni.onSocketClose(() => {
-      console.log('WebSocket 连接关闭')
       this.isReady = false
       this.stopHeartbeat()
       this.ws = null
@@ -129,7 +120,6 @@ class WebSocketManager {
 
     if (!this.isReady) {
       this.messageQueue.push(data)
-      console.log('WebSocket 尚未就绪，消息已加入队列:', data)
       return true
     }
 
@@ -154,7 +144,6 @@ class WebSocketManager {
     if (this.messageQueue.length === 0) return
     const queue = [...this.messageQueue]
     this.messageQueue = []
-    console.log(`WebSocket 就绪，开始发送队列中 ${queue.length} 条消息`)
     for (const msg of queue) {
       this.doSend(msg)
     }
@@ -162,7 +151,6 @@ class WebSocketManager {
 
   reconnect() {
     if (this.reconnectCount >= this.maxReconnectCount) {
-      console.log('达到最大重连次数，停止重连')
       return
     }
 
@@ -170,7 +158,6 @@ class WebSocketManager {
 
     this.reconnectTimer = setTimeout(() => {
       this.reconnectCount++
-      console.log(`尝试第 ${this.reconnectCount} 次重连...`)
       this.connect(this.userId)
     }, this.reconnectInterval)
   }

@@ -154,8 +154,6 @@ const formatTime = formatMessageTime
 
 // 交互方法
 const goToInteraction = async (type) => {
-  console.log('跳转到互动详情页：', type)
-  
   let url = ''
   if (type === 'likes') {
     url = '/pages/message/like-list'
@@ -166,25 +164,23 @@ const goToInteraction = async (type) => {
   } else {
     return
   }
-  
+
   // 标记对应类型的消息为已读
   if (type === 'likes' || type === 'comments' || type === 'system') {
     try {
       const apiConfig1 = messageApi.markAllNotificationsAsRead()
       await post(apiConfig1.url)
-      
+
       const apiConfig2 = notificationApi.markAllRead()
       await post(apiConfig2.url)
 
       const apiConfig3 = notificationApi.markAllRead()
       await post(apiConfig3.url)
-      
-      console.log('标记消息和通知已读成功')
     } catch (err) {
       console.error('标记已读失败:', err)
     }
   }
-  
+
   uni.navigateTo({ url: url })
 }
 

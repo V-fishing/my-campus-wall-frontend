@@ -222,7 +222,6 @@ onLoad(async () => {
 
   // 监听学校选择事件
   uni.$on('schoolSelected', data => {
-    console.log('接收到学校选择数据:', data)
     editForm.value.college = data.college
     editForm.value.campus = data.campus
     editForm.value.universityId = data.universityId || null
@@ -290,7 +289,6 @@ const saveUserInfo = async () => {
 
     if (response.code === 200 && response.data) {
       uni.showToast({ title: '保存成功', icon: 'success' })
-      console.log('✅ 保存成功，返回数据:', response.data)
 
       // 更新本地表单数据为服务器返回的数据
       const updatedUser = response.data
@@ -555,9 +553,6 @@ const showCollegePicker = () => {
   // 跳转到选择学校页面
   uni.navigateTo({
     url: `/pages/user/select-school${queryString}`,
-    success: () => {
-      console.log('跳转到选择学校页面')
-    },
     fail: err => {
       console.error('跳转失败:', err)
       uni.showToast({ title: '页面跳转失败', icon: 'none' })
